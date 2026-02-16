@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root {
+  --bg: #ffffff;
+  --text: #111;
+  --muted: #666;
+  --header: #8EA39D;
+  --card: #f7f7f7;
+  --icon-light: #666;
+  --icon-dark: #f5f5f5;
+}
+
+body.dark {
+  --bg: #1c1c1c; /* Notion Dark Mode */
+  --text: #f5f5f5;
+  --muted: #aaa;
+  --card: #2a2a2a;
+  --icon-dark: #f5f5f5;
+  --icon-light: #888;
+}
+
+body.transparent {
+  background: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: .25s ease;
+}
+
+.container {
+  max-width: 320px;
+  margin: auto;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.header {
+  background: var(--header);
+  color: white;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.nav {
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.card {
+  background: var(--card);
+  padding: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 500;
+  padding-bottom: 6px;
+}
+
+td {
+  height: 34px;
+  text-align: center;
+  border-radius: 8px;
+  transition: 0.15s;
+}
+
+td:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+body.dark td:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.today {
+  background: black;
+  color: white;
+}
+
+body.dark .today {
+  background: white;
+  color: black;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  font-size: 14px;
+  position: relative;
+}
+
+.controls-left,
+.controls-center,
+.controls-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.controls-center {
+  justify-content: center;
+}
+
+.controls-right {
+  justify-content: flex-end;
+}
+
+.credits {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Flat Icons Farbe je nach Mode */
+button#modeBtn {
+  color: var(--icon-light);
+}
+body.dark button#modeBtn {
+  color: var(--icon-dark);
+}
+
+/* Notion Dark Mode / Transparenz Anpassung */
+body.transparent .container,
+body.transparent .card,
+body.transparent .header {
+  background: #1c1c1c;
+}
+
+body.transparent td:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+body.transparent .today {
+  background: #3a3a3a;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="header">
+    <span class="nav" onclick="changeMonth(-1)">←</span>
+    <span id="monthLabel"></span>
+    <span class="nav" onclick="changeMonth(1)">→</span>
+  </div>
+
+  <div class="card">
+    <table id="calendar"></table>
+
+    <div class="controls">
+      <div class="controls-left">
+        <button id="modeBtn" onclick="toggleMode()">🌙 / ☀</button>
+      </div>
+      <div class="controls-center">
+        <button onclick="toggleTransparency()">Transparent</button>
+      </div>
+      <div class="controls-right">
+        <span class="credits">Made by Marco Förster</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentDate = new Date();
+
+function renderCalendar() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const today = new Date();
+
+  document.getElementById("monthLabel").innerText =
+    currentDate.toLocaleString("de-DE", { month: "long", year: "numeric" });
+
+  const firstDay = new Date(year, month, 1);
+  const lastDate = new Date(year, month + 1, 0).getDate();
+  let startDay = (firstDay.getDay() + 6) % 7;
+
+  let table = "<tr><th>Mo</th><th>Di</th><th>Mi</th><th>Do</th><th>Fr</th><th>Sa</th><th>So</th></tr>";
+  let date = 1;
+
+  for (let i = 0; i < 6; i++) {
+    table += "<tr>";
+    for (let j = 0; j < 7; j++) {
+      if (i === 0 && j < startDay) {
+        table += "<td></td>";
+      } else if (date > lastDate) {
+        table += "<td></td>";
+      } else {
+        const isToday =
+          date === today.getDate() &&
+          month === today.getMonth() &&
+          year === today.getFullYear()
+            ? "today"
+            : "";
+
+        table += `<td class="${isToday}">${date}</td>`;
+        date++;
+      }
+    }
+    table += "</tr>";
+  }
+
+  document.getElementById("calendar").innerHTML = table;
+
+  setTimeout(() => {
+    parent.postMessage({ type: "resize", height: document.body.scrollHeight }, "*");
+  }, 100);
+}
+
+function changeMonth(step) {
+  currentDate.setMonth(currentDate.getMonth() + step);
+  renderCalendar();
+}
+
+function toggleMode() {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("mode",
+    document.body.classList.contains("dark") ? "dark" : "light"
+  );
+}
+
+function toggleTransparency() {
+  document.body.classList.toggle("transparent");
+}
+
+if (localStorage.getItem("mode") === "dark") {
+  document.body.classList.add("dark");
+}
+
+renderCalendar();
+</script>
+
+</body>
+</html>
