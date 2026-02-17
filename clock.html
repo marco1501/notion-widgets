@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --card-color: #333333;
+            --text-color: #ffffff;
+            --panel-bg: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: "Segoe UI", Tahoma, sans-serif;
+            overflow: hidden;
+        }
+
+        /* Uhren-Design */
+        .clock-container {
+            display: flex;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .clock-container:active { transform: scale(0.98); }
+
+        .flip-card {
+            background-color: var(--card-color);
+            color: var(--text-color);
+            width: 150px;
+            height: 200px;
+            border-radius: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 110px;
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+        }
+
+        .flip-card::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: rgba(0,0,0,0.3);
+            top: 50%;
+        }
+
+        /* Einstellungen Panel */
+        #settings-panel {
+            position: fixed;
+            bottom: -60%;
+            left: 0;
+            width: 100%;
+            height: 55%;
+            background: var(--panel-bg);
+            color: #000;
+            transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 30px 30px 0 0;
+            padding: 30px;
+            box-sizing: border-box;
+            box-shadow: 0 -15px 50px rgba(0,0,0,0.15);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #settings-panel.active { bottom: 0; }
+
+        .setting-item {
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            font-size: 17px;
+        }
+
+        /* Ausgefüllte Farbwähler */
+        .color-circle-input {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            background-color: var(--card-color); /* Dynamisch */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .color-circle-input input[type="color"] {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            transform: scale(2);
+        }
+
+        /* Buttons */
+        .btn-group {
+            width: 100%;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .close-btn, .reset-btn {
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: "Segoe UI";
+        }
+
+        .close-btn { background: #000; color: #fff; }
+        .reset-btn { background: #f0f0f0; color: #555; }
+
+        /* Modern Toggle */
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #eee;
+            transition: .3s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: #000; }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        .footer {
+            margin-top: auto;
+            font-size: 13px;
+            color: #aaa;
+            padding-bottom: 10px;
+        }
+        .footer a { color: #888; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="clock-container" id="clock" onclick="toggleSettings()">
+        <div class="flip-card" id="hours">00</div>
+        <div class="flip-card" id="minutes">00</div>
+    </div>
+
+    <div id="settings-panel">
+        <div class="setting-item">
+            <span>Uhrfarbe</span>
+            <div class="color-circle-input" id="circle-card">
+                <input type="color" id="input-card" oninput="updateTheme('card', this.value)">
+            </div>
+        </div>
+
+        <div class="setting-item">
+            <span>Zahlenfarbe</span>
+            <div class="color-circle-input" id="circle-text">
+                <input type="color" id="input-text" oninput="updateTheme('text', this.value)">
+            </div>
+        </div>
+
+        <div class="setting-item">
+            <span>24h Format</span>
+            <label class="switch">
+                <input type="checkbox" id="formatToggle" checked onchange="saveFormat()">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="btn-group">
+            <button class="close-btn" onclick="toggleSettings()">Schließen</button>
+            <button class="reset-btn" onclick="resetDefaults()">Auf Standard zurücksetzen</button>
+        </div>
+        
+        <div class="footer">
+            made by <a href="https://www.marcofoerster.com" target="_blank">Marco Förster</a>
+        </div>
+    </div>
+
+    <script>
+        // Standardwerte
+        const defaults = {
+            card: '#333333',
+            text: '#ffffff',
+            format24: true
+        };
+
+        function updateClock() {
+            const now = new Date();
+            let h = now.getHours();
+            let m = now.getMinutes();
+            const is24h = document.getElementById('formatToggle').checked;
+
+            if (!is24h) {
+                h = h % 12 || 12;
+            }
+
+            document.getElementById('hours').innerText = h.toString().padStart(2, '0');
+            document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
+        }
+
+        function toggleSettings() {
+            document.getElementById('settings-panel').classList.toggle('active');
+        }
+
+        function updateTheme(type, color) {
+            if(type === 'card') {
+                document.documentElement.style.setProperty('--card-color', color);
+                document.getElementById('circle-card').style.backgroundColor = color;
+                localStorage.setItem('cardColor', color);
+            }
+            if(type === 'text') {
+                document.documentElement.style.setProperty('--text-color', color);
+                document.getElementById('circle-text').style.backgroundColor = color;
+                localStorage.setItem('textColor', color);
+            }
+        }
+
+        function saveFormat() {
+            localStorage.setItem('format24', document.getElementById('formatToggle').checked);
+            updateClock();
+        }
+
+        function resetDefaults() {
+            updateTheme('card', defaults.card);
+            updateTheme('text', defaults.text);
+            document.getElementById('formatToggle').checked = defaults.format24;
+            saveFormat();
+            // Inputs synchronisieren
+            document.getElementById('input-card').value = defaults.card;
+            document.getElementById('input-text').value = defaults.text;
+        }
+
+        // Beim Laden der Seite Einstellungen wiederherstellen
+        window.onload = () => {
+            const savedCard = localStorage.getItem('cardColor') || defaults.card;
+            const savedText = localStorage.getItem('textColor') || defaults.text;
+            const savedFormat = localStorage.getItem('format24') === null ? defaults.format24 : localStorage.getItem('format24') === 'true';
+
+            updateTheme('card', savedCard);
+            updateTheme('text', savedText);
+            document.getElementById('input-card').value = savedCard;
+            document.getElementById('input-text').value = savedText;
+            document.getElementById('formatToggle').checked = savedFormat;
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+        };
+    </script>
+</body>
+</html>
