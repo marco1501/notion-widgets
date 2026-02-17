@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco's Pro UI v30 - Smart Modes</title>
+    <title>Marco's Pro UI v30 - Smart Contrast</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Open+Sans:wght@400;700&family=Playfair+Display:wght@700&family=Lato:wght@400;700&family=Oswald:wght@400;700&family=Raleway:wght@400;700&family=Nunito:wght@400;700&family=Ubuntu:wght@400;700&family=Merriweather:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Quicksand:wght@400;700&family=Caveat:wght@700&family=Comfortaa:wght@400;700&family=Righteous&family=Lobster&family=Abril+Fatface&family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet">
     
     <style>
@@ -13,6 +13,7 @@
             --header-text: #ffffff;
             --body-bg: #ffffff;
             --today-bg: #000000;
+            --today-text: #ffffff; /* Dynamisch via JS */
             --text-color: #000000;
             --font-family: 'Inter', sans-serif;
             --font-weight: 400;
@@ -62,7 +63,7 @@
         #calendar-content { flex-grow: 1; padding: 10px 15px; display: flex; flex-direction: column; justify-content: center; }
         .grid { display: grid; gap: 2px; text-align: center; width: 100%; }
         .day-cell { padding: 5px 0; border-radius: 5px; font-size: 0.9em; }
-        .today { background: var(--today-bg) !important; color: white !important; font-weight: bold; }
+        .today { background: var(--today-bg) !important; color: var(--today-text) !important; font-weight: bold; }
         
         footer { padding: 6px 15px; font-size: 0.7em; border-top: 1px solid rgba(150,150,150,0.1); display: flex; justify-content: space-between; align-items: center; }
         footer a { color: inherit; text-decoration: none; font-weight: bold; }
@@ -161,11 +162,11 @@
             2: ["Tag des Kompliments", "Tag der alten Dinge", "Tag des Wartens", "Tag der Grammatik", "Tag des Energiesparens", "Tag der Tiefkühlkost", "Tag der gesunden Ernährung", "Tag des Korrekturlesens", "Tag der Barbie-Puppe", "Tag des Schienbeins", "Tag des Nickerchens", "Tag der Pflanzschale", "Tag der Ohrenschützer", "Pi-Tag", "Tag der Rückengesundheit", "Lippenstift-Tag", "Tag des U-Bootes", "Tag des Recyclings", "Tag des Lachens", "Tag des Glücks", "Tag des Waldes", "Weltwassertag", "Tag des Welpen", "Tag der Jongleure", "Tag der Waffel", "Tag des Erfindens", "Tag der Paella", "Unkraut-Tag", "Tag des Klaviers", "Tag des Bleistifts", "Tag der Eiffelturms"]
         };
 
-        function getWeekNumber(d) {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        // Hilfsfunktion: Berechnet Luminanz einer Hex-Farbe (0 = schwarz, 1 = weiß)
+        function getLuminance(hex) {
+            const rgb = hex.replace(/^#/, '').match(/.{2}/g).map(x => parseInt(x, 16) / 255);
+            const res = rgb.map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+            return 0.2126 * res[0] + 0.7152 * res[1] + 0.0722 * res[2];
         }
 
         function toggleDarkMode() {
@@ -173,60 +174,27 @@
             if (isDark) {
                 document.getElementById('bBg').value = "#333333";
                 document.getElementById('tCol').value = "#ffffff";
+                document.getElementById('tBg').value = "#ffffff";
             } else {
                 document.getElementById('bBg').value = "#ffffff";
                 document.getElementById('tCol').value = "#000000";
+                document.getElementById('tBg').value = "#000000";
             }
             updateUI();
         }
 
-        function saveSettings() {
-            const settings = {
-                dark: document.getElementById('darkInp').checked,
-                op: document.getElementById('fOp').value,
-                hBg: document.getElementById('hBg').value,
-                hTx: document.getElementById('hTx').value,
-                bBg: document.getElementById('bBg').value,
-                tCol: document.getElementById('tCol').value,
-                tBg: document.getElementById('tBg').value,
-                oBg: document.getElementById('oBg').value,
-                fFam: document.getElementById('fFam').value,
-                fBold: document.getElementById('fBold').checked,
-                fSize: document.getElementById('fSize').value
-            };
-            localStorage.setItem('marcoCalendarSettings', JSON.stringify(settings));
-        }
-
-        function loadSettings() {
-            const saved = localStorage.getItem('marcoCalendarSettings');
-            if (saved) {
-                const s = JSON.parse(saved);
-                document.getElementById('darkInp').checked = s.dark;
-                document.getElementById('fOp').value = s.op;
-                document.getElementById('hBg').value = s.hBg;
-                document.getElementById('hTx').value = s.hTx;
-                document.getElementById('bBg').value = s.bBg;
-                document.getElementById('tCol').value = s.tCol || (s.dark ? "#ffffff" : "#000000");
-                document.getElementById('tBg').value = s.tBg;
-                document.getElementById('oBg').value = s.oBg;
-                document.getElementById('fFam').value = s.fFam;
-                document.getElementById('fBold').checked = s.fBold;
-                document.getElementById('fSize').value = s.fSize;
-            }
-        }
-
-        function resetSettings() {
-            localStorage.removeItem('marcoCalendarSettings');
-            location.reload();
-        }
-
         function updateUI() {
             const root = document.documentElement;
+            const todayBg = document.getElementById('tBg').value;
+            
+            // Contrast Check: Wenn Luminanz > 0.5 (hell), dann schwarzer Text für Heute
+            const todayText = getLuminance(todayBg) > 0.5 ? "#000000" : "#ffffff";
             
             root.style.setProperty('--header-bg', document.getElementById('hBg').value);
             root.style.setProperty('--header-text', document.getElementById('hTx').value);
             root.style.setProperty('--body-bg', document.getElementById('bBg').value);
-            root.style.setProperty('--today-bg', document.getElementById('tBg').value);
+            root.style.setProperty('--today-bg', todayBg);
+            root.style.setProperty('--today-text', todayText);
             root.style.setProperty('--bg-outside', document.getElementById('oBg').value);
             root.style.setProperty('--text-color', document.getElementById('tCol').value);
             root.style.setProperty('--font-family', document.getElementById('fFam').value);
@@ -269,14 +237,34 @@
             }
         }
 
+        // Standard-Funktionen für Daten & Settings
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
+        }
+        function saveSettings() {
+            const settings = { dark: document.getElementById('darkInp').checked, op: document.getElementById('fOp').value, hBg: document.getElementById('hBg').value, hTx: document.getElementById('hTx').value, bBg: document.getElementById('bBg').value, tCol: document.getElementById('tCol').value, tBg: document.getElementById('tBg').value, oBg: document.getElementById('oBg').value, fFam: document.getElementById('fFam').value, fBold: document.getElementById('fBold').checked, fSize: document.getElementById('fSize').value };
+            localStorage.setItem('marcoCalendarSettings', JSON.stringify(settings));
+        }
+        function loadSettings() {
+            const saved = localStorage.getItem('marcoCalendarSettings');
+            if (saved) {
+                const s = JSON.parse(saved);
+                document.getElementById('darkInp').checked = s.dark;
+                document.getElementById('fOp').value = s.op;
+                document.getElementById('hBg').value = s.hBg; document.getElementById('hTx').value = s.hTx;
+                document.getElementById('bBg').value = s.bBg; document.getElementById('tCol').value = s.tCol || "#000000";
+                document.getElementById('tBg').value = s.tBg; document.getElementById('oBg').value = s.oBg;
+                document.getElementById('fFam').value = s.fFam; document.getElementById('fBold').checked = s.fBold; document.getElementById('fSize').value = s.fSize;
+            }
+        }
+        function resetSettings() { localStorage.removeItem('marcoCalendarSettings'); location.reload(); }
         function setView(v) { currentView = v; document.querySelectorAll('.view-tabs button').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+v).classList.add('active'); render(); }
         function changeDate(step) { if(currentView === 'month') date.setMonth(date.getMonth() + step); else if(currentView === 'week') date.setDate(date.getDate() + (step * 7)); else date.setDate(date.getDate() + step); render(); }
         function toggleSettings() { document.getElementById('settings').classList.toggle('active'); }
         
-        window.onload = () => {
-            loadSettings();
-            updateUI();
-        };
+        window.onload = () => { loadSettings(); updateUI(); };
     </script>
 </body>
 </html>
