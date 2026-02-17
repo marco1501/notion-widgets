@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco's Pro UI v30 - Smart Modes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Open+Sans:wght@400;700&family=Playfair+Display:wght@700&family=Lato:wght@400;700&family=Oswald:wght@400;700&family=Raleway:wght@400;700&family=Nunito:wght@400;700&family=Ubuntu:wght@400;700&family=Merriweather:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Quicksand:wght@400;700&family=Caveat:wght@700&family=Comfortaa:wght@400;700&family=Righteous&family=Lobster&family=Abril+Fatface&family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-outside: #f4f4f4;
+            --header-bg: #000000;
+            --header-text: #ffffff;
+            --body-bg: #ffffff;
+            --today-bg: #000000;
+            --text-color: #000000;
+            --font-family: 'Inter', sans-serif;
+            --font-weight: 400;
+            --body-op: 1;
+            --font-size: 14px;
+            --accent-anthracite: #333333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg-outside); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; transition: background 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #widget-container {
+            width: 350px; height: 350px;
+            background-color: var(--body-bg);
+            opacity: var(--body-op);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            font-family: var(--font-family) !important;
+            font-weight: var(--font-weight) !important;
+            color: var(--text-color) !important;
+            font-size: var(--font-size);
+            position: relative;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header { background: var(--header-bg); color: var(--header-text); padding: 12px 10px 8px 10px; text-align: center; }
+        #dateTitle { font-size: 1.6em; font-weight: 700; letter-spacing: -0.5px; color: var(--header-text); }
+        .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .nav-btn { cursor: pointer; font-size: 1.3em; padding: 0 10px; opacity: 0.8; transition: 0.2s; }
+        .nav-btn:hover { opacity: 1; }
+        
+        .view-tabs { display: flex; justify-content: center; gap: 4px; }
+        .view-tabs button { 
+            background: rgba(255,255,255,0.15); border: none; padding: 3px 10px; 
+            border-radius: 6px; cursor: pointer; font-size: 0.75em; color: inherit;
+        }
+        .view-tabs button.active { background: var(--header-text); color: var(--header-bg); font-weight: bold; }
+
+        #calendar-content { flex-grow: 1; padding: 10px 15px; display: flex; flex-direction: column; justify-content: center; }
+        .grid { display: grid; gap: 2px; text-align: center; width: 100%; }
+        .day-cell { padding: 5px 0; border-radius: 5px; font-size: 0.9em; }
+        .today { background: var(--today-bg) !important; color: white !important; font-weight: bold; }
+        
+        footer { padding: 6px 15px; font-size: 0.7em; border-top: 1px solid rgba(150,150,150,0.1); display: flex; justify-content: space-between; align-items: center; }
+        footer a { color: inherit; text-decoration: none; font-weight: bold; }
+
+        #settings {
+            position: absolute; top: 0; right: 0; bottom: 0; 
+            width: 50%; background: #ffffff; 
+            z-index: 100; padding: 10px; overflow-y: auto;
+            display: none; color: #333; box-shadow: -5px 0 15px rgba(0,0,0,0.1); border-left: 1px solid #eee;
+        }
+        #settings.active { display: block; }
+        #settings h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; border-bottom: 1px solid #ddd; }
+        #settings h4 { font-size: 8px; font-weight: 700; text-transform: uppercase; color: #888; margin: 10px 0 4px 0; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 9px; }
+        
+        select { width: 100%; font-size: 10px; padding: 2px; border-radius: 4px; border: 1px solid #ddd; margin-bottom: 4px; }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 3px; background: #ddd; border-radius: 2px; outline: none; margin: 6px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; background: var(--accent-anthracite); border-radius: 50%; cursor: pointer; }
+
+        input[type="color"] { -webkit-appearance: none; border: none; width: 18px; height: 18px; cursor: pointer; background: transparent; padding: 0; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 1px solid #ccc; border-radius: 50%; }
+
+        .switch { position: relative; width: 26px; height: 14px; display: inline-block; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 20px; transition: 0.3s; }
+        .slider:before { content: ""; position: absolute; height: 10px; width: 10px; left: 2px; bottom: 2px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: var(--accent-anthracite); }
+        input:checked + .slider:before { transform: translateX(12px); }
+
+        .close-settings { float: right; cursor: pointer; font-size: 16px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="widget-container">
+        <header>
+            <div class="nav-row">
+                <div class="nav-btn" onclick="changeDate(-1)">❮</div>
+                <div id="dateTitle">Februar 2026</div>
+                <div class="nav-btn" onclick="changeDate(1)">❯</div>
+            </div>
+            <div class="view-tabs">
+                <button onclick="setView('month')" id="btn-month" class="active">Monat</button>
+                <button onclick="setView('week')" id="btn-week">Woche</button>
+                <button onclick="setView('day')" id="btn-day">Tag</button>
+            </div>
+        </header>
+
+        <div id="calendar-content">
+            <div id="display"></div>
+        </div>
+
+        <footer>
+            <div onclick="toggleSettings()" style="cursor:pointer">⚙️ Design</div>
+            <span>made by <a href="http://www.marcofoerster.com" target="_blank">Marco Förster</a></span>
+        </footer>
+
+        <div id="settings">
+            <span class="close-settings" onclick="toggleSettings()">✕</span>
+            <h3>Design</h3>
+            
+            <h4>Allgemein</h4>
+            <div class="row"><span>Dark Mode</span><label class="switch"><input type="checkbox" id="darkInp" onchange="toggleDarkMode()"><span class="slider"></span></label></div>
+            <div class="row" style="flex-direction: column; align-items: flex-start;">
+                <span>Deckkraft</span>
+                <input type="range" id="fOp" min="0.1" max="1" step="0.1" value="1" oninput="updateUI()">
+            </div>
+
+            <h4>Farben</h4>
+            <div class="row"><span>Header</span><input type="color" id="hBg" value="#000000" oninput="updateUI()"></div>
+            <div class="row"><span>Header Text</span><input type="color" id="hTx" value="#ffffff" oninput="updateUI()"></div>
+            <div class="row"><span>Hintergrund</span><input type="color" id="bBg" value="#ffffff" oninput="updateUI()"></div>
+            <div class="row"><span>Textfarbe</span><input type="color" id="tCol" value="#000000" oninput="updateUI()"></div>
+            <div class="row"><span>Heute</span><input type="color" id="tBg" value="#000000" oninput="updateUI()"></div>
+            <div class="row"><span>Außenfarbe</span><input type="color" id="oBg" value="#f4f4f4" oninput="updateUI()"></div>
+
+            <h4>Typografie</h4>
+            <select id="fFam" onchange="updateUI()">
+                <option value="'Inter'">Inter</option><option value="'Montserrat'">Montserrat</option><option value="'Poppins'">Poppins</option><option value="'Roboto'">Roboto</option><option value="'Open Sans'">Open Sans</option><option value="'Playfair Display'">Playfair Display</option><option value="'Lato'">Lato</option><option value="'Oswald'">Oswald</option><option value="'Raleway'">Raleway</option><option value="'Nunito'">Nunito</option><option value="'Ubuntu'">Ubuntu</option><option value="'Merriweather'">Merriweather</option><option value="'Dancing Script'">Dancing Script</option><option value="'Pacifico'">Pacifico</option><option value="'Quicksand'">Quicksand</option><option value="'Caveat'">Caveat</option><option value="'Comfortaa'">Comfortaa</option><option value="'Righteous'">Righteous</option><option value="'Lobster'">Lobster</option><option value="'Abril Fatface'">Abril Fatface</option><option value="'Bebas Neue'">Bebas Neue</option><option value="'Special Elite'">Special Elite</option>
+            </select>
+            <div class="row"><span>Fett</span><label class="switch"><input type="checkbox" id="fBold" onchange="updateUI()"><span class="slider"></span></label></div>
+            <div class="row" style="flex-direction: column; align-items: flex-start;">
+                <span>Größe</span>
+                <input type="range" id="fSize" min="10" max="22" step="1" value="14" oninput="updateUI()">
+            </div>
+            <button onclick="resetSettings()" style="width:100%; margin-top:10px; font-size:10px; padding:5px; cursor:pointer;">Reset auf Standard</button>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'month', date = new Date();
+        const holidayDB = {
+            0: ["Neujahrstag", "Tag des Waldschlößchens", "Tag des Schlafs", "Tag der Mandarine", "Tag der Schlagsahne", "Tag des Kuschelns", "Tag des Strickens", "Tag des Badeschaums", "Tag der Aprikose", "Tag des Bitters", "Tag des deutschen Apfels", "Tag des Marzipans", "Tag der Gummiente", "Tag des Logarithmus", "Tag des Erdbeereises", "Tag des Nichts", "Tag des brandneuen Kalenders", "Tag des Thesaurus", "Tag des Popcorns", "Tag der Pinguine", "Tag der Jogginghose", "Tag der scharfen Saucen", "Tag der Handschrift", "Tag der Komplimente", "Tag des Gegenteils", "Tag der Erdnuss", "Tag des Schokoladenkuchens", "Tag der LEGO-Steine", "Tag des Puzzles", "Tag des Croissants", "Tag der Rückwärtslesens"],
+            1: ["Ändere Passwort Tag", "Tag des Igels", "Tag des Karottenkuchens", "Tag des hausgemachten Soufflés", "Welt-Nutella-Tag", "Tag des gefrorenen Joghurts", "Tag des Balletts", "Tag der Oper", "Tag der Zahnschmerzen", "Tag der Regenschirme", "Tag des weißen Hemdes", "Tag der Darwinismus", "Tag der Radiohörer", "Valentinstag", "Tag der Gummidrops", "Tag der Mandel", "Tag des Milchkaffees", "Batterie-Tag", "Tag der Minze", "Liebe-dein-Haustier-Tag", "Tag der Muttersprache", "Tag des Gassi-Gehens", "Tag der Bananenbrot", "Tag der Tortilla-Chips", "Tag der Pistazie", "Tag der Eisbären", "Tag des öffentlichen Schlafens", "Tag des Kusses"],
+            2: ["Tag des Kompliments", "Tag der alten Dinge", "Tag des Wartens", "Tag der Grammatik", "Tag des Energiesparens", "Tag der Tiefkühlkost", "Tag der gesunden Ernährung", "Tag des Korrekturlesens", "Tag der Barbie-Puppe", "Tag des Schienbeins", "Tag des Nickerchens", "Tag der Pflanzschale", "Tag der Ohrenschützer", "Pi-Tag", "Tag der Rückengesundheit", "Lippenstift-Tag", "Tag des U-Bootes", "Tag des Recyclings", "Tag des Lachens", "Tag des Glücks", "Tag des Waldes", "Weltwassertag", "Tag des Welpen", "Tag der Jongleure", "Tag der Waffel", "Tag des Erfindens", "Tag der Paella", "Unkraut-Tag", "Tag des Klaviers", "Tag des Bleistifts", "Tag der Eiffelturms"]
+        };
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('darkInp').checked;
+            if (isDark) {
+                document.getElementById('bBg').value = "#333333";
+                document.getElementById('tCol').value = "#ffffff";
+            } else {
+                document.getElementById('bBg').value = "#ffffff";
+                document.getElementById('tCol').value = "#000000";
+            }
+            updateUI();
+        }
+
+        function saveSettings() {
+            const settings = {
+                dark: document.getElementById('darkInp').checked,
+                op: document.getElementById('fOp').value,
+                hBg: document.getElementById('hBg').value,
+                hTx: document.getElementById('hTx').value,
+                bBg: document.getElementById('bBg').value,
+                tCol: document.getElementById('tCol').value,
+                tBg: document.getElementById('tBg').value,
+                oBg: document.getElementById('oBg').value,
+                fFam: document.getElementById('fFam').value,
+                fBold: document.getElementById('fBold').checked,
+                fSize: document.getElementById('fSize').value
+            };
+            localStorage.setItem('marcoCalendarSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('marcoCalendarSettings');
+            if (saved) {
+                const s = JSON.parse(saved);
+                document.getElementById('darkInp').checked = s.dark;
+                document.getElementById('fOp').value = s.op;
+                document.getElementById('hBg').value = s.hBg;
+                document.getElementById('hTx').value = s.hTx;
+                document.getElementById('bBg').value = s.bBg;
+                document.getElementById('tCol').value = s.tCol || (s.dark ? "#ffffff" : "#000000");
+                document.getElementById('tBg').value = s.tBg;
+                document.getElementById('oBg').value = s.oBg;
+                document.getElementById('fFam').value = s.fFam;
+                document.getElementById('fBold').checked = s.fBold;
+                document.getElementById('fSize').value = s.fSize;
+            }
+        }
+
+        function resetSettings() {
+            localStorage.removeItem('marcoCalendarSettings');
+            location.reload();
+        }
+
+        function updateUI() {
+            const root = document.documentElement;
+            
+            root.style.setProperty('--header-bg', document.getElementById('hBg').value);
+            root.style.setProperty('--header-text', document.getElementById('hTx').value);
+            root.style.setProperty('--body-bg', document.getElementById('bBg').value);
+            root.style.setProperty('--today-bg', document.getElementById('tBg').value);
+            root.style.setProperty('--bg-outside', document.getElementById('oBg').value);
+            root.style.setProperty('--text-color', document.getElementById('tCol').value);
+            root.style.setProperty('--font-family', document.getElementById('fFam').value);
+            root.style.setProperty('--font-weight', document.getElementById('fBold').checked ? '700' : '400');
+            root.style.setProperty('--body-op', document.getElementById('fOp').value);
+            root.style.setProperty('--font-size', document.getElementById('fSize').value + 'px');
+            
+            saveSettings();
+            render();
+        }
+
+        function render() {
+            const container = document.getElementById('display');
+            container.innerHTML = '';
+            if(currentView === 'month') {
+                document.getElementById('dateTitle').innerText = new Intl.DateTimeFormat('de-DE', {month:'long', year:'numeric'}).format(date);
+                let html = '<div class="grid" style="grid-template-columns: repeat(7, 1fr);">';
+                ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(w => html += `<div style="font-size:0.7em; opacity:0.5; font-weight:bold;">${w}</div>`);
+                let first = new Date(date.getFullYear(), date.getMonth(), 1), start = (first.getDay() + 6) % 7, days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                for(let i=0; i<start; i++) html += '<div></div>';
+                for(let d=1; d<=days; d++) {
+                    let isToday = new Date(date.getFullYear(), date.getMonth(), d).toDateString() === new Date().toDateString() ? 'today' : '';
+                    html += `<div class="day-cell ${isToday}">${d}</div>`;
+                }
+                container.innerHTML = html + '</div>';
+            } else if(currentView === 'week') {
+                document.getElementById('dateTitle').innerText = 'KW ' + getWeekNumber(date);
+                let html = '<div class="grid" style="grid-template-columns: repeat(7, 1fr);">';
+                let temp = new Date(date); temp.setDate(temp.getDate() - (temp.getDay() + 6) % 7);
+                for(let i=0; i<7; i++) {
+                    let isToday = temp.toDateString() === new Date().toDateString() ? 'today' : '';
+                    html += `<div class="day-cell ${isToday}"><div style="font-size:0.65em; opacity:0.6;">${new Intl.DateTimeFormat('de-DE',{weekday:'short'}).format(temp)}</div><div style="font-size:1.1em;">${temp.getDate()}</div></div>`;
+                    temp.setDate(temp.getDate()+1);
+                }
+                container.innerHTML = html + '</div>';
+            } else {
+                document.getElementById('dateTitle').innerText = date.toLocaleDateString('de-DE', {day:'numeric', month:'long'});
+                let holiday = (holidayDB[date.getMonth()] || [])[date.getDate()-1] || "Ein schöner Tag";
+                container.innerHTML = `<div style="text-align:center"><div style="font-size:2.8em; font-weight:bold; line-height:1;">${date.getDate()}</div><div style="font-size:1.1em; font-weight:bold; margin-bottom:5px;">${new Intl.DateTimeFormat('de-DE',{weekday:'long'}).format(date)}</div><div style="font-size:0.8em; opacity:0.8; padding:10px; background:rgba(150,150,150,0.1); border-radius:10px;">${holiday}</div></div>`;
+            }
+        }
+
+        function setView(v) { currentView = v; document.querySelectorAll('.view-tabs button').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+v).classList.add('active'); render(); }
+        function changeDate(step) { if(currentView === 'month') date.setMonth(date.getMonth() + step); else if(currentView === 'week') date.setDate(date.getDate() + (step * 7)); else date.setDate(date.getDate() + step); render(); }
+        function toggleSettings() { document.getElementById('settings').classList.toggle('active'); }
+        
+        window.onload = () => {
+            loadSettings();
+            updateUI();
+        };
+    </script>
+</body>
+</html>
