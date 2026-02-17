@@ -11,41 +11,42 @@
             --panel-bg: #ffffff;
         }
 
+        /* Quadratisches Widget-Format */
         body {
             background-color: var(--bg-color);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            width: 500px; /* Quadratische Breite */
+            height: 500px; /* Quadratische Höhe */
             font-family: "Segoe UI", Tahoma, sans-serif;
             overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
-        /* Uhren-Design */
         .clock-container {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             cursor: pointer;
-            transition: transform 0.1s;
+            z-index: 1;
         }
-
-        .clock-container:active { transform: scale(0.98); }
 
         .flip-card {
             background-color: var(--card-color);
             color: var(--text-color);
-            width: 150px;
-            height: 200px;
-            border-radius: 18px;
+            width: 140px;
+            height: 180px;
+            border-radius: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 110px;
+            font-size: 100px;
             font-weight: 700;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .flip-card::after {
@@ -57,88 +58,86 @@
             top: 50%;
         }
 
-        /* Einstellungen Panel */
+        /* Quadratische Einstellungen */
         #settings-panel {
-            position: fixed;
-            bottom: -60%;
+            position: absolute;
+            bottom: -100%;
             left: 0;
             width: 100%;
-            height: 55%;
+            height: 100%; /* Füllt das Quadrat beim Öffnen */
             background: var(--panel-bg);
             color: #000;
             transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 30px 30px 0 0;
-            padding: 30px;
+            padding: 40px 30px;
             box-sizing: border-box;
-            box-shadow: 0 -15px 50px rgba(0,0,0,0.15);
             z-index: 100;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         #settings-panel.active { bottom: 0; }
 
         .setting-item {
             width: 100%;
-            max-width: 350px;
+            max-width: 320px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
-            font-size: 17px;
+            margin-bottom: 15px;
+            font-size: 16px;
         }
 
-        /* Ausgefüllte Farbwähler */
         .color-circle-input {
-            width: 38px;
-            height: 38px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             border: 2px solid #ddd;
             cursor: pointer;
-            background-color: var(--card-color); /* Dynamisch */
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+            transition: transform 0.2s;
         }
+        
+        .color-circle-input:hover { transform: scale(1.1); }
 
         .color-circle-input input[type="color"] {
             opacity: 0;
             width: 100%;
             height: 100%;
             cursor: pointer;
-            transform: scale(2);
+            transform: scale(3);
         }
 
-        /* Buttons */
         .btn-group {
             width: 100%;
-            max-width: 350px;
+            max-width: 320px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 15px;
         }
 
         .close-btn, .reset-btn {
             border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             font-family: "Segoe UI";
         }
 
         .close-btn { background: #000; color: #fff; }
-        .reset-btn { background: #f0f0f0; color: #555; }
+        .reset-btn { background: #f4f4f4; color: #666; }
 
-        /* Modern Toggle */
         .switch {
             position: relative;
-            width: 48px;
-            height: 24px;
+            width: 46px;
+            height: 22px;
         }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -152,23 +151,21 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px; width: 18px;
+            height: 16px; width: 16px;
             left: 3px; bottom: 3px;
             background-color: white;
             transition: .3s;
             border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
         input:checked + .slider { background-color: #000; }
         input:checked + .slider:before { transform: translateX(24px); }
 
         .footer {
-            margin-top: auto;
-            font-size: 13px;
-            color: #aaa;
-            padding-bottom: 10px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #bbb;
         }
-        .footer a { color: #888; text-decoration: none; font-weight: bold; }
+        .footer a { color: #999; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -179,6 +176,8 @@
     </div>
 
     <div id="settings-panel">
+        <h2 style="margin-top: 0; font-weight: 600;">Widget Setup</h2>
+        
         <div class="setting-item">
             <span>Uhrfarbe</span>
             <div class="color-circle-input" id="circle-card">
@@ -194,6 +193,13 @@
         </div>
 
         <div class="setting-item">
+            <span>Außenfarbe</span>
+            <div class="color-circle-input" id="circle-bg">
+                <input type="color" id="input-bg" oninput="updateTheme('bg', this.value)">
+            </div>
+        </div>
+
+        <div class="setting-item">
             <span>24h Format</span>
             <label class="switch">
                 <input type="checkbox" id="formatToggle" checked onchange="saveFormat()">
@@ -202,8 +208,8 @@
         </div>
 
         <div class="btn-group">
-            <button class="close-btn" onclick="toggleSettings()">Schließen</button>
-            <button class="reset-btn" onclick="resetDefaults()">Auf Standard zurücksetzen</button>
+            <button class="close-btn" onclick="toggleSettings()">Einstellungen schließen</button>
+            <button class="reset-btn" onclick="resetDefaults()">Reset auf Werkseinstellungen</button>
         </div>
         
         <div class="footer">
@@ -212,10 +218,10 @@
     </div>
 
     <script>
-        // Standardwerte
         const defaults = {
             card: '#333333',
             text: '#ffffff',
+            bg: '#f0f0f0',
             format24: true
         };
 
@@ -224,11 +230,7 @@
             let h = now.getHours();
             let m = now.getMinutes();
             const is24h = document.getElementById('formatToggle').checked;
-
-            if (!is24h) {
-                h = h % 12 || 12;
-            }
-
+            if (!is24h) h = h % 12 || 12;
             document.getElementById('hours').innerText = h.toString().padStart(2, '0');
             document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
         }
@@ -248,6 +250,11 @@
                 document.getElementById('circle-text').style.backgroundColor = color;
                 localStorage.setItem('textColor', color);
             }
+            if(type === 'bg') {
+                document.documentElement.style.setProperty('--bg-color', color);
+                document.getElementById('circle-bg').style.backgroundColor = color;
+                localStorage.setItem('bgColor', color);
+            }
         }
 
         function saveFormat() {
@@ -258,23 +265,26 @@
         function resetDefaults() {
             updateTheme('card', defaults.card);
             updateTheme('text', defaults.text);
+            updateTheme('bg', defaults.bg);
             document.getElementById('formatToggle').checked = defaults.format24;
             saveFormat();
-            // Inputs synchronisieren
             document.getElementById('input-card').value = defaults.card;
             document.getElementById('input-text').value = defaults.text;
+            document.getElementById('input-bg').value = defaults.bg;
         }
 
-        // Beim Laden der Seite Einstellungen wiederherstellen
         window.onload = () => {
             const savedCard = localStorage.getItem('cardColor') || defaults.card;
             const savedText = localStorage.getItem('textColor') || defaults.text;
+            const savedBg = localStorage.getItem('bgColor') || defaults.bg;
             const savedFormat = localStorage.getItem('format24') === null ? defaults.format24 : localStorage.getItem('format24') === 'true';
 
             updateTheme('card', savedCard);
             updateTheme('text', savedText);
+            updateTheme('bg', savedBg);
             document.getElementById('input-card').value = savedCard;
             document.getElementById('input-text').value = savedText;
+            document.getElementById('input-bg').value = savedBg;
             document.getElementById('formatToggle').checked = savedFormat;
             
             updateClock();
