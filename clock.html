@@ -11,42 +11,42 @@
             --panel-bg: #ffffff;
         }
 
-        /* Quadratisches Widget-Format */
+        /* Das Widget-Quadrat */
         body {
             background-color: var(--bg-color);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 500px; /* Quadratische Breite */
-            height: 500px; /* Quadratische Höhe */
-            font-family: "Segoe UI", Tahoma, sans-serif;
-            overflow: hidden;
+            width: 500px; 
+            height: 500px;
+            font-family: "Segoe UI", sans-serif;
+            overflow: hidden; /* Verhindert Scrollen */
             position: relative;
-            border: 1px solid rgba(0,0,0,0.05);
         }
 
+        /* Uhr-Bereich */
         .clock-container {
             display: flex;
-            gap: 12px;
+            gap: 15px;
             cursor: pointer;
-            z-index: 1;
+            z-index: 5;
         }
 
         .flip-card {
             background-color: var(--card-color);
             color: var(--text-color);
-            width: 140px;
-            height: 180px;
-            border-radius: 15px;
+            width: 150px;
+            height: 200px;
+            border-radius: 18px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 100px;
+            font-size: 110px;
             font-weight: 700;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
         }
 
         .flip-card::after {
@@ -58,51 +58,57 @@
             top: 50%;
         }
 
-        /* Quadratische Einstellungen */
+        /* Einstellungs-Panel: Jetzt mit display: none */
         #settings-panel {
+            display: none; /* Komplett weg, wenn nicht aktiv */
             position: absolute;
-            bottom: -100%;
+            top: 0;
             left: 0;
-            width: 100%;
-            height: 100%; /* Füllt das Quadrat beim Öffnen */
+            width: 500px;
+            height: 500px;
             background: var(--panel-bg);
             color: #000;
-            transition: bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 40px 30px;
+            padding: 40px;
             box-sizing: border-box;
-            z-index: 100;
-            display: flex;
+            z-index: 100; /* Liegt über der Uhr */
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            animation: fadeIn 0.3s ease-out; /* Kurzes Einblenden */
         }
 
-        #settings-panel.active { bottom: 0; }
+        /* Wenn aktiv, dann als Flexbox anzeigen */
+        #settings-panel.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { margin: 0 0 30px 0; font-weight: 600; font-size: 24px; }
 
         .setting-item {
             width: 100%;
-            max-width: 320px;
+            max-width: 300px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            font-size: 16px;
+            margin-bottom: 20px;
+            font-size: 17px;
         }
 
         .color-circle-input {
-            width: 34px;
-            height: 34px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            border: 2px solid #ddd;
+            border: 2px solid #eee;
             cursor: pointer;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: transform 0.2s;
         }
-        
-        .color-circle-input:hover { transform: scale(1.1); }
 
         .color-circle-input input[type="color"] {
             opacity: 0;
@@ -114,30 +120,31 @@
 
         .btn-group {
             width: 100%;
-            max-width: 320px;
+            max-width: 300px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-top: 15px;
+            gap: 10px;
+            margin-top: 20px;
         }
 
-        .close-btn, .reset-btn {
+        button {
             border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             font-family: "Segoe UI";
         }
 
         .close-btn { background: #000; color: #fff; }
-        .reset-btn { background: #f4f4f4; color: #666; }
+        .reset-btn { background: #f0f0f0; color: #666; }
 
+        /* Modern Toggle */
         .switch {
             position: relative;
-            width: 46px;
-            height: 22px;
+            width: 48px;
+            height: 24px;
         }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -151,7 +158,7 @@
         .slider:before {
             position: absolute;
             content: "";
-            height: 16px; width: 16px;
+            height: 18px; width: 18px;
             left: 3px; bottom: 3px;
             background-color: white;
             transition: .3s;
@@ -161,8 +168,8 @@
         input:checked + .slider:before { transform: translateX(24px); }
 
         .footer {
-            margin-top: 20px;
-            font-size: 12px;
+            margin-top: auto;
+            font-size: 13px;
             color: #bbb;
         }
         .footer a { color: #999; text-decoration: none; font-weight: bold; }
@@ -170,13 +177,13 @@
 </head>
 <body>
 
-    <div class="clock-container" id="clock" onclick="toggleSettings()">
+    <div class="clock-container" onclick="toggleSettings()">
         <div class="flip-card" id="hours">00</div>
         <div class="flip-card" id="minutes">00</div>
     </div>
 
     <div id="settings-panel">
-        <h2 style="margin-top: 0; font-weight: 600;">Widget Setup</h2>
+        <h2>Design</h2>
         
         <div class="setting-item">
             <span>Uhrfarbe</span>
@@ -208,8 +215,8 @@
         </div>
 
         <div class="btn-group">
-            <button class="close-btn" onclick="toggleSettings()">Einstellungen schließen</button>
-            <button class="reset-btn" onclick="resetDefaults()">Reset auf Werkseinstellungen</button>
+            <button class="close-btn" onclick="toggleSettings()">Schließen</button>
+            <button class="reset-btn" onclick="resetDefaults()">Reset</button>
         </div>
         
         <div class="footer">
@@ -236,7 +243,8 @@
         }
 
         function toggleSettings() {
-            document.getElementById('settings-panel').classList.toggle('active');
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('active');
         }
 
         function updateTheme(type, color) {
