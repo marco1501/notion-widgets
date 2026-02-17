@@ -21,24 +21,23 @@
             align-items: flex-start;
             width: 100%;
             height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             overflow: hidden;
             position: relative;
         }
 
-        /* Responsive Wrapper */
         .widget-wrapper {
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
-            padding-top: 5vh; /* Nutzt Viewport-Height für bessere Abstände */
+            padding-top: 30px;
             position: relative;
         }
 
         .clock-container {
             display: flex;
-            gap: 2vw; /* Dynamischer Abstand */
+            gap: 12px;
             cursor: pointer;
             z-index: 5;
             transform: scale(var(--clock-scale));
@@ -49,15 +48,13 @@
         .flip-card {
             background-color: var(--card-color);
             color: var(--text-color);
-            width: 30vw; /* Responsive Breite */
-            max-width: 150px;
-            height: 40vw; /* Responsive Höhe */
-            max-height: 200px;
+            width: 140px;
+            height: 180px;
             border-radius: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: clamp(40px, 15vw, 110px); /* Schriftgröße passt sich an */
+            font-size: 100px;
             font-weight: 700;
             position: relative;
             box-shadow: 0 8px 20px rgba(0,0,0,0.15);
@@ -72,13 +69,12 @@
             top: 50%;
         }
 
-        /* Kompaktes, responsives Panel */
         #settings-panel {
             position: fixed;
             top: 0;
-            right: -100%; /* Komplett aus dem Bild */
-            width: 45%; /* Etwas schmaler als die Hälfte */
-            max-width: 300px;
+            right: -100%;
+            width: 40%;
+            max-width: 250px;
             height: 100%;
             background: var(--panel-bg);
             backdrop-filter: blur(20px);
@@ -87,13 +83,11 @@
             z-index: 100;
             display: flex;
             flex-direction: column;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.1);
+            box-shadow: -5px 0 25px rgba(0,0,0,0.05);
             transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        #settings-panel.active {
-            right: 0;
-        }
+        #settings-panel.active { right: 0; }
 
         .settings-content {
             flex: 1;
@@ -101,40 +95,36 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: stretch; /* Nutzt volle Breite für Items */
         }
 
-        /* Scrollbar verstecken */
         .settings-content::-webkit-scrollbar { display: none; }
 
         h2 { 
-            margin: 0 0 20px 0; 
+            margin: 0 0 15px 0; 
             font-weight: 700; 
-            font-size: 18px; 
+            font-size: 14px; 
             text-align: center;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            opacity: 0.6;
         }
 
         .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            font-size: 13px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            font-weight: 500;
         }
 
-        /* Kleinere Controls */
-        input[type="range"] { 
-            width: 60px; 
-            accent-color: #000; 
-        }
+        input[type="range"] { width: 50px; accent-color: #000; }
 
+        /* Kleinere Farbkreise */
         .color-circle-input {
-            width: 24px;
-            height: 24px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            border: 1.5px solid #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            border: 1px solid #ddd;
             cursor: pointer;
             overflow: hidden;
             background-color: var(--card-color);
@@ -147,40 +137,39 @@
         .btn-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin-top: auto; /* Buttons nach unten schieben */
+            gap: 6px;
+            margin-top: 15px;
         }
 
         button {
             border: none;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 11px;
             font-weight: 600;
             cursor: pointer;
         }
 
         .close-btn { background: #000; color: #fff; }
-        .reset-btn { background: #eee; color: #555; }
+        .reset-btn { background: #f2f2f2; color: #888; }
 
-        /* Kleinerer Toggle */
-        .switch { position: relative; width: 32px; height: 16px; }
+        .switch { position: relative; width: 28px; height: 14px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider-toggle {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ddd; transition: .3s; border-radius: 20px;
         }
         .slider-toggle:before {
-            position: absolute; content: ""; height: 12px; width: 12px;
+            position: absolute; content: ""; height: 10px; width: 10px;
             left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
         }
         input:checked + .slider-toggle { background-color: #000; }
-        input:checked + .slider-toggle:before { transform: translateX(16px); }
+        input:checked + .slider-toggle:before { transform: translateX(14px); }
 
         .footer {
-            padding: 15px;
-            font-size: 10px;
-            color: #999;
+            padding: 10px;
+            font-size: 9px;
+            color: #bbb;
             text-align: center;
         }
     </style>
@@ -204,28 +193,28 @@
             </div>
 
             <div class="setting-item">
-                <span>Uhrfarbe</span>
+                <span>Uhr</span>
                 <div class="color-circle-input" id="circle-card">
                     <input type="color" id="input-card" oninput="updateTheme('card', this.value)">
                 </div>
             </div>
 
             <div class="setting-item">
-                <span>Zahlenfarbe</span>
+                <span>Zahl</span>
                 <div class="color-circle-input" id="circle-text">
                     <input type="color" id="input-text" oninput="updateTheme('text', this.value)">
                 </div>
             </div>
 
             <div class="setting-item">
-                <span>Außenfarbe</span>
+                <span>Farbe</span>
                 <div class="color-circle-input" id="circle-bg">
                     <input type="color" id="input-bg" oninput="updateTheme('bg', this.value)">
                 </div>
             </div>
 
             <div class="setting-item">
-                <span>24h Format</span>
+                <span>24h</span>
                 <label class="switch">
                     <input type="checkbox" id="formatToggle" checked onchange="saveFormat()">
                     <span class="slider-toggle"></span>
@@ -239,7 +228,7 @@
         </div>
         
         <div class="footer">
-            made by <b>Marco Förster</b>
+            made by Marco Förster
         </div>
     </div>
 
