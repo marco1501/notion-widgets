@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Inter:wght@400;700&family=Bebas+Neue&family=Courier+Prime&family=Orbitron:wght@400;700&family=Playfair+Display&family=Oswald&family=Rubik+Mono+One&family=Montserrat:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Inter:wght@400;700&family=Bebas+Neue&family=Courier+Prime&family=Orbitron:wght@400;700&family=Playfair+Display&family=Oswald&family=Rubik+Mono+One&family=Montserrat:wght@400;700&family=JetBrains+Mono&family=Alfa+Slab+One&family=BioRhyme:wght@800&family=Chivo+Mono:wght@900&family=Fira+Code:wght@700&family=Major+Mono+Display&family=Press+Start+2P&family=Righteous&family=Share+Tech+Mono&family=Space+Mono:wght@700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #f0f0f0;
             --card-color: #333333;
             --text-color: #ffffff;
-            --panel-bg: rgba(255, 255, 255, 0.85);
+            --panel-bg: rgba(255, 255, 255, 0.92);
             --clock-scale: 1;
-            --font-family: 'Inter', sans-serif;
-            --font-weight: 700;
+            --font-family: 'Rubik Mono One', sans-serif;
+            /* Standardmäßig auf 400 (nicht fett) gesetzt */
+            --font-weight: 400;
         }
 
         body {
@@ -42,11 +43,12 @@
             width: 150px; height: 200px;
             border-radius: 18px;
             display: flex; justify-content: center; align-items: center;
-            font-size: 110px;
+            font-size: 80px;
             font-family: var(--font-family);
             font-weight: var(--font-weight);
             position: relative;
             box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+            text-align: center;
         }
 
         .flip-card::after {
@@ -54,77 +56,56 @@
             background: rgba(0,0,0,0.2); top: 50%;
         }
 
-        /* Full Width Panel */
+        /* Menü auf 50% Breite */
         #settings-panel {
-            position: fixed; top: 0; right: -100%;
-            width: 100%; height: 100%;
+            position: fixed; top: 0; right: -55%;
+            width: 50%; height: 100%;
             background: var(--panel-bg);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             color: #000; z-index: 100;
             display: flex; flex-direction: column;
-            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid rgba(0,0,0,0.05);
         }
 
         #settings-panel.active { right: 0; }
 
         .settings-content {
-            flex: 1; overflow-y: auto; padding: 40px 20px;
+            flex: 1; overflow-y: auto; padding: 30px 20px;
             display: flex; flex-direction: column; align-items: center;
+            scrollbar-width: none;
         }
         .settings-content::-webkit-scrollbar { display: none; }
 
-        h2 { margin-bottom: 30px; font-weight: 700; font-size: 22px; letter-spacing: 1px; }
+        h2 { margin-bottom: 25px; font-weight: 700; font-size: 18px; letter-spacing: 1px; }
 
         .setting-item {
-            width: 100%; max-width: 300px;
+            width: 100%; max-width: 240px;
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; font-size: 14px;
+            margin-bottom: 15px; font-size: 13px;
         }
 
-        select {
-            padding: 5px; border-radius: 5px; border: 1px solid #ccc; font-family: inherit;
-        }
+        select { padding: 4px; border-radius: 5px; border: 1px solid #ccc; width: 120px; font-size: 12px; }
+        input[type="range"] { width: 70px; accent-color: #000; }
 
-        input[type="range"] { width: 80px; accent-color: #000; }
+        .color-circle-input { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #ddd; cursor: pointer; overflow: hidden; }
+        .color-circle-input input[type="color"] { opacity: 0; width: 100%; height: 100%; cursor: pointer; transform: scale(3); }
 
-        .color-circle-input {
-            width: 22px; height: 22px; border-radius: 50%;
-            border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            cursor: pointer; overflow: hidden;
-        }
-
-        .color-circle-input input[type="color"] {
-            opacity: 0; width: 100%; height: 100%; cursor: pointer; transform: scale(3);
-        }
-
-        .btn-group {
-            width: 100%; max-width: 300px;
-            display: flex; flex-direction: column; gap: 10px; margin-top: 20px;
-        }
-
-        button {
-            border: none; padding: 12px; border-radius: 10px;
-            font-size: 14px; font-weight: 600; cursor: pointer;
-        }
-
+        .btn-group { width: 100%; max-width: 240px; display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+        button { border: none; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .close-btn { background: #000; color: #fff; }
         .reset-btn { background: rgba(0,0,0,0.05); color: #666; }
 
-        /* Toggle */
-        .switch { position: relative; width: 36px; height: 18px; }
+        .switch { position: relative; width: 32px; height: 16px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider-toggle {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ddd; transition: .3s; border-radius: 34px;
-        }
-        .slider-toggle:before {
-            position: absolute; content: ""; height: 14px; width: 14px;
-            left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
-        }
+        .slider-toggle { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ddd; transition: .3s; border-radius: 34px; }
+        .slider-toggle:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
         input:checked + .slider-toggle { background-color: #000; }
-        input:checked + .slider-toggle:before { transform: translateX(18px); }
+        input:checked + .slider-toggle:before { transform: translateX(16px); }
 
-        .footer { padding: 20px; font-size: 11px; color: #888; text-align: center; }
+        .footer { padding: 15px; font-size: 10px; color: #555; text-align: center; }
+        .footer a { color: #000; text-decoration: none; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -143,23 +124,36 @@
             <div class="setting-item">
                 <span>Schriftart</span>
                 <select id="fontSelect" onchange="updateFont(this.value)">
-                    <option value="'Inter', sans-serif">Standard</option>
-                    <option value="'Roboto Mono', monospace">Mono</option>
-                    <option value="'Bebas Neue', cursive">Bebas</option>
-                    <option value="'Orbitron', sans-serif">Digital</option>
-                    <option value="'Courier Prime', monospace">Typewriter</option>
-                    <option value="'Playfair Display', serif">Elegant</option>
-                    <option value="'Oswald', sans-serif">Modern</option>
-                    <option value="'Rubik Mono One', sans-serif">Block</option>
-                    <option value="'Montserrat', sans-serif">Montserrat</option>
-                    <option value="'JetBrains Mono', monospace">Coder</option>
+                    <optgroup label="Favoriten">
+                        <option value="'Rubik Mono One', sans-serif">Block (Default)</option>
+                        <option value="'Inter', sans-serif">Standard Sans</option>
+                    </optgroup>
+                    <optgroup label="Retro & Flip">
+                        <option value="'Bebas Neue', cursive">Bebas</option>
+                        <option value="'Oswald', sans-serif">Oswald</option>
+                        <option value="'Chivo Mono', monospace">Chivo</option>
+                        <option value="'BioRhyme', serif">BioRhyme</option>
+                        <option value="'Alfa Slab One', cursive">Slab Fat</option>
+                    </optgroup>
+                    <optgroup label="Digital & Tech">
+                        <option value="'Orbitron', sans-serif">Orbitron</option>
+                        <option value="'Share Tech Mono', monospace">Share Tech</option>
+                        <option value="'Space Mono', monospace">Space</option>
+                        <option value="'JetBrains Mono', monospace">Coder</option>
+                    </optgroup>
+                    <optgroup label="Verrückt & Stylisch">
+                        <option value="'Press Start 2P', cursive">8-Bit</option>
+                        <option value="'Major Mono Display', monospace">Abstract</option>
+                        <option value="'Righteous', cursive">Righteous</option>
+                        <option value="'Syne', sans-serif">Syne</option>
+                    </optgroup>
                 </select>
             </div>
 
             <div class="setting-item">
                 <span>Fett (Bold)</span>
                 <label class="switch">
-                    <input type="checkbox" id="boldToggle" checked onchange="updateWeight()">
+                    <input type="checkbox" id="boldToggle" onchange="updateWeight()">
                     <span class="slider-toggle"></span>
                 </label>
             </div>
@@ -169,26 +163,9 @@
                 <input type="range" id="sizeSlider" min="0.3" max="1.5" step="0.05" value="1.0" oninput="updateSize(this.value)">
             </div>
 
-            <div class="setting-item">
-                <span>Uhr</span>
-                <div class="color-circle-input" id="circle-card">
-                    <input type="color" id="input-card" oninput="updateTheme('card', this.value)">
-                </div>
-            </div>
-
-            <div class="setting-item">
-                <span>Zahl</span>
-                <div class="color-circle-input" id="circle-text">
-                    <input type="color" id="input-text" oninput="updateTheme('text', this.value)">
-                </div>
-            </div>
-
-            <div class="setting-item">
-                <span>Farbe</span>
-                <div class="color-circle-input" id="circle-bg">
-                    <input type="color" id="input-bg" oninput="updateTheme('bg', this.value)">
-                </div>
-            </div>
+            <div class="setting-item"><span>Uhr</span><div class="color-circle-input" id="circle-card"><input type="color" id="input-card" oninput="updateTheme('card', this.value)"></div></div>
+            <div class="setting-item"><span>Zahl</span><div class="color-circle-input" id="circle-text"><input type="color" id="input-text" oninput="updateTheme('text', this.value)"></div></div>
+            <div class="setting-item"><span>Farbe</span><div class="color-circle-input" id="circle-bg"><input type="color" id="input-bg" oninput="updateTheme('bg', this.value)"></div></div>
 
             <div class="setting-item">
                 <span>24h</span>
@@ -203,25 +180,24 @@
                 <button class="reset-btn" onclick="resetDefaults()">Reset</button>
             </div>
         </div>
-        
-        <div class="footer">made by <b>Marco Förster</b></div>
+        <div class="footer">made by <a href="http://www.marcofoerster.com" target="_blank">Marco Förster</a></div>
     </div>
 
     <script>
-        const defaults = { card: '#333333', text: '#ffffff', bg: '#f0f0f0', format24: true, size: 1.0, font: "'Inter', sans-serif", bold: true };
+        const defaults = { 
+            card: '#333333', text: '#ffffff', bg: '#f0f0f0', 
+            format24: true, size: 1.0, font: "'Rubik Mono One', sans-serif", bold: false 
+        };
 
         function updateClock() {
             const now = new Date();
-            let h = now.getHours();
-            let m = now.getMinutes();
+            let h = now.getHours(); let m = now.getMinutes();
             if (!document.getElementById('formatToggle').checked) h = h % 12 || 12;
             document.getElementById('hours').innerText = h.toString().padStart(2, '0');
             document.getElementById('minutes').innerText = m.toString().padStart(2, '0');
         }
 
-        function toggleSettings() {
-            document.getElementById('settings-panel').classList.toggle('active');
-        }
+        function toggleSettings() { document.getElementById('settings-panel').classList.toggle('active'); }
 
         function updateFont(val) {
             document.documentElement.style.setProperty('--font-family', val);
