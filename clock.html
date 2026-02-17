@@ -8,7 +8,7 @@
             --bg-color: #f0f0f0;
             --card-color: #333333;
             --text-color: #ffffff;
-            --panel-bg: rgba(255, 255, 255, 0.85);
+            --panel-bg: rgba(255, 255, 255, 0.9);
             --clock-scale: 1;
         }
 
@@ -22,7 +22,7 @@
             width: 100%;
             height: 100vh;
             font-family: "Segoe UI", sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Verhindert das Scrollen des gesamten Widgets */
             position: relative;
         }
 
@@ -31,7 +31,7 @@
             height: 100%;
             display: flex;
             justify-content: center;
-            padding-top: 50px;
+            padding-top: 40px;
             position: relative;
         }
 
@@ -42,7 +42,7 @@
             z-index: 5;
             transform: scale(var(--clock-scale));
             transform-origin: top center;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s ease;
         }
 
         .flip-card {
@@ -69,11 +69,11 @@
             top: 50%;
         }
 
-        /* Einstellungs-Panel mit Scroll-Funktion */
+        /* FIX: Panel weiter nach rechts schieben & Rand entfernen */
         #settings-panel {
             position: fixed;
             top: 0;
-            right: -50%;
+            right: -60%; /* Weiter nach außen geschoben, um den weißen Strich zu eliminieren */
             width: 50%;
             height: 100%;
             background: var(--panel-bg);
@@ -84,47 +84,47 @@
             display: flex;
             flex-direction: column;
             box-shadow: -10px 0 30px rgba(0,0,0,0.1);
-            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            border-left: 1px solid rgba(255,255,255,0.3);
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none; /* Keine Randlinie */
         }
 
-        #settings-panel.active { right: 0; }
+        #settings-panel.active {
+            right: 0;
+        }
 
-        /* Scrollbarer Bereich im Menü */
         .settings-content {
             flex: 1;
             overflow-y: auto;
-            padding: 40px 20px;
+            overflow-x: hidden; /* Verhindert horizontalen Scrollbalken aus Bild 3 */
+            padding: 30px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(0,0,0,0.2) transparent;
+            scrollbar-width: none; /* Versteckt Scrollbar in Firefox */
         }
 
-        /* Custom Scrollbar für Chrome/Safari */
-        .settings-content::-webkit-scrollbar { width: 4px; }
-        .settings-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        /* Scrollbar für Chrome/Safari komplett verstecken für cleanen Look */
+        .settings-content::-webkit-scrollbar {
+            display: none;
+        }
 
-        h2 { margin: 0 0 30px 0; font-weight: 600; font-size: 22px; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { margin: 0 0 25px 0; font-weight: 600; font-size: 20px; letter-spacing: 1px; }
 
         .setting-item {
             width: 100%;
-            max-width: 240px;
+            max-width: 220px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 14px;
-            font-weight: 500;
-            flex-shrink: 0; /* Verhindert Stauchen beim Scrollen */
         }
 
-        input[type="range"] { width: 80px; accent-color: #000; }
+        input[type="range"] { width: 80px; accent-color: #000; cursor: pointer; }
 
         .color-circle-input {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             border: 2px solid #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -139,19 +139,18 @@
 
         .btn-group {
             width: 100%;
-            max-width: 240px;
+            max-width: 220px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 10px;
-            padding-bottom: 30px; /* Platz nach unten */
+            gap: 10px;
+            margin-top: 5px;
         }
 
         button {
             border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             font-family: "Segoe UI";
@@ -160,26 +159,25 @@
         .close-btn { background: #000; color: #fff; }
         .reset-btn { background: rgba(0,0,0,0.05); color: #666; }
 
-        /* Modern Toggle */
-        .switch { position: relative; width: 40px; height: 20px; }
+        .switch { position: relative; width: 36px; height: 18px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider-toggle {
             position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
             background-color: #ddd; transition: .3s; border-radius: 34px;
         }
         .slider-toggle:before {
-            position: absolute; content: ""; height: 14px; width: 14px;
+            position: absolute; content: ""; height: 12px; width: 12px;
             left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%;
         }
         input:checked + .slider-toggle { background-color: #000; }
-        input:checked + .slider-toggle:before { transform: translateX(20px); }
+        input:checked + .slider-toggle:before { transform: translateX(18px); }
 
         .footer {
-            padding: 20px 0;
+            padding: 15px 0;
             font-size: 11px;
             color: #888;
             text-align: center;
-            border-top: 1px solid rgba(0,0,0,0.05);
+            background: var(--panel-bg);
         }
         .footer a { color: #000; text-decoration: none; font-weight: bold; }
     </style>
