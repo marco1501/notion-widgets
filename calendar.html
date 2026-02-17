@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco's Pro UI v30</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Open+Sans:wght@400;700&family=Playfair+Display:wght@700&family=Lato:wght@400;700&family=Oswald:wght@400;700&family=Raleway:wght@400;700&family=Nunito:wght@400;700&family=Ubuntu:wght@400;700&family=Merriweather:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Quicksand:wght@400;700&family=Caveat:wght@700&family=Comfortaa:wght@400;700&family=Righteous&family=Lobster&family=Abril+Fatface&family=Bebas+Neue&family=Special+Elite&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-outside: #f4f4f4;
+            --header-bg: #000000;
+            --header-text: #ffffff;
+            --body-bg: #ffffff;
+            --today-bg: #000000;
+            --text-color: #000000;
+            --font-family: 'Inter', sans-serif;
+            --font-weight: 400;
+            --body-op: 1;
+            --font-size: 14px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg-outside); 
+            display: flex; justify-content: center; align-items: center; 
+            min-height: 100vh; 
+            transition: background 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        #widget-container {
+            width: 350px; height: 420px;
+            background-color: var(--body-bg);
+            opacity: var(--body-op);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            font-family: var(--font-family) !important;
+            font-weight: var(--font-weight) !important;
+            color: var(--text-color);
+            font-size: var(--font-size);
+        }
+
+        #widget-container div, #widget-container span, #widget-container button {
+            font-family: inherit;
+            font-weight: inherit;
+        }
+
+        header { background: var(--header-bg); color: var(--header-text); padding: 12px; text-align: center; }
+        .nav-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .nav-btn { cursor: pointer; font-size: 1.3em; padding: 0 10px; }
+        
+        .view-tabs { display: flex; justify-content: center; gap: 5px; }
+        .view-tabs button { 
+            background: rgba(255,255,255,0.2); border: none; padding: 4px 10px; 
+            border-radius: 6px; cursor: pointer; font-size: 0.8em; color: inherit;
+        }
+        .view-tabs button.active { background: var(--header-text); color: var(--header-bg); font-weight: bold; }
+
+        #calendar-content { 
+            flex-grow: 1; padding: 10px 15px; 
+            display: flex; flex-direction: column; justify-content: center; 
+        }
+
+        .grid { display: grid; gap: 2px; text-align: center; width: 100%; }
+        .day-cell { padding: 6px 0; border-radius: 5px; }
+        .today { background: var(--today-bg) !important; color: white !important; font-weight: bold; }
+        
+        .day-number-large { font-size: 3.5em; line-height: 1; font-weight: bold; }
+        
+        .holiday-box { 
+            margin-top: 10px; padding: 12px; 
+            background: rgba(100, 100, 100, 0.12);
+            border-radius: 12px; 
+            border-left: 4px solid var(--today-bg); 
+            font-size: 0.9em;
+            text-align: left;
+        }
+
+        footer { 
+            padding: 8px 15px; font-size: 0.75em; 
+            border-top: 1px solid rgba(150,150,150,0.1);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        #settings {
+            position: absolute; top: 0; right: 0; bottom: 0; width: 280px;
+            background: #fff; z-index: 100; padding: 15px; overflow-y: auto;
+            display: none; box-shadow: -5px 0 20px rgba(0,0,0,0.2); color: #333;
+        }
+        #settings.active { display: block; }
+        #settings label, #settings span, #settings h3 { font-family: 'Inter', sans-serif !important; font-size: 13px; font-weight: 400; }
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        select, input[type="range"] { width: 100%; margin-top: 5px; }
+        
+        /* Kreisrunde Farbfelder */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            background: transparent;
+            padding: 0;
+            display: block;
+            flex-shrink: 0;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 1.5px solid #ddd; border-radius: 50%; }
+        input[type="color"]::-moz-color-swatch { border: 1.5px solid #ddd; border-radius: 50%; }
+
+        .switch { position: relative; width: 34px; height: 18px; display: inline-block; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 20px; transition: 0.3s; }
+        .slider:before { content: ""; position: absolute; height: 14px; width: 14px; left: 2px; bottom: 2px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: #2ecc71; }
+        input:checked + .slider:before { transform: translateX(16px); }
+    </style>
+</head>
+<body>
+
+    <div id="widget-container">
+        <header>
+            <div class="nav-row">
+                <div class="nav-btn" onclick="changeDate(-1)">❮</div>
+                <div id="dateTitle" style="font-weight:bold;">Februar 2026</div>
+                <div class="nav-btn" onclick="changeDate(1)">❯</div>
+            </div>
+            <div class="view-tabs">
+                <button onclick="setView('month')" id="btn-month" class="active">Monat</button>
+                <button onclick="setView('week')" id="btn-week">Woche</button>
+                <button onclick="setView('day')" id="btn-day">Tag</button>
+            </div>
+        </header>
+
+        <div id="calendar-content">
+            <div id="display"></div>
+        </div>
+
+        <footer>
+            <div onclick="toggleSettings()" style="cursor:pointer">⚙️ Design</div>
+            <span>made by Marco Förster</span>
+        </footer>
+
+        <div id="settings">
+            <span onclick="toggleSettings()" style="float:right; cursor:pointer; font-weight:bold;">✕</span>
+            <h3 style="margin-bottom:15px; font-weight:bold;">Design</h3>
+            <div class="row"><span>Dark Mode</span><label class="switch"><input type="checkbox" id="darkInp" onchange="updateUI()"><span class="slider"></span></label></div>
+            <div class="row"><span>Header Farbe</span><input type="color" id="hBg" value="#000000" oninput="updateUI()"></div>
+            <div class="row"><span>Header Text Farbe</span><input type="color" id="hTx" value="#ffffff" oninput="updateUI()"></div>
+            <div class="row"><span>Hintergrund Farbe</span><input type="color" id="bBg" value="#ffffff" oninput="updateUI()"></div>
+            <div class="row"><span>Heute Farbe</span><input type="color" id="tBg" value="#000000" oninput="updateUI()"></div>
+            <div class="row"><span>Außen Farbe</span><input type="color" id="oBg" value="#f4f4f4" oninput="updateUI()"></div>
+            <div style="margin-bottom:10px;">
+                <span>Schriftart</span>
+                <select id="fFam" onchange="updateUI()">
+                    <option value="'Inter'">Inter</option><option value="'Montserrat'">Montserrat</option><option value="'Poppins'">Poppins</option><option value="'Roboto'">Roboto</option><option value="'Open Sans'">Open Sans</option><option value="'Playfair Display'">Playfair Display</option><option value="'Lato'">Lato</option><option value="'Oswald'">Oswald</option><option value="'Raleway'">Raleway</option><option value="'Nunito'">Nunito</option><option value="'Ubuntu'">Ubuntu</option><option value="'Merriweather'">Merriweather</option><option value="'Dancing Script'">Dancing Script</option><option value="'Pacifico'">Pacifico</option><option value="'Quicksand'">Quicksand</option><option value="'Caveat'">Caveat</option><option value="'Comfortaa'">Comfortaa</option><option value="'Righteous'">Righteous</option><option value="'Lobster'">Lobster</option><option value="'Abril Fatface'">Abril Fatface</option><option value="'Bebas Neue'">Bebas Neue</option><option value="'Special Elite'">Special Elite</option>
+                </select>
+            </div>
+            <div class="row"><span>Text Fett</span><label class="switch"><input type="checkbox" id="fBold" onchange="updateUI()"><span class="slider"></span></label></div>
+            <div style="margin-bottom:10px;">
+                <span>Transparenz</span>
+                <input type="range" id="fOp" min="0.1" max="1" step="0.1" value="1" oninput="updateUI()">
+            </div>
+            <div style="margin-bottom:10px;">
+                <span>Schriftgröße</span>
+                <input type="range" id="fSize" min="10" max="22" step="1" value="14" oninput="updateUI()">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentView = 'month', date = new Date();
+        const holidayDB = {
+            0: ["Neujahrstag", "Tag des Waldschlößchens", "Tag des Schlafs", "Tag der Mandarine", "Tag der Schlagsahne", "Tag des Kuschelns", "Tag des Strickens", "Tag des Badeschaums", "Tag der Aprikose", "Tag des Bitters", "Tag des deutschen Apfels", "Tag des Marzipans", "Tag der Gummiente", "Tag des Logarithmus", "Tag des Erdbeereises", "Tag des Nichts", "Tag des brandneuen Kalenders", "Tag des Thesaurus", "Tag des Popcorns", "Tag der Pinguine", "Tag der Jogginghose", "Tag der scharfen Saucen", "Tag der Handschrift", "Tag der Komplimente", "Tag des Gegenteils", "Tag der Erdnuss", "Tag des Schokoladenkuchens", "Tag der LEGO-Steine", "Tag des Puzzles", "Tag des Croissants", "Tag der Rückwärtslesens"],
+            1: ["Ändere Passwort Tag", "Tag des Igels", "Tag des Karottenkuchens", "Tag des hausgemachten Soufflés", "Welt-Nutella-Tag", "Tag des gefrorenen Joghurts", "Tag des Balletts", "Tag der Oper", "Tag der Zahnschmerzen", "Tag der Regenschirme", "Tag des weißen Hemdes", "Tag des Darwinismus", "Tag der Radiohörer", "Valentinstag", "Tag der Gummidrops", "Tag der Mandel", "Tag des Milchkaffees", "Batterie-Tag", "Tag der Minze", "Liebe-dein-Haustier-Tag", "Tag der Muttersprache", "Tag des Gassi-Gehens", "Tag der Bananenbrot", "Tag der Tortilla-Chips", "Tag der Pistazie", "Tag der Eisbären", "Tag des öffentlichen Schlafens", "Tag des Kusses"],
+            2: ["Tag des Kompliments", "Tag der alten Dinge", "Tag des Wartens", "Tag der Grammatik", "Tag des Energiesparens", "Tag der Tiefkühlkost", "Tag der gesunden Ernährung", "Tag des Korrekturlesens", "Tag der Barbie-Puppe", "Tag des Schienbeins", "Tag des Nickerchens", "Tag der Pflanzschale", "Tag der Ohrenschützer", "Pi-Tag", "Tag der Rückengesundheit", "Lippenstift-Tag", "Tag des U-Bootes", "Tag des Recyclings", "Tag des Lachens", "Tag des Glücks", "Tag des Waldes", "Weltwassertag", "Tag des Welpen", "Tag der Jongleure", "Tag der Waffel", "Tag des Erfindens", "Tag der Paella", "Unkraut-Tag", "Tag des Klaviers", "Tag des Bleistifts", "Tag der Eiffelturms"]
+        };
+
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function updateUI() {
+            const root = document.documentElement;
+            const isDark = document.getElementById('darkInp').checked;
+            root.style.setProperty('--header-bg', document.getElementById('hBg').value);
+            root.style.setProperty('--header-text', document.getElementById('hTx').value);
+            root.style.setProperty('--body-bg', isDark ? '#222' : document.getElementById('bBg').value);
+            root.style.setProperty('--today-bg', document.getElementById('tBg').value);
+            root.style.setProperty('--bg-outside', document.getElementById('oBg').value);
+            root.style.setProperty('--text-color', isDark ? '#fff' : '#000');
+            root.style.setProperty('--font-family', document.getElementById('fFam').value);
+            root.style.setProperty('--font-weight', document.getElementById('fBold').checked ? '700' : '400');
+            root.style.setProperty('--body-op', document.getElementById('fOp').value);
+            root.style.setProperty('--font-size', document.getElementById('fSize').value + 'px');
+            render();
+        }
+
+        function render() {
+            const container = document.getElementById('display');
+            container.innerHTML = '';
+            if(currentView === 'month') {
+                document.getElementById('dateTitle').innerText = new Intl.DateTimeFormat('de-DE', {month:'long', year:'numeric'}).format(date);
+                let html = '<div class="grid" style="grid-template-columns: repeat(7, 1fr);">';
+                ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(w => html += `<div style="font-size:0.75em; opacity:0.5; font-weight:bold;">${w}</div>`);
+                let first = new Date(date.getFullYear(), date.getMonth(), 1), start = (first.getDay() + 6) % 7, days = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                for(let i=0; i<start; i++) html += '<div></div>';
+                for(let d=1; d<=days; d++) {
+                    let isToday = new Date(date.getFullYear(), date.getMonth(), d).toDateString() === new Date().toDateString() ? 'today' : '';
+                    html += `<div class="day-cell ${isToday}">${d}</div>`;
+                }
+                container.innerHTML = html + '</div>';
+            } else if(currentView === 'week') {
+                document.getElementById('dateTitle').innerText = 'KW ' + getWeekNumber(date);
+                let html = '<div class="grid" style="grid-template-columns: repeat(7, 1fr);">';
+                let temp = new Date(date); temp.setDate(temp.getDate() - (temp.getDay() + 6) % 7);
+                for(let i=0; i<7; i++) {
+                    let isToday = temp.toDateString() === new Date().toDateString() ? 'today' : '';
+                    html += `<div class="day-cell ${isToday}"><div style="font-size:0.7em; opacity:0.6;">${new Intl.DateTimeFormat('de-DE',{weekday:'short'}).format(temp)}</div><div style="font-size:1.2em;">${temp.getDate()}</div></div>`;
+                    temp.setDate(temp.getDate()+1);
+                }
+                container.innerHTML = html + '</div>';
+            } else {
+                document.getElementById('dateTitle').innerText = date.toLocaleDateString('de-DE', {day:'numeric', month:'long'});
+                let holiday = (holidayDB[date.getMonth()] || [])[date.getDate()-1] || "Ein schöner Tag";
+                holiday = holiday.replace(/\(/g, '"').replace(/\)/g, '"');
+                container.innerHTML = `<div style="text-align:center"><div class="day-number-large">${date.getDate()}</div><div style="font-size:1.3em; font-weight:bold; margin-bottom:10px;">${new Intl.DateTimeFormat('de-DE',{weekday:'long'}).format(date)}</div><div class="holiday-box"><strong>Schon gewusst?</strong><br>Heute ist: ${holiday}</div></div>`;
+            }
+        }
+
+        function setView(v) { currentView = v; document.querySelectorAll('.view-tabs button').forEach(b => b.classList.remove('active')); document.getElementById('btn-'+v).classList.add('active'); render(); }
+        function changeDate(step) { if(currentView === 'month') date.setMonth(date.getMonth() + step); else if(currentView === 'week') date.setDate(date.getDate() + (step * 7)); else date.setDate(date.getDate() + step); render(); }
+        function toggleSettings() { document.getElementById('settings').classList.toggle('active'); }
+        window.onload = updateUI;
+    </script>
+</body>
+</html>
