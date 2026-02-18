@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Roboto:wght@400;700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;700&family=Inter:wght@400;700&family=Open+Sans&family=Ubuntu:wght@400;700&family=Lora&family=Fira+Code&family=Poppins:wght@400;700&family=Oswald:wght@400;700&family=Merriweather:wght@400;700&family=Playfair+Display&family=Nunito:wght@400;700&family=Raleway:wght@400;700&family=Bebas+Neue&family=Abril+Fatface&family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Roboto:wght@400;700&family=Playfair+Display:wght@700&family=Montserrat:wght@400;700&family=Inter:wght@400;700&family=Open+Sans&family=Ubuntu:wght@400;700&family=Lora&family=Fira+Code&family=Poppins:wght@400;700&family=Oswald:wght@400;700&family=Merriweather:wght@400;700&family=Nunito:wght@400;700&family=Raleway:wght@400;700&family=Bebas+Neue&family=Abril+Fatface&family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { margin: 0; padding: 10px; background-color: transparent; transition: background 0.3s; overflow-x: hidden; }
         .nav-container { display: flex; flex-direction: row; justify-content: center; gap: 10px; flex-wrap: wrap; }
@@ -17,7 +17,6 @@
         }
         .nav-item:hover { opacity: 0.7; transform: translateY(-1px); }
 
-        /* Modern Black & White Toggle */
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e0e0e0; transition: .3s; border-radius: 22px; border: 1px solid #000; }
@@ -25,7 +24,6 @@
         input:checked + .slider { background-color: #000; }
         input:checked + .slider:before { transform: translateX(22px); background-color: #fff; }
 
-        /* Settings Panel */
         #settings-overlay {
             display: none; margin-top: 20px; padding: 25px; border-radius: 15px; font-size: 14px;
             background: rgba(255, 255, 255, 0.98); box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -82,7 +80,7 @@
             <div id="manage-links" style="max-height: 120px; overflow-y: auto;"></div>
         </div>
         <button onclick="toggleSettings()" style="width:100%; margin-top:15px; cursor:pointer; padding:12px; background:#000; color:#fff; border:none; border-radius:8px; font-weight:bold;">Schließen</button>
-        <div class="footer-settings">made by <a href="https://www.marcofoerster.com" target="_blank">Marco Förster</a></div>
+        <div class="footer-settings">made by <a href="https://www.marcofoerster.com" target="_top">Marco Förster</a></div>
     </div>
 
     <script>
@@ -104,7 +102,7 @@
         }
 
         function init() {
-            const saved = localStorage.getItem('notion-nav-v5');
+            const saved = localStorage.getItem('notion-nav-v6');
             if (saved) config = JSON.parse(saved);
             document.getElementById('font-select').value = config.font;
             document.getElementById('size-input').value = config.fontSize;
@@ -132,7 +130,9 @@
 
             config.links.forEach((link, index) => {
                 const a = document.createElement('a');
-                a.href = link.url; a.target = "_self"; a.className = 'nav-item';
+                a.href = link.url; 
+                a.target = "_top"; // FIX: Öffnet im Hauptfenster
+                a.className = 'nav-item';
                 a.innerText = link.name;
                 a.style.backgroundColor = `rgba(${rgbBtn}, ${config.btnOpacity})`;
                 a.style.color = config.textColor;
@@ -168,7 +168,7 @@
             config.btnOpacity = document.getElementById('btn-opacity').value;
             config.borderWidth = document.getElementById('border-width').value;
             config.borderColor = document.getElementById('color-border').value;
-            localStorage.setItem('notion-nav-v5', JSON.stringify(config));
+            localStorage.setItem('notion-nav-v6', JSON.stringify(config));
             renderMenu();
         }
 
