@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Förster Ultimate Chart v2.7</title>
+    <title>Marco Förster Ultimate Chart v2.9</title>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Rubik+Mono+One&family=Playfair+Display:wght@700&family=Lora&family=Open+Sans:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -33,17 +33,28 @@
         #main-wrapper { display: flex; flex-direction: column; height: 100vh; position: relative; }
         #chart-target { flex-grow: 1; z-index: 1; }
 
-        /* Footer Restoration with Bold Name */
+        /* FORCE PLOTLY TOOLBAR TO TOP CENTER */
+        .js-plotly-plot .plotly .modebar {
+            left: 50% !important;
+            top: 10px !important;
+            right: auto !important;
+            transform: translateX(-50%) !important;
+            display: flex !important;
+            flex-direction: row !important;
+        }
+
+        /* Footer */
         footer { 
             height: 50px; padding: 0 25px; display: flex; justify-content: space-between; align-items: center;
             background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--border); z-index: 100; font-size: 11px;
         }
+        footer .nav { display: flex; gap: 20px; font-weight: 700; }
         footer .branding { font-family: "Segoe UI", sans-serif; font-weight: 400; }
         footer .branding b { font-weight: 700; }
         footer a { color: var(--txt); text-decoration: none; }
 
-        /* Settings Glass Panel */
+        /* Settings Panel */
         #settings-panel {
             position: absolute; top: 20px; left: 20px; bottom: 80px; width: 350px;
             background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
@@ -52,14 +63,12 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         #settings-panel.active { display: flex; }
-
         .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         h2 { font-size: 22px; letter-spacing: -1px; font-weight: 700; }
         .close-icon { cursor: pointer; font-size: 28px; line-height: 1; }
 
         h4 { font-size: 10px; text-transform: uppercase; opacity: 0.5; margin-top: 20px; margin-bottom: 10px; letter-spacing: 1px; }
 
-        /* Circle UI Elements Fix */
         .circle-ui { 
             width: 32px; height: 32px; border-radius: 50% !important; 
             border: 2px solid var(--bg); cursor: pointer; aspect-ratio: 1/1; 
@@ -68,24 +77,16 @@
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border-radius: 50%; border: none; }
 
-        .btn-delete { 
-            width: 24px; height: 24px; border-radius: 50%; background: #000; 
-            color: #fff; border: none; font-size: 12px; cursor: pointer; font-weight: bold;
-        }
+        .btn-delete { width: 24px; height: 24px; border-radius: 50%; background: #000; color: #fff; border: none; font-size: 12px; cursor: pointer; font-weight: bold; }
         .dark-mode .btn-delete { background: #fff; color: #000; }
 
-        /* Accordion */
         .db-entry { background: rgba(128,128,128,0.05); border-radius: 15px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
         .db-row { display: flex; align-items: center; gap: 12px; cursor: pointer; }
         .db-fields { display: none; padding-top: 15px; flex-direction: column; gap: 10px; }
         .db-fields.open { display: flex; }
 
-        input[type="text"], select { 
-            width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
-            background: var(--bg); color: var(--txt); font-size: 12px; outline: none;
-        }
+        input[type="text"], select { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--txt); font-size: 12px; outline: none; }
 
-        /* BW Toggle Switches */
         .sw-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; }
         .toggle { position: relative; width: 44px; height: 24px; }
         .toggle input { opacity: 0; width: 0; height: 0; }
@@ -94,7 +95,6 @@
         input:checked + .slider { background: var(--switch-on); }
         input:checked + .slider:before { transform: translateX(20px); background: var(--bg); }
 
-        /* BW Slider */
         input[type="range"] { -webkit-appearance: none; height: 4px; background: #ccc; border-radius: 2px; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--txt); border-radius: 50%; cursor: pointer; }
 
@@ -107,9 +107,10 @@
     <div id="chart-target"></div>
     
     <footer>
-        <div style="display:flex; gap:25px;">
+        <div class="nav">
             <div onclick="togglePanel()" style="cursor:pointer">⚙️ SETTINGS</div>
             <div onclick="toggleModeBar()" style="cursor:pointer">🛠️ TOOLBAR</div>
+            <div onclick="renderCharts()" style="cursor:pointer">🔄 REFRESH</div>
         </div>
         <div class="branding">made by <a href="http://www.marcofoerster.com" target="_blank"><b>Marco Förster</b></a></div>
     </footer>
@@ -178,8 +179,8 @@
             </div>
             <div class="db-fields" id="fields-${uid}">
                 <input type="text" placeholder="Notion Database ID..." value="${config.notionId}" onchange="fetchNotionStructure('${uid}', this.value)">
-                <select class="sel-x" onchange="updateDbConfig('${uid}','xKey',this.value)"><option>X-Achse (Label)...</option></select>
-                <select class="sel-y" onchange="updateDbConfig('${uid}','yKey',this.value)"><option>Y-Achse (Wert)...</option></select>
+                <select class="sel-x" onchange="updateDbConfig('${uid}','xKey',this.value)"><option>X-Achse...</option></select>
+                <select class="sel-y" onchange="updateDbConfig('${uid}','yKey',this.value)"><option>Y-Achse...</option></select>
             </div>
         `;
         document.getElementById('db-container').appendChild(entry);
@@ -203,7 +204,7 @@
                 el.querySelector('.sel-y').innerHTML = `<option>Wert Spalte</option>` + options;
                 saveToLocal(); renderCharts();
             }
-        } catch(e) { console.error("Notion Sync Error"); }
+        } catch(e) {}
     }
 
     async function renderCharts() {
@@ -213,6 +214,13 @@
 
         for(let conf of databaseList) {
             if(!conf.notionId || !conf.xKey || !conf.yKey) continue;
+            
+            // Dynamic Color Logic: Black becomes White in Dark Mode
+            let drawColor = conf.color;
+            if(isDark && (drawColor.toLowerCase() === '#000000' || drawColor === 'rgb(0, 0, 0)')) {
+                drawColor = '#ffffff';
+            }
+
             const res = await fetch(PROXY_URL + encodeURIComponent(`https://api.notion.com/v1/databases/${conf.notionId}/query`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${NOTION_SECRET}`, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }
@@ -223,30 +231,26 @@
                 value: p.properties[conf.yKey].number || 0
             })).sort((a,b) => new Date(a.label) - new Date(b.label));
 
-            const traceColor = conf.color;
-
             if(mode === 'donut') {
                 const total = rawData.reduce((a, b) => a + b.value, 0);
                 traces.push({
                     values: [total, Math.max(0, 100 - total)],
-                    labels: ['Fortschritt', 'Rest'],
                     type: 'pie', hole: 0.8,
-                    marker: { colors: [traceColor, isDark ? '#222' : '#eee'] },
-                    textinfo: 'none', hoverinfo: 'label+value'
+                    marker: { colors: [drawColor, isDark ? '#222' : '#eee'] },
+                    textinfo: 'none'
                 });
             } else if(mode === 'hbar') {
                 traces.push({
                     x: rawData.map(d => d.value), y: rawData.map(d => d.label),
-                    type: 'bar', orientation: 'h',
-                    marker: { color: traceColor }
+                    type: 'bar', orientation: 'h', marker: { color: drawColor }
                 });
             } else {
                 traces.push({
                     x: rawData.map(d => d.label), y: rawData.map(d => d.value),
                     type: mode === 'bar' ? 'bar' : 'scatter',
                     mode: 'lines+markers',
-                    line: { color: traceColor, width: 3, shape: 'spline' },
-                    marker: { size: 8, color: traceColor }
+                    line: { color: drawColor, width: 3, shape: 'spline' },
+                    marker: { size: 8, color: drawColor }
                 });
             }
         }
@@ -256,7 +260,7 @@
             font: { family: document.getElementById('fontPicker').value, color: isDark ? '#fff' : '#000', size: document.getElementById('sizePicker').value },
             xaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', zeroline: false },
             yaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', rangemode: document.getElementById('zoomToggle').checked ? 'normal' : 'tozero' },
-            margin: { t: 40, b: 40, l: 60, r: 40 },
+            margin: { t: 60, b: 40, l: 60, r: 40 },
             showlegend: false
         };
 
@@ -264,8 +268,9 @@
     }
 
     function updateTheme() {
-        document.body.classList.toggle('dark-mode', document.getElementById('darkToggle').checked);
-        document.getElementById('bgPicker').value = document.getElementById('darkToggle').checked ? "#000000" : "#ffffff";
+        const isDark = document.getElementById('darkToggle').checked;
+        document.body.classList.toggle('dark-mode', isDark);
+        document.getElementById('bgPicker').value = isDark ? "#000000" : "#ffffff";
         applyUI();
     }
 
@@ -278,10 +283,10 @@
     function togglePanel() { document.getElementById('settings-panel').classList.toggle('active'); }
     function removeDatabase(uid) { databaseList = databaseList.filter(d => d.uid !== uid); document.getElementById(`entry-${uid}`).remove(); saveToLocal(); renderCharts(); }
     function updateDbConfig(uid, k, v) { const d = databaseList.find(i => i.uid === uid); if(d) { d[k]=v; saveToLocal(); renderCharts(); } }
-    function saveToLocal() { localStorage.setItem('marco_v27_cfg', JSON.stringify({ dark: document.getElementById('darkToggle').checked, databaseList, bg: document.getElementById('bgPicker').value, size: document.getElementById('sizePicker').value, font: document.getElementById('fontPicker').value })); }
+    function saveToLocal() { localStorage.setItem('marco_v25_cfg', JSON.stringify({ dark: document.getElementById('darkToggle').checked, databaseList, bg: document.getElementById('bgPicker').value, size: document.getElementById('sizePicker').value, font: document.getElementById('fontPicker').value })); }
 
     window.onload = () => {
-        const stored = JSON.parse(localStorage.getItem('marco_v27_cfg') || '{}');
+        const stored = JSON.parse(localStorage.getItem('marco_v25_cfg') || '{}');
         if(stored.databaseList) {
             document.getElementById('darkToggle').checked = stored.dark;
             if(stored.dark) document.body.classList.add('dark-mode');
