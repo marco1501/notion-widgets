@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco Förster Ultimate Chart v2.7</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Rubik+Mono+One&family=Playfair+Display:wght@700&family=Lora&family=Open+Sans:wght@400;700&family=Ubuntu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --txt: #000000;
+            --glass: rgba(255, 255, 255, 0.8);
+            --border: rgba(0, 0, 0, 0.1);
+            --switch-on: #000000;
+        }
+
+        body.dark-mode {
+            --bg: #000000;
+            --txt: #ffffff;
+            --glass: rgba(15, 15, 15, 0.85);
+            --border: rgba(255, 255, 255, 0.15);
+            --switch-on: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: var(--bg); color: var(--txt); 
+            font-family: "Segoe UI", sans-serif; overflow: hidden;
+            width: 100vw; height: 100vh; transition: background 0.3s ease;
+        }
+
+        #main-wrapper { display: flex; flex-direction: column; height: 100vh; position: relative; }
+        #chart-target { flex-grow: 1; z-index: 1; }
+
+        /* Footer Restoration with Bold Name */
+        footer { 
+            height: 50px; padding: 0 25px; display: flex; justify-content: space-between; align-items: center;
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border); z-index: 100; font-size: 11px;
+        }
+        footer .branding { font-family: "Segoe UI", sans-serif; font-weight: 400; }
+        footer .branding b { font-weight: 700; }
+        footer a { color: var(--txt); text-decoration: none; }
+
+        /* Settings Glass Panel */
+        #settings-panel {
+            position: absolute; top: 20px; left: 20px; bottom: 80px; width: 350px;
+            background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 1px solid var(--border); border-radius: 20px; padding: 25px;
+            display: none; flex-direction: column; z-index: 1000; overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        #settings-panel.active { display: flex; }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        h2 { font-size: 22px; letter-spacing: -1px; font-weight: 700; }
+        .close-icon { cursor: pointer; font-size: 28px; line-height: 1; }
+
+        h4 { font-size: 10px; text-transform: uppercase; opacity: 0.5; margin-top: 20px; margin-bottom: 10px; letter-spacing: 1px; }
+
+        /* Circle UI Elements Fix */
+        .circle-ui { 
+            width: 32px; height: 32px; border-radius: 50% !important; 
+            border: 2px solid var(--bg); cursor: pointer; aspect-ratio: 1/1; 
+            box-shadow: 0 0 0 1px var(--border); flex-shrink: 0;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border-radius: 50%; border: none; }
+
+        .btn-delete { 
+            width: 24px; height: 24px; border-radius: 50%; background: #000; 
+            color: #fff; border: none; font-size: 12px; cursor: pointer; font-weight: bold;
+        }
+        .dark-mode .btn-delete { background: #fff; color: #000; }
+
+        /* Accordion */
+        .db-entry { background: rgba(128,128,128,0.05); border-radius: 15px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .db-row { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .db-fields { display: none; padding-top: 15px; flex-direction: column; gap: 10px; }
+        .db-fields.open { display: flex; }
+
+        input[type="text"], select { 
+            width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg); color: var(--txt); font-size: 12px; outline: none;
+        }
+
+        /* BW Toggle Switches */
+        .sw-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; }
+        .toggle { position: relative; width: 44px; height: 24px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ccc; border-radius: 24px; transition: 0.3s; }
+        .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider { background: var(--switch-on); }
+        input:checked + .slider:before { transform: translateX(20px); background: var(--bg); }
+
+        /* BW Slider */
+        input[type="range"] { -webkit-appearance: none; height: 4px; background: #ccc; border-radius: 2px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--txt); border-radius: 50%; cursor: pointer; }
+
+        .btn-primary { width: 100%; padding: 14px; border-radius: 12px; background: var(--txt); color: var(--bg); border: none; font-weight: 700; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+<div id="main-wrapper">
+    <div id="chart-target"></div>
+    
+    <footer>
+        <div style="display:flex; gap:25px;">
+            <div onclick="togglePanel()" style="cursor:pointer">⚙️ SETTINGS</div>
+            <div onclick="toggleModeBar()" style="cursor:pointer">🛠️ TOOLBAR</div>
+        </div>
+        <div class="branding">made by <a href="http://www.marcofoerster.com" target="_blank"><b>Marco Förster</b></a></div>
+    </footer>
+
+    <div id="settings-panel">
+        <div class="panel-header">
+            <h2>Settings</h2>
+            <div class="close-icon" onclick="togglePanel()">×</div>
+        </div>
+        
+        <h4>Datenquellen</h4>
+        <div id="db-container"></div>
+        <button class="btn-primary" onclick="addDatabase()">+ DATENBANK HINZUFÜGEN</button>
+
+        <h4>Design & Theme</h4>
+        <div class="sw-row"><span>Dark Mode</span><label class="toggle"><input type="checkbox" id="darkToggle" onchange="updateTheme()"><span class="slider"></span></label></div>
+        <div class="sw-row"><span>Hintergrund</span><input type="color" id="bgPicker" class="circle-ui" value="#ffffff" oninput="applyUI()"></div>
+
+        <h4>Diagramm-Typ</h4>
+        <select id="chartType" onchange="applyUI()" style="margin-bottom:10px;">
+            <option value="scatter">📈 Linien-Diagramm</option>
+            <option value="bar">📊 Balken (Vertikal)</option>
+            <option value="hbar">📉 Balken (Horizontal)</option>
+            <option value="donut">🍩 Progress Donut (100%)</option>
+        </select>
+        <div class="sw-row"><span>Y-Achse Auto-Zoom</span><label class="toggle"><input type="checkbox" id="zoomToggle" onchange="applyUI()" checked><span class="slider"></span></label></div>
+
+        <h4>Typografie</h4>
+        <select id="fontPicker" onchange="applyUI()" style="margin-bottom:10px;">
+            <option value="Segoe UI">Segoe UI</option>
+            <option value="Rubik Mono One">Rubik Mono One</option>
+            <option value="Inter">Inter</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Poppins">Poppins</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Oswald">Oswald</option>
+            <option value="Playfair Display">Playfair Display</option>
+            <option value="Lora">Lora</option>
+            <option value="Open Sans">Open Sans</option>
+        </select>
+        <div class="sw-row"><span>Schriftgröße</span><input type="range" id="sizePicker" min="10" max="30" value="16" oninput="applyUI()"></div>
+        
+        <button onclick="localStorage.clear(); location.reload();" style="margin-top:20px; background:none; border:none; color:inherit; font-size:10px; cursor:pointer; opacity:0.4; width:100%">EINSTELLUNGEN LÖSCHEN</button>
+    </div>
+</div>
+
+<script>
+    const NOTION_SECRET = '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';
+    const PROXY_URL = "https://corsproxy.io/?";
+    let databaseList = [];
+    let barVisible = false;
+
+    function addDatabase(savedData = null) {
+        const uid = savedData ? savedData.uid : "db-" + Date.now();
+        const config = savedData || { uid, notionId: "", color: "#000000", xKey: "", yKey: "", cols: [] };
+        if(!savedData) databaseList.push(config);
+
+        const entry = document.createElement('div');
+        entry.className = 'db-entry';
+        entry.id = `entry-${uid}`;
+        entry.innerHTML = `
+            <div class="db-row" onclick="document.getElementById('fields-${uid}').classList.toggle('open')">
+                <input type="color" class="circle-ui" value="${config.color}" onclick="event.stopPropagation()" oninput="updateDbConfig('${uid}','color',this.value)">
+                <span style="font-size:11px; font-weight:700; flex-grow:1">DATENBANK SETUP</span>
+                <button class="btn-delete" onclick="event.stopPropagation(); removeDatabase('${uid}')">×</button>
+            </div>
+            <div class="db-fields" id="fields-${uid}">
+                <input type="text" placeholder="Notion Database ID..." value="${config.notionId}" onchange="fetchNotionStructure('${uid}', this.value)">
+                <select class="sel-x" onchange="updateDbConfig('${uid}','xKey',this.value)"><option>X-Achse (Label)...</option></select>
+                <select class="sel-y" onchange="updateDbConfig('${uid}','yKey',this.value)"><option>Y-Achse (Wert)...</option></select>
+            </div>
+        `;
+        document.getElementById('db-container').appendChild(entry);
+        if(config.notionId) fetchNotionStructure(uid, config.notionId);
+    }
+
+    async function fetchNotionStructure(uid, val) {
+        const cleanId = val.trim().split('/').pop().split('?')[0].replace(/-/g, "");
+        const config = databaseList.find(d => d.uid === uid);
+        config.notionId = cleanId;
+        try {
+            const res = await fetch(PROXY_URL + encodeURIComponent(`https://api.notion.com/v1/databases/${cleanId}`), {
+                headers: { 'Authorization': `Bearer ${NOTION_SECRET}`, 'Notion-Version': '2022-06-28' }
+            });
+            if(res.ok) {
+                const data = await res.json();
+                config.cols = Object.keys(data.properties);
+                const el = document.getElementById(`entry-${uid}`);
+                const options = config.cols.map(c => `<option value="${c}" ${c===config.xKey||c===config.yKey?'selected':''}>${c}</option>`).join('');
+                el.querySelector('.sel-x').innerHTML = `<option>Label Spalte</option>` + options;
+                el.querySelector('.sel-y').innerHTML = `<option>Wert Spalte</option>` + options;
+                saveToLocal(); renderCharts();
+            }
+        } catch(e) { console.error("Notion Sync Error"); }
+    }
+
+    async function renderCharts() {
+        const mode = document.getElementById('chartType').value;
+        const isDark = document.body.classList.contains('dark-mode');
+        const traces = [];
+
+        for(let conf of databaseList) {
+            if(!conf.notionId || !conf.xKey || !conf.yKey) continue;
+            const res = await fetch(PROXY_URL + encodeURIComponent(`https://api.notion.com/v1/databases/${conf.notionId}/query`), {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${NOTION_SECRET}`, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }
+            });
+            const json = await res.json();
+            const rawData = json.results.map(p => ({
+                label: p.properties[conf.xKey].type === 'date' ? p.properties[conf.xKey].date?.start : (p.properties[conf.xKey].title?.[0]?.plain_text || p.properties[conf.xKey].select?.name),
+                value: p.properties[conf.yKey].number || 0
+            })).sort((a,b) => new Date(a.label) - new Date(b.label));
+
+            const traceColor = conf.color;
+
+            if(mode === 'donut') {
+                const total = rawData.reduce((a, b) => a + b.value, 0);
+                traces.push({
+                    values: [total, Math.max(0, 100 - total)],
+                    labels: ['Fortschritt', 'Rest'],
+                    type: 'pie', hole: 0.8,
+                    marker: { colors: [traceColor, isDark ? '#222' : '#eee'] },
+                    textinfo: 'none', hoverinfo: 'label+value'
+                });
+            } else if(mode === 'hbar') {
+                traces.push({
+                    x: rawData.map(d => d.value), y: rawData.map(d => d.label),
+                    type: 'bar', orientation: 'h',
+                    marker: { color: traceColor }
+                });
+            } else {
+                traces.push({
+                    x: rawData.map(d => d.label), y: rawData.map(d => d.value),
+                    type: mode === 'bar' ? 'bar' : 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: traceColor, width: 3, shape: 'spline' },
+                    marker: { size: 8, color: traceColor }
+                });
+            }
+        }
+
+        const layout = {
+            paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: document.getElementById('fontPicker').value, color: isDark ? '#fff' : '#000', size: document.getElementById('sizePicker').value },
+            xaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', zeroline: false },
+            yaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', rangemode: document.getElementById('zoomToggle').checked ? 'normal' : 'tozero' },
+            margin: { t: 40, b: 40, l: 60, r: 40 },
+            showlegend: false
+        };
+
+        Plotly.newPlot('chart-target', traces, layout, { responsive: true, displayModeBar: barVisible, displaylogo: false });
+    }
+
+    function updateTheme() {
+        document.body.classList.toggle('dark-mode', document.getElementById('darkToggle').checked);
+        document.getElementById('bgPicker').value = document.getElementById('darkToggle').checked ? "#000000" : "#ffffff";
+        applyUI();
+    }
+
+    function applyUI() {
+        document.documentElement.style.setProperty('--bg', document.getElementById('bgPicker').value);
+        saveToLocal(); renderCharts();
+    }
+
+    function toggleModeBar() { barVisible = !barVisible; renderCharts(); }
+    function togglePanel() { document.getElementById('settings-panel').classList.toggle('active'); }
+    function removeDatabase(uid) { databaseList = databaseList.filter(d => d.uid !== uid); document.getElementById(`entry-${uid}`).remove(); saveToLocal(); renderCharts(); }
+    function updateDbConfig(uid, k, v) { const d = databaseList.find(i => i.uid === uid); if(d) { d[k]=v; saveToLocal(); renderCharts(); } }
+    function saveToLocal() { localStorage.setItem('marco_v27_cfg', JSON.stringify({ dark: document.getElementById('darkToggle').checked, databaseList, bg: document.getElementById('bgPicker').value, size: document.getElementById('sizePicker').value, font: document.getElementById('fontPicker').value })); }
+
+    window.onload = () => {
+        const stored = JSON.parse(localStorage.getItem('marco_v27_cfg') || '{}');
+        if(stored.databaseList) {
+            document.getElementById('darkToggle').checked = stored.dark;
+            if(stored.dark) document.body.classList.add('dark-mode');
+            document.getElementById('bgPicker').value = stored.bg || "#ffffff";
+            document.getElementById('sizePicker').value = stored.size || 16;
+            document.getElementById('fontPicker').value = stored.font || "Segoe UI";
+            databaseList = stored.databaseList;
+            databaseList.forEach(d => addDatabase(d));
+            applyUI();
+        } else { addDatabase(); }
+    };
+</script>
+</body>
+</html>
