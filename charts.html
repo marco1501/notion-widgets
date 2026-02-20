@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco's Pro Charts v2.2</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        :root {
+            --body-bg: #ffffff;
+            --text-color: #000000;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --accent-color: #000000;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body, html { 
+            width: 100%; height: 100%; overflow: hidden;
+            background-color: var(--body-bg); 
+            display: flex; justify-content: center; align-items: center; 
+            font-family: 'Segoe UI', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            color: var(--text-color);
+        }
+
+        #widget-container { 
+            width: 100vw; height: 100vh; 
+            display: flex; flex-direction: column; 
+            position: relative;
+            background-color: var(--body-bg);
+        }
+        
+        #chart-content { flex-grow: 1; padding: 20px; }
+
+        footer { 
+            padding: 12px 20px; font-size: 0.75em; 
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border-top: 1px solid var(--glass-border);
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-color); z-index: 10;
+        }
+        footer a { color: var(--text-color); text-decoration: none; font-weight: 600; }
+
+        /* SETTINGS PANEL MIT DYNAMISCHER SCHRIFTFARBE */
+        #settings {
+            position: absolute; top: 15px; left: 15px; bottom: 65px; 
+            width: 320px; max-width: 85%;
+            background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            z-index: 100; padding: 30px; overflow-y: auto;
+            display: none; border-radius: 24px; border: 1px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            color: var(--text-color); /* Zieht die automatische Farbe */
+        }
+        #settings.active { display: block; }
+
+        h3 { font-weight: 800; font-size: 20px; margin-bottom: 25px; color: inherit; }
+        h4 { font-size: 10px; font-weight: 800; text-transform: uppercase; opacity: 0.6; margin: 20px 0 10px 0; letter-spacing: 1px; color: inherit; }
+        
+        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 13px; font-weight: 500; color: inherit; }
+        
+        .db-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; background: rgba(128,128,128,0.1); padding: 8px; border-radius: 12px; }
+        .db-input { flex-grow: 1; font-size: 12px; padding: 8px; border-radius: 8px; border: 1px solid rgba(128,128,128,0.2); background: rgba(255,255,255,0.9); outline: none; color: #000; }
+
+        .btn-add { background: var(--accent-color); color: #fff; border: none; border-radius: 12px; padding: 10px; font-weight: bold; width: 100%; cursor: pointer; transition: filter 0.2s; }
+        .btn-add:hover { filter: brightness(1.2); }
+        .btn-rem { background: none; border: none; color: #ff4444; cursor: pointer; font-weight: bold; }
+
+        select { border-radius: 10px; border: 1px solid rgba(128,128,128,0.2); padding: 8px; font-family: inherit; background: rgba(255,255,255,0.9); width: 100%; outline: none; color: #000; }
+        
+        /* MODERN BLACK SLIDER */
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(128,128,128,0.3); border-radius: 2px; outline: none; margin: 15px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent-color); border-radius: 50%; cursor: pointer; transition: transform 0.1s; border: 2px solid #fff; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .color-circle { -webkit-appearance: none; border: none; width: 28px; height: 28px; cursor: pointer; background: transparent; padding: 0; }
+        .color-circle::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-circle::-webkit-color-swatch { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 4px rgba(0,0,0,0.2); }
+
+        .switch { position: relative; width: 38px; height: 20px; display: inline-block; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-sw { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: rgba(128,128,128,0.3); border-radius: 20px; transition: 0.3s; }
+        .slider-sw:before { content: ""; position: absolute; height: 16px; width: 16px; left: 2px; bottom: 2px; background: white; border-radius: 50%; transition: 0.3s; }
+        input:checked + .slider-sw { background: var(--accent-color); }
+        input:checked + .slider-sw:before { transform: translateX(18px); }
+
+        .close-settings { float: right; cursor: pointer; font-size: 24px; opacity: 0.4; color: inherit; }
+        .modebar { display: none !important; }
+        .show-toolbar .modebar { display: flex !important; background: transparent !important; }
+    </style>
+</head>
+<body>
+
+    <div id="widget-container">
+        <div id="chart-content">
+            <div id="plotly-chart" style="width:100%;height:100%;"></div>
+        </div>
+
+        <footer>
+            <div style="display: flex; gap: 15px;">
+                <div onclick="toggleSettings()" style="cursor:pointer; font-weight: 700;">⚙️ EINSTELLUNGEN</div>
+                <div onclick="toggleToolbar()" style="cursor:pointer; font-weight: 700;">🛠️ TOOLBAR</div>
+            </div>
+            <span>made by <a href="http://www.marcofoerster.com" target="_blank">Marco Förster</a></span>
+        </footer>
+
+        <div id="settings">
+            <span class="close-settings" onclick="toggleSettings()">✕</span>
+            <h3>Settings</h3>
+            
+            <h4>Datenbanken & Farben</h4>
+            <div id="db-list"></div>
+            <button class="btn-add" onclick="addDbInput()">+ Datenbank hinzufügen</button>
+
+            <h4>Allgemein</h4>
+            <div class="row"><span>Dark Mode</span><label class="switch"><input type="checkbox" id="darkInp" onchange="toggleDarkMode()"><span class="slider-sw"></span></label></div>
+            <div class="row"><span>Hintergrundfarbe</span><input type="color" id="pBg" class="color-circle" value="#ffffff" oninput="updateUI()"></div>
+
+            <h4>Chart-Konfiguration</h4>
+            <select id="cType" onchange="updateUI()">
+                <option value="bar">Balkendiagramm</option>
+                <option value="scatter">Linien-Diagramm</option>
+                <option value="lines+markers">Linien & Punkte</option>
+                <option value="area">Flächendiagramm</option>
+                <option value="pie">Tortendiagramm</option>
+                <option value="donut">Donut-Diagramm</option>
+                <option value="funnel">Trichter (Funnel)</option>
+                <option value="radar">Radar-Chart</option>
+            </select>
+
+            <h4>Typografie</h4>
+            <select id="fFamily" onchange="updateUI()" style="margin-bottom: 10px;">
+                <option value="Segoe UI">Segoe UI</option>
+                <option value="Rubik Mono One">Rubik Mono One</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Inter">Inter</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Bebas Neue">Bebas Neue</option>
+                <option value="Roboto">Roboto</option>
+                <option value="Oswald">Oswald</option>
+                <option value="Poppins">Poppins</option>
+                <option value="Raleway">Raleway</option>
+            </select>
+            <div class="row"><span>Fett</span><label class="switch"><input type="checkbox" id="fBold" onchange="updateUI()"><span class="slider-sw"></span></label></div>
+            <div class="row" style="flex-direction: column; align-items: flex-start;">
+                <span>Schriftgröße</span>
+                <input type="range" id="fSize" min="10" max="32" step="1" value="18" oninput="updateUI()">
+            </div>
+            
+            <button onclick="resetSettings()" style="width:100%; margin-top:20px; font-size:10px; padding:12px; cursor:pointer; background: rgba(128,128,128,0.2); border: none; border-radius: 12px; font-weight: 700; color: inherit;">ZURÜCKSETZEN</button>
+        </div>
+    </div>
+
+    <script>
+        let dbData = [];
+        const autoColors = ['#007AFF', '#FF2D55', '#34C759', '#AF52DE', '#FF9500', '#5856D6'];
+
+        function addDbInput(id = "", color = null) {
+            const container = document.getElementById('db-list');
+            const colorToUse = color || autoColors[dbData.length % autoColors.length];
+            const div = document.createElement('div');
+            div.className = 'db-row';
+            div.innerHTML = `
+                <input type="color" class="color-circle db-color" value="${colorToUse}" oninput="syncDbs()">
+                <input type="text" class="db-input" placeholder="Notion DB ID..." value="${id}" oninput="syncDbs()">
+                <button class="btn-rem" onclick="this.parentElement.remove(); syncDbs();">✕</button>
+            `;
+            container.appendChild(div);
+            syncDbs();
+        }
+
+        function syncDbs() {
+            const rows = document.querySelectorAll('.db-row');
+            dbData = Array.from(rows).map(row => ({
+                id: row.querySelector('.db-input').value,
+                color: row.querySelector('.db-color').value
+            }));
+            saveSettings();
+            renderChart();
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.getElementById('darkInp').checked;
+            if (isDark && document.getElementById('pBg').value === "#ffffff") {
+                document.getElementById('pBg').value = "#121212";
+            } else if (!isDark && document.getElementById('pBg').value === "#121212") {
+                document.getElementById('pBg').value = "#ffffff";
+            }
+            updateUI();
+        }
+
+        function toggleToolbar() { document.body.classList.toggle('show-toolbar'); }
+
+        function updateUI() {
+            const isDark = document.getElementById('darkInp').checked;
+            const bgColor = document.getElementById('pBg').value;
+            const textColor = isDark ? "#FFFFFF" : "#000000";
+
+            document.documentElement.style.setProperty('--body-bg', bgColor);
+            document.documentElement.style.setProperty('--text-color', textColor);
+            document.documentElement.style.setProperty('--glass-bg', isDark ? "rgba(30, 30, 30, 0.85)" : "rgba(255, 255, 255, 0.85)");
+            document.documentElement.style.setProperty('--glass-border', isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.4)");
+            document.documentElement.style.setProperty('--accent-color', isDark ? "#FFFFFF" : "#000000");
+            
+            saveSettings();
+            renderChart();
+        }
+
+        function renderChart() {
+            const type = document.getElementById('cType').value;
+            const isDark = document.getElementById('darkInp').checked;
+            const textColor = isDark ? "#FFFFFF" : "#000000";
+            const isBold = document.getElementById('fBold').checked;
+            const font = document.getElementById('fFamily').value;
+            const size = parseInt(document.getElementById('fSize').value);
+            const weight = isBold ? "800" : "400";
+
+            let traces = dbData.map((db, i) => {
+                let base = {
+                    x: ['A', 'B', 'C', 'D'],
+                    y: [20+i*10, 40-i*5, 30+i*8, 50-i*2],
+                    name: db.id || `Quelle ${i+1}`,
+                    marker: { color: db.color },
+                    line: { color: db.color, width: isBold ? 5 : 2, shape: 'spline' }
+                };
+                if (type === 'bar') base.type = 'bar';
+                else if (type === 'area') { base.type = 'scatter'; base.fill = 'tozeroy'; }
+                else if (type === 'pie' || type === 'donut') {
+                    base = { labels: base.x, values: base.y, type: 'pie', hole: type === 'donut' ? 0.5 : 0 };
+                }
+                else if (type === 'radar') { base.type = 'scatterpolar'; base.r = base.y; base.theta = base.x; base.fill = 'toself'; }
+                else { base.type = 'scatter'; base.mode = type; }
+                return base;
+            });
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: font, color: textColor, size: size },
+                xaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', tickfont: { weight: weight, color: textColor } },
+                yaxis: { gridcolor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)', tickfont: { weight: weight, color: textColor } },
+                margin: { t: 40, r: 40, b: 40, l: 40 },
+                showlegend: traces.length > 1,
+                legend: { font: { color: textColor } }
+            };
+
+            Plotly.newPlot('plotly-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false });
+            
+            setTimeout(() => {
+                document.querySelectorAll('.main-svg text').forEach(t => { 
+                    t.style.fontWeight = weight; 
+                    t.style.fontFamily = font;
+                    t.style.fill = textColor;
+                });
+            }, 100);
+        }
+
+        function saveSettings() {
+            const settings = {
+                dark: document.getElementById('darkInp').checked,
+                pBg: document.getElementById('pBg').value,
+                cType: document.getElementById('cType').value,
+                fBold: document.getElementById('fBold').checked,
+                fSize: document.getElementById('fSize').value,
+                fFamily: document.getElementById('fFamily').value,
+                dbData: dbData
+            };
+            localStorage.setItem('marcoChartSettingsV12', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('marcoChartSettingsV12');
+            if (saved) {
+                const s = JSON.parse(saved);
+                document.getElementById('darkInp').checked = s.dark;
+                document.getElementById('pBg').value = s.pBg || "#ffffff";
+                document.getElementById('cType').value = s.cType;
+                document.getElementById('fBold').checked = s.fBold;
+                document.getElementById('fSize').value = s.fSize;
+                document.getElementById('fFamily').value = s.fFamily;
+                if(s.dbData && s.dbData.length > 0) s.dbData.forEach(d => addDbInput(d.id, d.color));
+                else addDbInput();
+                updateUI();
+            } else { addDbInput(); }
+        }
+
+        function resetSettings() { localStorage.removeItem('marcoChartSettingsV12'); location.reload(); }
+        function toggleSettings() { document.getElementById('settings').classList.toggle('active'); }
+        window.onload = loadSettings;
+        window.onresize = () => Plotly.Plots.resize('plotly-chart');
+    </script>
+</body>
+</html>
