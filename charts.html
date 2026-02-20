@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Förster Ultimate Chart v4.1 - Instant Color Fix</title>
+    <title>Marco Förster Ultimate Chart v4.1 - Isolation Fix</title>
     <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-locale-de-latest.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Oswald:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Rubik+Mono+One&display=swap" rel="stylesheet">
@@ -67,7 +67,7 @@
         <div class="panel-header"><h2>Settings</h2><div class="close-icon" onclick="togglePanel()">×</div></div>
         <h4>Datenquellen</h4>
         <div id="db-container"></div>
-        <button class="btn-primary" onclick="addDatabase()">+ DATENBANK HINZÜFÜGEN</button>
+        <button class="btn-primary" onclick="addDatabase()">+ DATENBANK HINZUFÜGEN</button>
         <h4>Design & Anzeige</h4>
         <div class="sw-row"><span>Dark Mode</span><label class="toggle"><input type="checkbox" id="darkToggle" onchange="updateTheme()"><span class="slider-toggle"></span></label></div>
         <div class="sw-row"><span>Hintergrund</span><input type="color" id="bgPicker" class="circle-ui" value="#ffffff" onchange="applyBgOnly()"></div>
@@ -99,7 +99,7 @@
 
     let databaseList = [];
     let barVisible = false;
-    let dataCache = {}; // NEU: Speichert Notion Daten lokal
+    let dataCache = {}; 
 
     function addDatabase(savedData = null) {
         const uid = savedData ? savedData.uid : "db-" + Date.now();
@@ -135,7 +135,7 @@
     }
 
     function forceRefresh() {
-        dataCache = {}; // Cache leeren
+        dataCache = {}; 
         renderCharts();
     }
 
@@ -152,10 +152,11 @@
             if (conf.color === '#000000' && !isDark) drawColor = '#000000';
 
             let rawData = [];
+            // Cache wird zusätzlich an die widgetId gekoppelt zur absoluten Sicherheit
+            const cacheKey = widgetId + "_" + conf.notionId;
             
-            // CACHE CHECK: Wenn Daten für diese DB schon da sind, nimm sie (Instant Color Update)
-            if (dataCache[conf.notionId]) {
-                rawData = dataCache[conf.notionId];
+            if (dataCache[cacheKey]) {
+                rawData = dataCache[cacheKey];
             } else {
                 const res = await fetch(PROXY_URL + encodeURIComponent(`https://api.notion.com/v1/databases/${conf.notionId}/query`), {
                     method: 'POST',
@@ -174,7 +175,7 @@
                     return { label: labelX, value: valY };
                 }).filter(d => d.label && d.label !== "" && d.value !== null).sort((a,b) => new Date(a.label) - new Date(b.label));
                 
-                dataCache[conf.notionId] = rawData; // Im Cache speichern
+                dataCache[cacheKey] = rawData; 
             }
 
             if(rawData.length > 0) {
