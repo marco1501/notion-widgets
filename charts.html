@@ -86,15 +86,17 @@
             <option value="Segoe UI">Segoe UI</option><option value="Rubik Mono One">Rubik Mono One</option><option value="Inter">Inter</option><option value="Montserrat">Montserrat</option><option value="Poppins">Poppins</option><option value="Roboto">Roboto</option><option value="Oswald">Oswald</option>
         </select>
         <div class="sw-row"><span>Schriftgröße</span><input type="range" id="sizePicker" min="10" max="30" value="16" onchange="applyUI()"></div>
-        <button onclick="localStorage.clear(); location.reload();" style="margin-top:20px; background:none; border:none; color:inherit; font-size:10px; cursor:pointer; opacity:0.4; width:100%">EINSTELLUNGEN LÖSCHEN</button>
+        <button onclick="localStorage.removeItem(STORAGE_KEY); location.reload();" style="margin-top:20px; background:none; border:none; color:inherit; font-size:10px; cursor:pointer; opacity:0.4; width:100%">DIESES WIDGET ZURÜCKSETZEN</button>
     </div>
 </div>
 <script>
     const NOTION_SECRET = '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';
     const PROXY_URL = "https://corsproxy.io/?";
     
+    // --- SCOPED STORAGE LOGIC ---
     const urlParams = new URLSearchParams(window.location.search);
-    const widgetId = urlParams.get('id') || 'default';
+    // Nutzt ID aus URL ODER den Pfadnamen (z.B. chart1.html) als Unique Key
+    const widgetId = urlParams.get('id') || window.location.pathname.split('/').pop() || 'default';
     const STORAGE_KEY = 'marco_v41_cfg_' + widgetId;
 
     let databaseList = [];
@@ -116,6 +118,7 @@
 
     async function fetchNotionStructure(uid, val) {
         const cleanId = val.trim().split('/').pop().split('?')[0].replace(/-/g, "");
+        if(cleanId.length < 20) return;
         const config = databaseList.find(d => d.uid === uid);
         config.notionId = cleanId;
         try {
@@ -152,30 +155,31 @@
             if (conf.color === '#000000' && !isDark) drawColor = '#000000';
 
             let rawData = [];
-            // Cache wird zusätzlich an die widgetId gekoppelt zur absoluten Sicherheit
+            // Cache-Key ebenfalls scoped
             const cacheKey = widgetId + "_" + conf.notionId;
             
             if (dataCache[cacheKey]) {
                 rawData = dataCache[cacheKey];
             } else {
-                const res = await fetch(PROXY_URL + encodeURIComponent(`https://api.notion.com/v1/databases/${conf.notionId}/query`), {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${NOTION_SECRET}`, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }
-                });
-                const json = await res.json();
-                rawData = json.results.map(p => {
-                    const propY = p.properties[conf.yKey];
-                    let valY = null;
-                    if (propY.type === 'number') valY = propY.number;
-                    else if (propY.type === 'rollup') valY = propY.rollup.number;
-                    else if (propY.type === 'formula') valY = propY.formula.number;
+                try {
+                    const res = await fetch(PROXY_URL + encodeURIComponent(`https://api.notion.com/v1/databases/${conf.notionId}/query`), {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${NOTION_SECRET}`, 'Notion-Version': '2022-06-28', 'Content-Type': 'application/json' }
+                    });
+                    const json = await res.json();
+                    rawData = json.results.map(p => {
+                        const propY = p.properties[conf.yKey];
+                        let valY = null;
+                        if (propY.type === 'number') valY = propY.number;
+                        else if (propY.type === 'rollup') valY = propY.rollup.number;
+                        else if (propY.type === 'formula') valY = propY.formula.number;
 
-                    const propX = p.properties[conf.xKey];
-                    let labelX = propX.type === 'date' ? propX.date?.start : (propX.title?.[0]?.plain_text || propX.select?.name || propX.rich_text?.[0]?.plain_text || propX.formula?.string);
-                    return { label: labelX, value: valY };
-                }).filter(d => d.label && d.label !== "" && d.value !== null).sort((a,b) => new Date(a.label) - new Date(b.label));
-                
-                dataCache[cacheKey] = rawData; 
+                        const propX = p.properties[conf.xKey];
+                        let labelX = propX.type === 'date' ? propX.date?.start : (propX.title?.[0]?.plain_text || propX.select?.name || propX.rich_text?.[0]?.plain_text || propX.formula?.string);
+                        return { label: labelX, value: valY };
+                    }).filter(d => d.label && d.label !== "" && d.value !== null).sort((a,b) => new Date(a.label) - new Date(b.label));
+                    dataCache[cacheKey] = rawData;
+                } catch(e) { console.error("Notion Fetch Error", e); }
             }
 
             if(rawData.length > 0) {
