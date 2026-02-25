@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco Master System</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@700&family=Bungee&family=Comic+Neue:wght@700&family=Creepster&family=Lobster&family=Pacifico&family=Press+Start+2P&family=Righteous&family=Special+Elite&family=Comfortaa:wght@700&family=Permanent+Marker&family=Orbitron:wght@700&family=Fredoka+One&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #8EA39D;
+            --bg-outer: #f0f2f5;
+            --bg-inner: #ffffff;
+            --text-color: #1a1a1a;
+            --border: rgba(0, 0, 0, 0.1);
+            --glass-heavy: rgba(255, 255, 255, 0.98);
+            --font-size: 16px;
+        }
+
+        body.dark-mode {
+            --bg-outer: #0a0a0a;
+            --bg-inner: #1a1a1a;
+            --text-color: #ffffff;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-heavy: rgba(20, 20, 20, 0.98);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg-outer);
+            color: var(--text-color);
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .icon-btn { cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.3s; font-size: 24px; user-select: none; color: var(--text-color); }
+        .icon-btn:hover { background: rgba(128,128,128,0.1); }
+
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .page { display: none; width: 100%; max-width: 450px; text-align: center; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-card {
+            background-color: var(--bg-inner);
+            border: 1px solid var(--border); border-radius: 28px;
+            padding: 40px; font-size: var(--font-size);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            color: var(--text-color);
+        }
+
+        .side-panel {
+            position: fixed; top: 0; width: 100%; max-width: 340px; height: 100%;
+            background: var(--glass-heavy); backdrop-filter: blur(30px);
+            z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 30px; border-left: 1px solid var(--border); overflow-y: auto;
+            color: var(--text-color);
+        }
+        #settings-panel { right: -100%; }
+        #menu-panel { left: -100%; border-right: 1px solid var(--border); }
+        #settings-panel.active { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        #menu-panel.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+
+        .menu-link {
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            border-radius: 12px; cursor: pointer; transition: 0.3s;
+            margin-bottom: 10px; font-weight: bold; text-transform: uppercase; font-size: 14px;
+        }
+        .menu-link:hover { background: rgba(128, 128, 128, 0.1); color: var(--accent); }
+
+        .settings-section { margin-bottom: 25px; }
+        .settings-section label { display: block; font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; }
+
+        .marco-input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+            background: rgba(128,128,128,0.05); color: var(--text-color); outline: none; font-family: inherit;
+        }
+        select.marco-input option { background: #fff; color: #000; }
+        body.dark-mode select.marco-input option { background: #1a1a1a; color: #fff; }
+
+        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .color-item { display: flex; align-items: center; gap: 10px; font-size: 11px; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; background: none; flex-shrink: 0; }
+        input[type="color"]::-webkit-color-swatch { border-radius: 50%; border: 1px solid var(--border); }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(128,128,128,0.2); border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -6px; border: 2px solid var(--bg-inner); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 30px; }
+        .btn-primary { flex: 2; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-secondary { flex: 1; background: rgba(128,128,128,0.1); color: var(--text-color); border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        footer { padding: 20px; text-align: center; font-size: 11px; opacity: 0.8; }
+        .footer-link { color: inherit; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body class="light-mode">
+
+    <header>
+        <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">menu</span>
+        <div class="nav-group">
+            <span class="material-symbols-rounded icon-btn" onclick="location.reload()">refresh</span>
+            <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">settings</span>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <div id="page-1" class="page active">
+            <div class="glass-card">
+                <h1 id="t-home-title">Startseite</h1>
+                <p id="t-home-desc">System Aktiv</p>
+            </div>
+        </div>
+        <div id="page-2" class="page">
+            <div class="glass-card">
+                <h1 id="t-stats-title">Statistik</h1>
+                <p id="t-stats-desc">Content</p>
+            </div>
+        </div>
+        <div id="page-3" class="page">
+            <div class="glass-card">
+                <h1 id="t-info-title">Info</h1>
+                <p id="t-info-desc">Content</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="menu-panel" class="side-panel">
+        <div class="panel-header">
+            <h2 id="t-menu-head">MENU</h2>
+            <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span>
+        </div>
+        <div class="menu-link" onclick="showPage(1)"><span class="material-symbols-rounded">home</span> <span id="t-nav-1">Seite 1</span></div>
+        <div class="menu-link" onclick="showPage(2)"><span class="material-symbols-rounded">bar_chart</span> <span id="t-nav-2">Seite 2</span></div>
+        <div class="menu-link" onclick="showPage(3)"><span class="material-symbols-rounded">info</span> <span id="t-nav-3">Seite 3</span></div>
+    </div>
+
+    <div id="settings-panel" class="side-panel">
+        <div class="panel-header">
+            <h2 id="t-set-head">SETTINGS</h2>
+            <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">close</span>
+        </div>
+
+        <div class="settings-section">
+            <label id="t-set-lang">Sprache</label>
+            <select id="langPicker" class="marco-input" onchange="window.updateLang(this.value)">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+            </select>
+        </div>
+
+        <div class="settings-section">
+            <label id="t-set-mode">Modus</label>
+            <div style="display: flex; gap: 10px;">
+                <span class="material-symbols-rounded icon-btn" id="l-btn" onclick="window.setMode('light')">light_mode</span>
+                <span class="material-symbols-rounded icon-btn" id="d-btn" onclick="window.setMode('dark')">dark_mode</span>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <label id="t-set-colors">Farben</label>
+            <div class="color-grid">
+                <div class="color-item"><input type="color" id="accentPicker" value="#8EA39D" oninput="window.liveApply()"><span id="t-col-accent">Akzent</span></div>
+                <div class="color-item"><input type="color" id="textPicker" value="#1a1a1a" oninput="window.liveApply()"><span id="t-col-text">Text</span></div>
+                <div class="color-item"><input type="color" id="bgInnerPicker" value="#ffffff" oninput="window.liveApply()"><span id="t-col-card">Card</span></div>
+                <div class="color-item"><input type="color" id="bgOuterPicker" value="#f0f2f5" oninput="window.liveApply()"><span id="t-col-main">Main</span></div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <label id="t-set-font">Schriftart</label>
+            <select id="fontPicker" class="marco-input" onchange="window.liveApply()">
+                <optgroup label="Serif / Sans">
+                    <option value="Segoe UI">Segoe UI</option>
+                    <option value="Inter">Inter</option>
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Comfortaa">Comfortaa</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                </optgroup>
+                <optgroup label="Display / Fun">
+                    <option value="Rubik Mono One">Rubik Mono One</option>
+                    <option value="Comic Neue">Comic Neue</option>
+                    <option value="Creepster">Creepster</option>
+                    <option value="Lobster">Lobster</option>
+                    <option value="Pacifico">Pacifico</option>
+                    <option value="Press Start 2P">Press Start 2P</option>
+                    <option value="Permanent Marker">Permanent Marker</option>
+                    <option value="Bungee">Bungee</option>
+                    <option value="Fredoka One">Fredoka One</option>
+                    <option value="Orbitron">Orbitron</option>
+                    <option value="Righteous">Righteous</option>
+                    <option value="Special Elite">Special Elite</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="settings-section">
+            <label id="t-set-size">Schriftgröße</label>
+            <input type="range" id="sizePicker" min="12" max="32" value="16" oninput="window.liveApply()">
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-secondary" id="t-btn-reset" onclick="window.reset()">RESET</button>
+            <button class="btn-primary" id="t-btn-save" onclick="window.save()">SAVE</button>
+        </div>
+    </div>
+
+    <footer>
+        <div style="opacity: 0.5; margin-bottom: 5px;">V 3.5.4</div>
+        <div>made by <a href="http://www.marcofoerster.com" target="_blank" class="footer-link">Marco Förster</a></div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBmWMIOJzaaR5RGKy0p-VpKOTWm6dXEQcE",
+            authDomain: "apps-und-widgets.firebaseapp.com",
+            databaseURL: "https://apps-und-widgets-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "apps-und-widgets"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const widgetId = new URLSearchParams(window.location.search).get('id') || 'default';
+        const dbPath = 'settings/' + widgetId;
+
+        const translations = {
+            de: { home: "Startseite", stats: "Statistik", info: "Info", nav1: "Seite 1", nav2: "Seite 2", nav3: "Seite 3", menu: "Navigation", settings: "Einstellungen", lang: "Sprache", mode: "Modus", colors: "Farben", font: "Schriftart", size: "Größe", save: "SPEICHERN", reset: "RESET", colAcc: "Akzent", colTxt: "Text", colCard: "Karte", colMain: "Hintergrund" },
+            en: { home: "Home", stats: "Stats", info: "About", nav1: "Page 1", nav2: "Page 2", nav3: "Page 3", menu: "Menu", settings: "Settings", lang: "Language", mode: "Mode", colors: "Colors", font: "Font", size: "Size", save: "SAVE", reset: "RESET", colAcc: "Accent", colTxt: "Text", colCard: "Card", colMain: "Main" },
+            es: { home: "Inicio", stats: "Estadísticas", info: "Info", nav1: "Página 1", nav2: "Página 2", nav3: "Página 3", menu: "Navegación", settings: "Ajustes", lang: "Idioma", mode: "Modo", colors: "Colores", font: "Fuente", size: "Tamaño", save: "GUARDAR", reset: "REINICIAR", colAcc: "Acento", colTxt: "Texto", colCard: "Tarjeta", colMain: "Principal" },
+            fr: { home: "Accueil", stats: "Stats", info: "Infos", nav1: "Page 1", nav2: "Page 2", nav3: "Page 3", menu: "Navigation", settings: "Paramètres", lang: "Langue", mode: "Mode", colors: "Couleurs", font: "Police", size: "Taille", save: "ENREGISTRER", reset: "RÉINITIALISER", colAcc: "Accent", colTxt: "Texte", colCard: "Carte", colMain: "Fond" }
+        };
+
+        window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
+        
+        window.showPage = (num) => {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${num}`).classList.add('active');
+            document.getElementById('menu-panel').classList.remove('active');
+        };
+
+        window.setMode = (mode) => {
+            document.body.className = mode + '-mode';
+            document.getElementById('bgInnerPicker').value = mode === 'dark' ? '#1a1a1a' : '#ffffff';
+            document.getElementById('bgOuterPicker').value = mode === 'dark' ? '#0a0a0a' : '#f0f2f5';
+            document.getElementById('textPicker').value = mode === 'dark' ? '#ffffff' : '#1a1a1a';
+            window.liveApply();
+        };
+
+        window.updateLang = (lang) => {
+            const d = translations[lang] || translations.en;
+            document.getElementById('t-home-title').innerText = d.home;
+            document.getElementById('t-nav-1').innerText = d.nav1;
+            document.getElementById('t-nav-2').innerText = d.nav2;
+            document.getElementById('t-nav-3').innerText = d.nav3;
+            document.getElementById('t-menu-head').innerText = d.menu;
+            document.getElementById('t-set-head').innerText = d.settings;
+            document.getElementById('t-set-lang').innerText = d.lang;
+            document.getElementById('t-set-mode').innerText = d.mode;
+            document.getElementById('t-set-colors').innerText = d.colors;
+            document.getElementById('t-set-font').innerText = d.font;
+            document.getElementById('t-set-size').innerText = d.size;
+            document.getElementById('t-btn-save').innerText = d.save;
+            document.getElementById('t-btn-reset').innerText = d.reset;
+            document.getElementById('t-col-accent').innerText = d.colAcc;
+            document.getElementById('t-col-text').innerText = d.colTxt;
+            document.getElementById('t-col-card').innerText = d.colCard;
+            document.getElementById('t-col-main').innerText = d.colMain;
+        };
+
+        window.liveApply = () => {
+            const r = document.documentElement;
+            const accent = document.getElementById('accentPicker').value;
+            r.style.setProperty('--accent', accent);
+            r.style.setProperty('--text-color', document.getElementById('textPicker').value);
+            r.style.setProperty('--bg-inner', document.getElementById('bgInnerPicker').value);
+            r.style.setProperty('--bg-outer', document.getElementById('bgOuterPicker').value);
+            r.style.setProperty('--font-size', document.getElementById('sizePicker').value + 'px');
+            document.body.style.fontFamily = document.getElementById('fontPicker').value;
+
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('d-btn').style.color = isDark ? accent : 'inherit';
+            document.getElementById('l-btn').style.color = !isDark ? accent : 'inherit';
+        };
+
+        window.save = () => {
+            const config = {
+                lang: document.getElementById('langPicker').value,
+                mode: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
+                accent: document.getElementById('accentPicker').value,
+                text: document.getElementById('textPicker').value,
+                bgInner: document.getElementById('bgInnerPicker').value,
+                bgOuter: document.getElementById('bgOuterPicker').value,
+                font: document.getElementById('fontPicker').value,
+                size: document.getElementById('sizePicker').value
+            };
+            set(ref(db, dbPath), config);
+            togglePanel('settings-panel');
+        };
+
+        window.reset = () => { 
+            if(confirm("Settings zurücksetzen?")) {
+                remove(ref(db, dbPath)).then(() => location.reload());
+            }
+        };
+
+        onValue(ref(db, dbPath), (s) => {
+            const d = s.val();
+            if(d) {
+                document.getElementById('langPicker').value = d.lang;
+                document.body.className = d.mode + '-mode';
+                document.getElementById('accentPicker').value = d.accent;
+                document.getElementById('textPicker').value = d.text;
+                document.getElementById('bgInnerPicker').value = d.bgInner;
+                document.getElementById('bgOuterPicker').value = d.bgOuter;
+                document.getElementById('fontPicker').value = d.font;
+                document.getElementById('sizePicker').value = d.size;
+                window.updateLang(d.lang);
+                window.liveApply();
+            } else {
+                window.updateLang('de');
+                window.liveApply();
+            }
+        });
+    </script>
+</body>
+</html>
