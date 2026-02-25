@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco Master Clock</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Oswald:wght@400;700&family=Bebas+Neue&family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #8EA39D;
+            --bg-outer: #f0f2f5;
+            --bg-inner: #ffffff;
+            --text-color: #1a1a1a;
+            --border: rgba(0, 0, 0, 0.1);
+            --glass-heavy: rgba(255, 255, 255, 0.98);
+            
+            /* Clock Specific */
+            --card-color: #333333; 
+            --card-text: #ffffff;  
+            --clock-scale: 1;
+            --font-family: 'Rubik Mono One', sans-serif;
+            --font-weight: 400;
+        }
+
+        body.dark-mode {
+            --bg-outer: #0a0a0a;
+            --bg-inner: #1a1a1a;
+            --text-color: #ffffff;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass-heavy: rgba(20, 20, 20, 0.98);
+            --card-color: #2a2a2a;
+            --card-text: #f0f0f0;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: "Segoe UI", SegoeUI, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-outer);
+            color: var(--text-color);
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .icon-btn { cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.3s; font-size: 24px; user-select: none; color: var(--text-color); }
+        .icon-btn:hover { background: rgba(128,128,128,0.1); }
+
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+
+        .clock-view { display: none; transform: scale(var(--clock-scale)); transition: transform 0.3s ease; }
+        .clock-view.active { display: flex; }
+
+        /* 1. Flip Clock */
+        .flip-container { gap: 15px; cursor: pointer; }
+        .flip-card {
+            background-color: var(--card-color);
+            color: var(--card-text);
+            width: 150px; height: 200px;
+            border-radius: 24px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 80px;
+            font-family: var(--font-family);
+            font-weight: var(--font-weight);
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .flip-card::after { content: ''; position: absolute; width: 100%; height: 1px; background: rgba(0,0,0,0.1); top: 50%; }
+
+        /* 2. Digital Clock */
+        .digital-view {
+            font-family: var(--font-family);
+            font-weight: var(--font-weight);
+            font-size: 80px;
+            color: var(--card-text); 
+            gap: 10px; align-items: baseline;
+        }
+        .digital-seconds { font-size: 35px; opacity: 0.6; }
+
+        /* 3. Analoguhr */
+        .analog-view {
+            width: 300px; height: 300px; 
+            border: 8px solid var(--card-text); 
+            border-radius: 50%; position: relative; 
+            background: var(--accent); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .hand {
+            position: absolute; bottom: 50%; left: 50%; transform-origin: bottom;
+            background: var(--card-text); 
+            border-radius: 4px; transform: translateX(-50%);
+        }
+        .hour-hand { width: 8px; height: 70px; }
+        .min-hand { width: 5px; height: 110px; }
+        .sec-hand { width: 2px; height: 125px; background: var(--card-text); filter: brightness(0.8); }
+        .center-dot {
+            position: absolute; top: 50%; left: 50%; width: 14px; height: 14px;
+            background: var(--card-text); border-radius: 50%; transform: translate(-50%, -50%);
+        }
+
+        /* Panels */
+        .side-panel {
+            position: fixed; top: 0; width: 100%; max-width: 340px; height: 100%;
+            background: var(--glass-heavy); backdrop-filter: blur(30px);
+            z-index: 1000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 30px; border-left: 1px solid var(--border); overflow-y: auto;
+            color: var(--text-color);
+        }
+        #settings-panel { right: -100%; }
+        #menu-panel { left: -100%; border-right: 1px solid var(--border); }
+        #settings-panel.active { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        #menu-panel.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.1); }
+
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .menu-link {
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            border-radius: 12px; cursor: pointer; transition: 0.3s;
+            margin-bottom: 10px; font-weight: bold; text-transform: uppercase; font-size: 13px;
+        }
+        .menu-link:hover { background: rgba(128, 128, 128, 0.1); color: var(--accent); }
+        .menu-link.active { background: var(--accent); color: white; }
+
+        .settings-section { margin-bottom: 25px; }
+        .settings-section label { display: block; font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; }
+
+        .marco-input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid var(--border);
+            background: rgba(128,128,128,0.05); color: var(--text-color); outline: none; font-family: inherit;
+        }
+
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .color-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+        
+        input[type="color"] { -webkit-appearance: none; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; background: none; }
+        input[type="color"]::-webkit-color-swatch { border-radius: 50%; border: 1px solid var(--border); }
+        
+        input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type="range"]::-webkit-slider-runnable-track { height: 6px; background: rgba(128,128,128,0.2); border-radius: 3px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent); margin-top: -6px; border: 2px solid var(--bg-inner); }
+
+        .switch { position: relative; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(128,128,128,0.2); transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 30px; }
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-secondary { background: rgba(128,128,128,0.1); color: var(--text-color); border: none; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        footer { padding: 20px; text-align: center; font-size: 11px; opacity: 0.6; }
+        .footer-link { color: inherit; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body class="light-mode">
+
+    <header>
+        <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">menu</span>
+        <div class="nav-group">
+            <span class="material-symbols-rounded icon-btn" onclick="location.reload()">refresh</span>
+            <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">settings</span>
+        </div>
+    </header>
+
+    <main>
+        <div id="view-flip" class="clock-view flip-container active">
+            <div class="flip-card" id="hours">00</div>
+            <div class="flip-card" id="minutes">00</div>
+        </div>
+        <div id="view-digital" class="clock-view digital-view">
+            <span id="dig-time">00:00</span>
+            <span id="dig-sec" class="digital-seconds">00</span>
+        </div>
+        <div id="view-analog" class="clock-view">
+            <div class="analog-view">
+                <div class="hand hour-hand" id="ana-h"></div>
+                <div class="hand min-hand" id="ana-m"></div>
+                <div class="hand sec-hand" id="ana-s"></div>
+                <div class="center-dot"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="menu-panel" class="side-panel">
+        <div class="panel-header"><h2>NAVIGATION</h2><span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span></div>
+        <div class="menu-link active" onclick="switchView('flip', this)"><span class="material-symbols-rounded">filter_frames</span> Flip Clock</div>
+        <div class="menu-link" onclick="switchView('digital', this)"><span class="material-symbols-rounded">schedule</span> Digital Clock</div>
+        <div class="menu-link" onclick="switchView('analog', this)"><span class="material-symbols-rounded">watch</span> Analoguhr</div>
+    </div>
+
+    <div id="settings-panel" class="side-panel">
+        <div class="panel-header"><h2>DESIGN</h2><span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">close</span></div>
+
+        <div class="settings-section">
+            <label>Schriftart</label>
+            <select id="fontPicker" class="marco-input" onchange="updateFont(this.value)">
+                <option value="'Rubik Mono One', sans-serif">Rubik Mono One</option>
+                <option value="'Inter', sans-serif">Inter</option>
+                <option value="'Bebas Neue', cursive">Bebas Neue</option>
+                <option value="'Orbitron', sans-serif">Orbitron</option>
+                <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+            </select>
+        </div>
+
+        <div class="settings-section">
+            <div class="setting-row"><label style="margin:0">Fett (Bold)</label><label class="switch"><input type="checkbox" id="boldToggle" onchange="updateWeight()"><span class="slider"></span></label></div>
+            <div class="setting-row" style="margin-top: 15px;"><label style="margin:0">24h Format</label><label class="switch"><input type="checkbox" id="formatToggle" checked onchange="saveFormat()"><span class="slider"></span></label></div>
+        </div>
+
+        <div class="settings-section">
+            <label>Größe</label>
+            <input type="range" id="sizeSlider" min="0.3" max="1.5" step="0.05" value="1.0" oninput="updateSize(this.value)">
+        </div>
+
+        <div class="settings-section">
+            <label>Farben</label>
+            <div class="color-grid">
+                <div class="color-item"><input type="color" id="input-card" oninput="updateTheme('card', this.value)"><span>Uhr/Back</span></div>
+                <div class="color-item"><input type="color" id="input-text" oninput="updateTheme('text', this.value)"><span>Zahl/Zeiger</span></div>
+                <div class="color-item"><input type="color" id="input-bg" oninput="updateTheme('bg', this.value)"><span>Hintergrund</span></div>
+                <div class="color-item"><input type="color" id="accentPicker" value="#8EA39D" oninput="updateAccent(this.value)"><span>Akzent/Analog</span></div>
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <label>Interface Modus</label>
+            <div style="display: flex; gap: 10px;">
+                <span class="material-symbols-rounded icon-btn" onclick="setMode('light')">light_mode</span>
+                <span class="material-symbols-rounded icon-btn" onclick="setMode('dark')">dark_mode</span>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-primary" onclick="saveToFirebase()">FERTIG</button>
+            <button class="btn-secondary" onclick="resetDefaults()">RESET DESIGN</button>
+        </div>
+    </div>
+
+    <footer>
+        <div style="opacity: 0.5; margin-bottom: 5px;">CLOCK V 1.5.9</div>
+        <div>made by <a href="http://www.marcofoerster.com" target="_blank" class="footer-link">Marco Förster</a></div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = { databaseURL: "https://marco-master-default-rtdb.europe-west1.firebasedatabase.app" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbPath = 'marco_clock_settings';
+
+        window.updateClock = () => {
+            const now = new Date();
+            const h = now.getHours(); const m = now.getMinutes(); const s = now.getSeconds();
+            const f24 = document.getElementById('formatToggle').checked;
+            const hDisp = f24 ? h : (h % 12 || 12);
+            const hh = hDisp.toString().padStart(2, '0');
+            const mm = m.toString().padStart(2, '0');
+            const ss = s.toString().padStart(2, '0');
+            document.getElementById('hours').innerText = hh;
+            document.getElementById('minutes').innerText = mm;
+            document.getElementById('dig-time').innerText = `${hh}:${mm}`;
+            document.getElementById('dig-sec').innerText = ss;
+            const hDeg = (h % 12) * 30 + m * 0.5;
+            const mDeg = m * 6; const sDeg = s * 6;
+            document.getElementById('ana-h').style.transform = `translateX(-50%) rotate(${hDeg}deg)`;
+            document.getElementById('ana-m').style.transform = `translateX(-50%) rotate(${mDeg}deg)`;
+            document.getElementById('ana-s').style.transform = `translateX(-50%) rotate(${sDeg}deg)`;
+        };
+
+        window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
+
+        window.switchView = (view, el) => {
+            document.querySelectorAll('.clock-view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${view}`).classList.add('active');
+            document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+            if(el) el.classList.add('active');
+            localStorage.setItem('activeView', view);
+        };
+
+        window.updateFont = (v) => { document.documentElement.style.setProperty('--font-family', v); localStorage.setItem('clockFont', v); };
+        window.updateWeight = () => { const b = document.getElementById('boldToggle').checked; document.documentElement.style.setProperty('--font-weight', b ? '700' : '400'); localStorage.setItem('clockBold', b); };
+        window.updateSize = (v) => { document.documentElement.style.setProperty('--clock-scale', v); localStorage.setItem('clockSize', v); };
+        
+        window.updateTheme = (type, color) => {
+            const varName = type === 'bg' ? '--bg-outer' : (type === 'card' ? '--card-color' : '--card-text');
+            document.documentElement.style.setProperty(varName, color);
+            localStorage.setItem(`${type}Color`, color);
+        };
+        
+        window.updateAccent = (c) => { document.documentElement.style.setProperty('--accent', c); localStorage.setItem('accentColor', c); };
+
+        window.setMode = (m) => { 
+            document.body.className = m + '-mode'; 
+            localStorage.setItem('uiMode', m);
+        };
+
+        window.saveFormat = () => { localStorage.setItem('format24', document.getElementById('formatToggle').checked); window.updateClock(); };
+
+        window.resetDefaults = () => {
+            // Nur visuelle Standardwerte setzen (ohne Browser-Confirm)
+            const defaults = {
+                font: "'Rubik Mono One', sans-serif",
+                accent: "#8EA39D",
+                card: "#333333",
+                text: "#ffffff",
+                bg: "#f0f2f5",
+                size: "1.0",
+                bold: false
+            };
+
+            // UI-Elemente zurücksetzen
+            document.getElementById('fontPicker').value = defaults.font;
+            document.getElementById('accentPicker').value = defaults.accent;
+            document.getElementById('input-card').value = defaults.card;
+            document.getElementById('input-text').value = defaults.text;
+            document.getElementById('input-bg').value = defaults.bg;
+            document.getElementById('sizeSlider').value = defaults.size;
+            document.getElementById('boldToggle').checked = defaults.bold;
+
+            // Live anwenden
+            window.updateFont(defaults.font);
+            window.updateAccent(defaults.accent);
+            window.updateTheme('card', defaults.card);
+            window.updateTheme('text', defaults.text);
+            window.updateTheme('bg', defaults.bg);
+            window.updateSize(defaults.size);
+            window.updateWeight();
+            
+            // Auch in Firebase speichern, damit es permanent bleibt
+            window.saveToFirebase();
+        };
+
+        window.saveToFirebase = () => {
+            const config = {
+                font: document.getElementById('fontPicker').value,
+                bold: document.getElementById('boldToggle').checked,
+                format24: document.getElementById('formatToggle').checked,
+                size: document.getElementById('sizeSlider').value,
+                cardColor: document.getElementById('input-card').value,
+                textColor: document.getElementById('input-text').value,
+                bgColor: document.getElementById('input-bg').value,
+                accentColor: document.getElementById('accentPicker').value,
+                mode: localStorage.getItem('uiMode') || 'light',
+                view: localStorage.getItem('activeView') || 'flip'
+            };
+            set(ref(db, dbPath), config);
+        };
+
+        onValue(ref(db, dbPath), (snap) => {
+            const d = snap.val();
+            if(d) {
+                document.getElementById('fontPicker').value = d.font; window.updateFont(d.font);
+                document.getElementById('boldToggle').checked = d.bold; window.updateWeight();
+                document.getElementById('formatToggle').checked = d.format24;
+                document.getElementById('sizeSlider').value = d.size; window.updateSize(d.size);
+                document.getElementById('input-card').value = d.cardColor; window.updateTheme('card', d.cardColor);
+                document.getElementById('input-text').value = d.textColor; window.updateTheme('text', d.textColor);
+                document.getElementById('input-bg').value = d.bgColor; window.updateTheme('bg', d.bgColor);
+                document.getElementById('accentPicker').value = d.accentColor; window.updateAccent(d.accentColor);
+                window.setMode(d.mode);
+                window.switchView(d.view, document.querySelector(`.menu-link[onclick*="${d.view}"]`));
+            }
+        });
+
+        setInterval(window.updateClock, 1000);
+        window.updateClock();
+    </script>
+</body>
+</html>
