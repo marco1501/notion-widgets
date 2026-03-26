@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marco Master System - v1.8.4 (Notion Fix)</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #8EA39D; --bg-outer: #f0f2f5; --bg-inner: #ffffff;
+            --text-color: #1a1a1a; --border: rgba(0, 0, 0, 0.1);
+            --glass-heavy: rgba(255, 255, 255, 0.98); --base-size: 16px;
+            --main-font: 'Segoe UI'; --bg-image: none; --card-opacity: 1;
+        }
+
+        body.dark-mode {
+            --bg-outer: #0a0a0a; --bg-inner: #1a1a1a;
+            --text-color: #ffffff; --border: rgba(255, 255, 255, 0.1);
+            --glass-heavy: rgba(20, 20, 20, 0.95);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body, input, button, select, textarea, .todo-text, h1, h2, h3, .list-header { 
+            font-family: var(--main-font), -apple-system, BlinkMacSystemFont, sans-serif !important; 
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-outer);
+            background-image: var(--bg-image);
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text-color); margin: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; font-size: var(--base-size);
+        }
+
+        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 10; }
+        .nav-group { display: flex; gap: 5px; }
+        .icon-btn { cursor: pointer; padding: 10px; border-radius: 50%; font-size: 24px; color: var(--text-color); display: flex; align-items: center; justify-content: center; border: none; background: transparent; transition: 0.2s; }
+        .icon-btn:hover { background: rgba(128,128,128,0.1); }
+
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; overflow: hidden; z-index: 5; }
+        
+        .glass-card {
+            background-color: rgba(255, 255, 255, var(--card-opacity)); 
+            border: 1px solid var(--border); border-radius: 28px;
+            padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px;
+            margin-bottom: 45px; backdrop-filter: blur(10px);
+        }
+        body.dark-mode .glass-card { background-color: rgba(26, 26, 26, var(--card-opacity)); }
+
+        #main-title { font-size: 1.2rem; margin: 0 0 20px 0; text-transform: uppercase; text-align: center; }
+        #todo-container { flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 10px; }
+        .list-group { margin-bottom: 12px; border-radius: 18px; border: 1px solid var(--border); overflow: hidden; background: rgba(128,128,128,0.02); }
+        .list-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: var(--base-size); align-items: center; background: rgba(0,0,0,0.02); }
+        .list-content { display: none; padding: 5px 0; }
+        .list-content.active { display: block; }
+
+        .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .todo-text-wrapper { flex: 1; display: flex; flex-direction: column; cursor: pointer; overflow: hidden; }
+        .todo-text { font-size: var(--base-size); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .todo-meta { font-size: calc(var(--base-size) * 0.75); opacity: 0.5; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+        .completed { text-decoration: line-through; opacity: 0.4; }
+
+        .star-priority { font-size: 24px; color: var(--accent); cursor: pointer; margin-left: auto; flex-shrink: 0; font-variation-settings: 'FILL' 0; }
+        .star-active { font-variation-settings: 'FILL' 1; }
+
+        .side-panel { position: fixed; top: 0; width: 340px; height: 100%; background: var(--glass-heavy); z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(15px); }
+        #menu-panel { left: -340px; border-right: 1px solid var(--border); }
+        #settings-panel { right: -340px; border-left: 1px solid var(--border); }
+        .side-panel.active { transform: translateX(340px); }
+        #settings-panel.active { transform: translateX(-340px); }
+
+        .panel-scroll { height: 100%; overflow-y: auto; padding: 40px 30px; display: flex; flex-direction: column; gap: 20px; }
+        .set-label { font-size: 11px; font-weight: 900; opacity: 0.6; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+        
+        .manager-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(128,128,128,0.08); border-radius: 14px; margin-bottom: 10px; cursor: grab; border: 1px solid transparent; }
+        .drag-handle { font-weight: 900; font-size: 18px; margin-right: 15px; color: var(--accent); opacity: 0.8; }
+        .manager-item.dragging { opacity: 0.3; border: 1px dashed var(--accent); }
+
+        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .color-circle-btn { position: relative; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); cursor: pointer; }
+        .color-circle-btn input[type="color"] { position: absolute; width: 150%; height: 150%; cursor: pointer; border: none; top: -25%; left: -25%; }
+
+        .btn-primary { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        
+        .footer-info { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 10px; opacity: 0.6; font-family: 'Inter', sans-serif !important; z-index: 10; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+        body.dark-mode .footer-info { text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .footer-info a { color: inherit; text-decoration: none; font-weight: bold; }
+
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); display:none; z-index: 2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--bg-inner); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; border: 1px solid var(--border); color: var(--text-color); }
+        
+        input[type="text"], input[type="date"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(128,128,128,0.05); color: var(--text-color); margin-bottom: 10px; outline: none; }
+        select option { background: var(--bg-inner); color: var(--text-color); }
+        body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="icon-btn" onclick="togglePanel('menu-panel')"><span class="material-symbols-rounded">menu</span></button>
+        <div class="nav-group">
+            <button class="icon-btn" onclick="window.refreshTasks()"><span class="material-symbols-rounded">refresh</span></button>
+            <button class="icon-btn" onclick="togglePanel('settings-panel')"><span class="material-symbols-rounded">settings</span></button>
+        </div>
+    </header>
+
+    <main>
+        <div class="glass-card" id="main-card">
+            <h1 id="main-title">To Do's</h1>
+            <div id="auth-section" style="text-align:center;">
+                <button id="login-btn" class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
+                <p id="notion-hint" style="font-size: 11px; margin-top: 15px; opacity: 0.6; display: none;">
+                    Problem beim Login in Notion? <br>
+                    <a href="#" onclick="window.open(window.location.href, '_blank')" style="color: var(--accent); font-weight: bold;">In neuem Tab öffnen</a>
+                </p>
+            </div>
+            <div id="todo-container" style="display: none;"><div id="accordion-list"></div></div>
+        </div>
+        <div class="footer-info">
+            v1.8.4 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+        </div>
+    </main>
+
+    <div id="task-modal" class="modal-overlay" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                <h3 id="modal-title" style="margin:0">Details</h3>
+                <span id="modal-star" class="material-symbols-rounded star-priority">star_outline</span>
+            </div>
+            <div class="set-label">Fälligkeitsdatum</div>
+            <input type="date" id="modal-date-input" onchange="window.updateTaskDetail('due')">
+            <div class="set-label">Schritte</div>
+            <div id="subtask-list" style="max-height: 120px; overflow-y:auto; margin-bottom:10px; font-size: 13px;"></div>
+            <input type="text" id="new-subtask-input" placeholder="+ Schritt hinzufügen..." onkeypress="if(event.key==='Enter') window.addSubtask()">
+            <button class="btn-primary" onclick="document.getElementById('task-modal').style.display='none'">SCHLIESSEN</button>
+        </div>
+    </div>
+
+    <div id="menu-panel" class="side-panel">
+        <div class="panel-scroll">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h2 style="margin:0">Listen</h2>
+                <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span>
+            </div>
+            <div class="set-label">Gedrückt halten zum Sortieren</div>
+            <div id="list-manager-container"></div>
+            <button class="btn-primary" onclick="togglePanel('menu-panel')">FERTIG</button>
+        </div>
+    </div>
+
+    <div id="settings-panel" class="side-panel">
+        <div class="panel-scroll">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h2 style="margin:0">Design</h2>
+                <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">close</span>
+            </div>
+            
+            <div class="set-label">Modus</div>
+            <div style="display:flex; gap:15px;">
+                <button class="icon-btn" onclick="setDarkMode(false)" style="border:1px solid var(--border)"><span class="material-symbols-rounded">light_mode</span></button>
+                <button class="icon-btn" onclick="setDarkMode(true)" style="border:1px solid var(--border)"><span class="material-symbols-rounded">dark_mode</span></button>
+            </div>
+
+            <div class="set-label">Hintergrundbild</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <input type="text" id="bg-url-input" placeholder="URL eingeben..." oninput="updateBgImage(this.value)">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                    <button class="btn-primary" style="font-size: 11px; padding: 10px;" onclick="document.getElementById('bg-file-input').click()">UPLOAD</button>
+                    <button class="btn-primary" style="font-size: 11px; padding: 10px; background:#666;" onclick="updateBgImage('')">LÖSCHEN</button>
+                </div>
+                <input type="file" id="bg-file-input" style="display:none" accept="image/*" onchange="uploadBgImage(event)">
+            </div>
+
+            <div class="set-label">Transparenz Karte</div>
+            <input type="range" min="0.1" max="1" step="0.05" value="1" oninput="updateOpacity(this.value)">
+
+            <div class="set-label">Schriftgröße</div>
+            <input type="range" min="12" max="24" step="1" value="16" oninput="updateFontSize(this.value)">
+
+            <div class="set-label">Farben</div>
+            <div class="color-grid">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="color-circle-btn"><input type="color" value="#8EA39D" oninput="updateColor('--accent', this.value)"></div>
+                    <span style="font-size:12px">Akzent</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div class="color-circle-btn"><input type="color" id="bg-color-picker" value="#f0f2f5" oninput="updateBackgroundColor(this.value)"></div>
+                    <span style="font-size:12px">Basis</span>
+                </div>
+            </div>
+
+            <div class="set-label">Schriftart</div>
+            <select onchange="updateFont(this.value)">
+                <option value="Segoe UI">Segoe UI</option>
+                <option value="Rubik Mono One">Rubik Mono One</option>
+                <option value="Inter">Inter</option>
+                <option value="Montserrat">Montserrat</option>
+                <option value="Lexend">Lexend</option>
+                <option value="Outfit">Outfit</option>
+                <option value="Space Grotesk">Space Grotesk</option>
+                <option value="Bebas Neue">Bebas Neue</option>
+                <option value="Playfair Display">Playfair Display</option>
+                <option value="Fraunces">Fraunces</option>
+            </select>
+
+            <button class="btn-primary" style="background:#ff4444; margin-top: 20px;" onclick="window.confirmLogout()">ABMELDEN</button>
+        </div>
+    </div>
+
+    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+
+    <script>
+        let listOrder = [];
+        let currentOpenTask = null;
+        
+        const msalConfig = { 
+            auth: { 
+                clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
+                authority: "https://login.microsoftonline.com/common", 
+                redirectUri: window.location.href.split(/[?#]/)[0] 
+            }, 
+            cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
+        };
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        // Überprüfen, ob wir in einem iFrame (Notion) sind
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+            document.getElementById('notion-hint').style.display = 'block';
+        }
+
+        window.login = async () => {
+            try {
+                // Wenn im iFrame, versuchen wir Redirect, ansonsten Popup
+                if (isIframe) {
+                    await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
+                } else {
+                    const res = await msalInstance.loginPopup({ scopes: ["Tasks.ReadWrite"] });
+                    localStorage.setItem("ms_token", res.accessToken);
+                    window.refreshTasks();
+                }
+            } catch (err) { console.error("Login failed", err); }
+        };
+
+        async function handleResponse() {
+            try {
+                const response = await msalInstance.handleRedirectPromise();
+                if (response) {
+                    localStorage.setItem("ms_token", response.accessToken);
+                    window.refreshTasks();
+                }
+            } catch (err) { console.error("Handle Redirect failed", err); }
+        }
+        handleResponse();
+
+        window.confirmLogout = () => { if(confirm("Abmelden?")) { localStorage.clear(); location.reload(); } };
+
+        window.refreshTasks = async () => {
+            const token = localStorage.getItem("ms_token");
+            if (!token) return;
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('todo-container').style.display = 'block';
+
+            try {
+                const listRes = await fetch("https://graph.microsoft.com/v1.0/me/todo/lists", { headers: { Authorization: `Bearer ${token}` } });
+                const listsData = await listRes.json();
+                if (listsData.error) throw listsData.error;
+
+                if(!listOrder.length) {
+                    listOrder = listsData.value.map(l => ({ id: l.id, name: l.displayName, visible: true }));
+                }
+                renderView(token);
+                updateManagerUI();
+            } catch(e) { 
+                console.error("Refresh failed", e);
+                localStorage.removeItem("ms_token");
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('todo-container').style.display = 'none';
+            }
+        };
+
+        // Restliche Funktionen (renderView, renderT, etc.) bleiben wie in v1.8.3
+        async function renderView(token) {
+            const accordion = document.getElementById('accordion-list');
+            accordion.innerHTML = '';
+            let plannedTasks = [];
+
+            for (const list of listOrder) {
+                const taskRes = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${list.id}/tasks`, { headers: { Authorization: `Bearer ${token}` } });
+                const tasksData = await taskRes.json();
+                const tasks = tasksData.value || [];
+                tasks.filter(t => t.dueDateTime && t.status !== 'completed').forEach(t => plannedTasks.push({...t, listId: list.id}));
+
+                if (list.visible && tasks.length > 0) {
+                    const active = tasks.filter(t => t.status !== 'completed');
+                    const done = tasks.filter(t => t.status === 'completed');
+                    const group = document.createElement('div');
+                    group.className = 'list-group';
+                    group.innerHTML = `
+                        <div class="list-header" onclick="this.nextElementSibling.classList.toggle('active')">
+                            <span>${list.name} (${active.length})</span>
+                            <span class="material-symbols-rounded">expand_more</span>
+                        </div>
+                        <div class="list-content">
+                            ${active.map(t => renderT(t, list.id)).join('')}
+                            ${done.length > 0 ? `<div style="padding:10px 15px; font-size:11px; opacity:0.5; cursor:pointer" onclick="this.nextElementSibling.classList.toggle('active')">Erledigte (${done.length})</div><div class="list-content">${done.map(t => renderT(t, list.id)).join('')}</div>` : ''}
+                        </div>`;
+                    accordion.appendChild(group);
+                }
+            }
+            if(plannedTasks.length > 0) {
+                plannedTasks.sort((a, b) => new Date(a.dueDateTime.dateTime) - new Date(b.dueDateTime.dateTime));
+                const pGroup = document.createElement('div');
+                pGroup.className = 'list-group'; pGroup.style.border = '1px solid var(--accent)';
+                pGroup.innerHTML = `<div class="list-header" style="background:rgba(142,163,157,0.1)" onclick="this.nextElementSibling.classList.toggle('active')">
+                    <span style="display:flex; align-items:center; gap:8px"><span class="material-symbols-rounded">calendar_month</span> Geplant (${plannedTasks.length})</span>
+                    <span class="material-symbols-rounded">expand_more</span>
+                </div><div class="list-content">${plannedTasks.map(t => renderT(t, t.listId)).join('')}</div>`;
+                accordion.prepend(pGroup);
+            }
+        }
+
+        function renderT(t, lId) {
+            let meta = "";
+            const isHigh = t.importance === 'high';
+            if(t.dueDateTime) meta += `<span><span class="material-symbols-rounded" style="font-size:12px">calendar_today</span> ${new Date(t.dueDateTime.dateTime).toLocaleDateString()}</span>`;
+            return `<div class="todo-item">
+                <span class="material-symbols-rounded" style="color:var(--accent); cursor:pointer" onclick="window.toggleTaskStatus('${lId}', '${t.id}', '${t.status}')">${t.status === 'completed' ? 'check_circle' : 'radio_button_unchecked'}</span>
+                <div class="todo-text-wrapper" onclick="window.openDetails('${lId}', '${t.id}')">
+                    <div class="todo-text ${t.status === 'completed' ? 'completed' : ''}">${t.title}</div>
+                    ${meta ? `<div class="todo-meta">${meta}</div>` : ''}
+                </div>
+                <span class="material-symbols-rounded star-priority ${isHigh ? 'star-active' : ''}" onclick="window.fastUpdateImportance('${lId}', '${t.id}', '${t.importance}')">${isHigh ? 'star' : 'star_outline'}</span>
+            </div>`;
+        }
+
+        window.fastUpdateImportance = async (lId, tId, currentImp) => {
+            const token = localStorage.getItem("ms_token");
+            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}`, {
+                method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ importance: currentImp === 'high' ? 'normal' : 'high' })
+            });
+            window.refreshTasks();
+        };
+
+        window.toggleTaskStatus = async (lId, tId, s) => {
+            const token = localStorage.getItem("ms_token");
+            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}`, {
+                method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: s === 'completed' ? 'notStarted' : 'completed' })
+            });
+            window.refreshTasks();
+        };
+
+        window.openDetails = async (lId, tId) => {
+            const token = localStorage.getItem("ms_token");
+            const res = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}`, { headers: { Authorization: `Bearer ${token}` } });
+            const task = await res.json();
+            currentOpenTask = { lId, tId };
+            document.getElementById('modal-title').innerText = task.title;
+            document.getElementById('modal-date-input').value = task.dueDateTime ? task.dueDateTime.dateTime.split('T')[0] : "";
+            document.getElementById('modal-star').innerText = task.importance === "high" ? "star" : "star_outline";
+            if(task.importance === "high") document.getElementById('modal-star').classList.add('star-active'); else document.getElementById('modal-star').classList.remove('star-active');
+            
+            const subRes = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}/checklistItems`, { headers: { Authorization: `Bearer ${token}` } });
+            const subData = await subRes.json();
+            document.getElementById('subtask-list').innerHTML = (subData.value || []).map(s => `<div>• ${s.displayName}</div>`).join('') || "Keine Schritte";
+            document.getElementById('task-modal').style.display = 'flex';
+        };
+
+        window.updateTaskDetail = async (type, val) => {
+            const token = localStorage.getItem("ms_token");
+            let body = {};
+            if(type === 'due') body.dueDateTime = { dateTime: document.getElementById('modal-date-input').value + "T00:00:00", timeZone: "UTC" };
+            if(type === 'importance') body.importance = val;
+            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}`, {
+                method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            window.refreshTasks();
+        };
+
+        window.addSubtask = async () => {
+            const token = localStorage.getItem("ms_token");
+            const val = document.getElementById('new-subtask-input').value;
+            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}/checklistItems`, {
+                method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ displayName: val })
+            });
+            document.getElementById('new-subtask-input').value = "";
+            window.openDetails(currentOpenTask.lId, currentOpenTask.tId);
+        };
+
+        function updateManagerUI() {
+            const container = document.getElementById('list-manager-container');
+            container.innerHTML = '';
+            listOrder.forEach((l, i) => {
+                const item = document.createElement('div');
+                item.className = 'manager-item';
+                item.draggable = true;
+                item.innerHTML = `<span><span class="drag-handle">⋮⋮</span> ${l.name}</span><span class="material-symbols-rounded icon-btn" onclick="window.toggleVis(${i}); event.stopPropagation();" style="font-size:18px">${l.visible ? 'visibility' : 'visibility_off'}</span>`;
+                item.addEventListener('dragstart', () => item.classList.add('dragging'));
+                item.addEventListener('dragend', () => { item.classList.remove('dragging'); saveOrder(); });
+                container.appendChild(item);
+            });
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const after = getDragAfter(container, e.clientY);
+                const dragging = document.querySelector('.dragging');
+                if (!after) container.appendChild(dragging); else container.insertBefore(dragging, after);
+            });
+        }
+
+        function getDragAfter(container, y) {
+            const els = [...container.querySelectorAll('.manager-item:not(.dragging)')];
+            return els.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+                else return closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function saveOrder() {
+            const items = [...document.querySelectorAll('.manager-item')];
+            listOrder = items.map(it => listOrder.find(l => l.name === it.innerText.replace('⋮⋮', '').replace('visibility', '').replace('visibility_off', '').trim()));
+            renderView(localStorage.getItem("ms_token"));
+        }
+
+        window.toggleVis = (i) => { listOrder[i].visible = !listOrder[i].visible; updateManagerUI(); renderView(localStorage.getItem("ms_token")); };
+        window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
+
+        window.setDarkMode = (v) => {
+            const picker = document.getElementById('bg-color-picker');
+            if (v) {
+                document.body.classList.add('dark-mode');
+                window.updateBackgroundColor('#0a0a0a');
+                picker.value = '#0a0a0a';
+            } else {
+                document.body.classList.remove('dark-mode');
+                window.updateBackgroundColor('#f0f2f5');
+                picker.value = '#f0f2f5';
+            }
+        };
+
+        window.updateBackgroundColor = (val) => {
+            document.documentElement.style.setProperty('--bg-outer', val);
+            document.body.style.backgroundColor = val; 
+        };
+
+        window.updateColor = (prop, val) => document.documentElement.style.setProperty(prop, val);
+        window.updateFont = (f) => document.documentElement.style.setProperty('--main-font', f);
+        window.updateFontSize = (v) => document.documentElement.style.setProperty('--base-size', v + 'px');
+        window.updateOpacity = (v) => document.documentElement.style.setProperty('--card-opacity', v);
+        window.updateBgImage = (url) => {
+            document.documentElement.style.setProperty('--bg-image', url ? `url('${url}')` : 'none');
+            document.getElementById('bg-url-input').value = url;
+        }
+        
+        window.uploadBgImage = (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => updateBgImage(e.target.result);
+                reader.readAsDataURL(file);
+            }
+        };
+
+        if (localStorage.getItem("ms_token")) window.refreshTasks();
+    </script>
+</body>
+</html>
