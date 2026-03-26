@@ -260,22 +260,31 @@
         const isIframe = window.self !== window.top;
         if (isIframe) document.getElementById('notion-hint').style.display = 'block';
 
-        window.login = async () => {
-            try {
-                if (isIframe) await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
-                else {
-                    const res = await msalInstance.loginPopup({ scopes: ["Tasks.ReadWrite"] });
-                    localStorage.setItem("ms_token", res.accessToken);
-                    window.refreshTasks();
-                }
-            } catch (err) { console.error("Login failed", err); }
-        };
+       window.login = async () => {
+    const loginRequest = { scopes: ["Tasks.ReadWrite"] };
+    try {
+        // Wenn im Browser: Popup nutzen
+        if (window.self === window.top) {
+            const res = await msalInstance.loginPopup(loginRequest);
+            localStorage.setItem("ms_token", res.accessToken);
+            // Zeige den Token direkt an, damit man ihn für Notion kopieren kann
+            alert("Dein Token für Notion:\n\n" + res.accessToken);
+        } else {
+            // Wenn in Notion: Redirect nutzen
+            await msalInstance.loginRedirect(loginRequest);
+        }
+    } catch (err) { 
+        console.error("Login fehlgeschlagen", err);
+    }
+};
 
-        window.manualSync = () => {
-            const val = document.getElementById('sync-input').value.trim();
-            if(val) { localStorage.setItem("ms_token", val); window.refreshTasks(); }
-        };
-
+   window.manualSync = () => {
+    const val = prompt("Bitte füge hier den Token aus dem Browser-Login ein:");
+    if(val) { 
+        localStorage.setItem("ms_token", val); 
+        window.refreshTasks(); 
+    }
+};
         window.showToken = () => {
             const token = localStorage.getItem("ms_token");
             prompt("Kopiere diesen Code für die Notion Desktop-App:", token);
