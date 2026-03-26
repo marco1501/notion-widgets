@@ -247,18 +247,68 @@
         let listOrder = [];
         let currentOpenTask = null;
         
-        const msalConfig = { 
-            auth: { 
-                clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
-                authority: "https://login.microsoftonline.com/common", 
-                redirectUri: window.location.href.split(/[?#]/)[0] 
-            }, 
-            cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
-        };
-        const msalInstance = new msal.PublicClientApplication(msalConfig);
+     // 1. Konfiguration (Erzwingt Speicherung im Browser-Cache)
+const msalConfig = { 
+    auth: { 
+        clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
+        authority: "https://login.microsoftonline.com/common", 
+        redirectUri: window.location.href.split(/[?#]/)[0] 
+    }, 
+    cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
+};
+const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        const isIframe = window.self !== window.top;
-        if (isIframe) document.getElementById('notion-hint').style.display = 'block';
+// 2. Den Redirect sofort beim Laden abfangen
+async function handleAuth() {
+    try {
+        const response = await msalInstance.handleRedirectPromise();
+        
+        // Wenn wir gerade vom Login kommen:
+        if (response) {
+            localStorage.setItem("ms_token", response.accessToken);
+            
+            // Wir überschreiben das Design NUR im Browser-Tab nach dem Login, 
+            // damit du den Token garantiert kopieren kannst:
+            document.body.innerHTML = `
+                <div style="padding:40px; background:#1a1a1a; color:white; font-family:sans-serif; text-align:center; height:100vh;">
+                    <h2 style="color:#8EA39D">Login erfolgreich!</h2>
+                    <p style="opacity:0.8">Markiere den Text oder nutze den Button:</p>
+                    
+                    <textarea id="tokenBox" style="width:100%; max-width:500px; height:150px; background:#222; color:#ccc; border:1px solid #444; border-radius:10px; padding:15px; font-size:11px; font-family:monospace; margin-bottom:20px; display:block; margin-left:auto; margin-right:auto;">${response.accessToken}</textarea>
+                    
+                    <button id="copyBtn" style="padding:15px 30px; border-radius:12px; border:none; background:#8EA39D; color:white; font-weight:bold; cursor:pointer; font-size:16px;">TOKEN KOPIEREN</button>
+                    
+                    <p style="margin-top:30px; font-size:12px; opacity:0.5;">Füge diesen Code danach in deiner Notion-App ein.</p>
+                </div>`;
+
+            // Kopier-Funktion für den Button
+            document.getElementById('copyBtn').onclick = () => {
+                const area = document.getElementById('tokenBox');
+                area.select();
+                area.setSelectionRange(0, 99999); // Für mobile Geräte
+                document.execCommand('copy');
+                alert("Token wurde kopiert! Du kannst das Fenster jetzt schließen.");
+            };
+            return; 
+        }
+        
+        // Wenn bereits ein Token da ist, lade die App ganz normal
+        if (localStorage.getItem("ms_token")) {
+            window.refreshTasks();
+        }
+    } catch (err) { console.error("Auth-Error:", err); }
+}
+
+// 3. Die Login-Funktion für deinen Button (Keine Popups mehr!)
+window.login = () => {
+    // Wir nutzen NUR Redirect, weil Popups in Notion/Browsern oft blockiert werden
+    msalInstance.loginRedirect({
+        scopes: ["Tasks.ReadWrite"],
+        prompt: "select_account" 
+    });
+};
+
+handleAuth();
 
        window.login = async () => {
     const loginRequest = { scopes: ["Tasks.ReadWrite"] };
