@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v1.8.3 (Stable)</title>
+    <title>Marco Master System - v1.8.4 (Notion Fix)</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
@@ -118,11 +118,17 @@
     <main>
         <div class="glass-card" id="main-card">
             <h1 id="main-title">To Do's</h1>
-            <div id="auth-section" style="text-align:center;"><button class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button></div>
+            <div id="auth-section" style="text-align:center;">
+                <button id="login-btn" class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
+                <p id="notion-hint" style="font-size: 11px; margin-top: 15px; opacity: 0.6; display: none;">
+                    Problem beim Login in Notion? <br>
+                    <a href="#" onclick="window.open(window.location.href, '_blank')" style="color: var(--accent); font-weight: bold;">In neuem Tab öffnen</a>
+                </p>
+            </div>
             <div id="todo-container" style="display: none;"><div id="accordion-list"></div></div>
         </div>
         <div class="footer-info">
-            v1.8.3 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v1.8.4 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
@@ -217,27 +223,36 @@
     <script>
         let listOrder = [];
         let currentOpenTask = null;
+        
         const msalConfig = { 
             auth: { 
                 clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
                 authority: "https://login.microsoftonline.com/common", 
-                redirectUri: window.location.href.split('#')[0] 
+                redirectUri: window.location.href.split(/[?#]/)[0] 
             }, 
-            cache: { cacheLocation: "localStorage" } 
+            cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
         };
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        // NOTION FIX: Redirect statt Popup
+        // Überprüfen, ob wir in einem iFrame (Notion) sind
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+            document.getElementById('notion-hint').style.display = 'block';
+        }
+
         window.login = async () => {
             try {
-                await msalInstance.loginRedirect({ 
-                    scopes: ["Tasks.ReadWrite"],
-                    prompt: "select_account"
-                });
+                // Wenn im iFrame, versuchen wir Redirect, ansonsten Popup
+                if (isIframe) {
+                    await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
+                } else {
+                    const res = await msalInstance.loginPopup({ scopes: ["Tasks.ReadWrite"] });
+                    localStorage.setItem("ms_token", res.accessToken);
+                    window.refreshTasks();
+                }
             } catch (err) { console.error("Login failed", err); }
         };
 
-        // Redirect-Antwort verarbeiten
         async function handleResponse() {
             try {
                 const response = await msalInstance.handleRedirectPromise();
@@ -260,14 +275,22 @@
             try {
                 const listRes = await fetch("https://graph.microsoft.com/v1.0/me/todo/lists", { headers: { Authorization: `Bearer ${token}` } });
                 const listsData = await listRes.json();
+                if (listsData.error) throw listsData.error;
+
                 if(!listOrder.length) {
                     listOrder = listsData.value.map(l => ({ id: l.id, name: l.displayName, visible: true }));
                 }
                 renderView(token);
                 updateManagerUI();
-            } catch(e) { console.error("Refresh failed", e); }
+            } catch(e) { 
+                console.error("Refresh failed", e);
+                localStorage.removeItem("ms_token");
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('todo-container').style.display = 'none';
+            }
         };
 
+        // Restliche Funktionen (renderView, renderT, etc.) bleiben wie in v1.8.3
         async function renderView(token) {
             const accordion = document.getElementById('accordion-list');
             accordion.innerHTML = '';
@@ -275,7 +298,8 @@
 
             for (const list of listOrder) {
                 const taskRes = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${list.id}/tasks`, { headers: { Authorization: `Bearer ${token}` } });
-                const tasks = (await taskRes.json()).value || [];
+                const tasksData = await taskRes.json();
+                const tasks = tasksData.value || [];
                 tasks.filter(t => t.dueDateTime && t.status !== 'completed').forEach(t => plannedTasks.push({...t, listId: list.id}));
 
                 if (list.visible && tasks.length > 0) {
@@ -417,7 +441,6 @@
         window.toggleVis = (i) => { listOrder[i].visible = !listOrder[i].visible; updateManagerUI(); renderView(localStorage.getItem("ms_token")); };
         window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
 
-        // Dark Mode & Background Fix
         window.setDarkMode = (v) => {
             const picker = document.getElementById('bg-color-picker');
             if (v) {
@@ -433,7 +456,7 @@
 
         window.updateBackgroundColor = (val) => {
             document.documentElement.style.setProperty('--bg-outer', val);
-            document.body.style.backgroundColor = val; // Force Inline Style
+            document.body.style.backgroundColor = val; 
         };
 
         window.updateColor = (prop, val) => document.documentElement.style.setProperty(prop, val);
