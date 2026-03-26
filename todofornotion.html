@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v1.8.4 (Notion Fix)</title>
+    <title>Marco Master System - v1.9.0 (Full Feature Sync)</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
@@ -55,6 +55,14 @@
 
         #main-title { font-size: 1.2rem; margin: 0 0 20px 0; text-transform: uppercase; text-align: center; }
         #todo-container { flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 10px; }
+        
+        /* Sync Box Style */
+        .sync-box {
+            margin-top: 20px; padding: 15px; border-radius: 18px;
+            background: rgba(128,128,128,0.1); border: 1px dashed var(--accent);
+            font-size: 11px; text-align: left; line-height: 1.4;
+        }
+
         .list-group { margin-bottom: 12px; border-radius: 18px; border: 1px solid var(--border); overflow: hidden; background: rgba(128,128,128,0.02); }
         .list-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: var(--base-size); align-items: center; background: rgba(0,0,0,0.02); }
         .list-content { display: none; padding: 5px 0; }
@@ -118,17 +126,32 @@
     <main>
         <div class="glass-card" id="main-card">
             <h1 id="main-title">To Do's</h1>
+            
             <div id="auth-section" style="text-align:center;">
                 <button id="login-btn" class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
+                
+                <div class="sync-box">
+                    <strong>Notion Desktop Sync:</strong><br>
+                    1. Im Browser einloggen.<br>
+                    2. "Token kopieren" klicken.<br>
+                    3. Hier einfügen:<br>
+                    <input type="text" id="sync-input" placeholder="Token hier einfügen..." style="margin-top:8px">
+                    <button class="btn-primary" style="padding: 10px; font-size: 11px; background:#666;" onclick="window.manualSync()">SYNC STARTEN</button>
+                </div>
+
                 <p id="notion-hint" style="font-size: 11px; margin-top: 15px; opacity: 0.6; display: none;">
                     Problem beim Login in Notion? <br>
                     <a href="#" onclick="window.open(window.location.href, '_blank')" style="color: var(--accent); font-weight: bold;">In neuem Tab öffnen</a>
                 </p>
             </div>
-            <div id="todo-container" style="display: none;"><div id="accordion-list"></div></div>
+
+            <div id="todo-container" style="display: none;">
+                <div id="accordion-list"></div>
+                <button class="btn-primary" style="background:#555; font-size: 11px; margin-top: 15px;" onclick="window.showToken()">TOKEN FÜR DESKTOP-APP KOPIEREN</button>
+            </div>
         </div>
         <div class="footer-info">
-            v1.8.4 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v1.9.0 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
@@ -234,23 +257,28 @@
         };
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        // Überprüfen, ob wir in einem iFrame (Notion) sind
         const isIframe = window.self !== window.top;
-        if (isIframe) {
-            document.getElementById('notion-hint').style.display = 'block';
-        }
+        if (isIframe) document.getElementById('notion-hint').style.display = 'block';
 
         window.login = async () => {
             try {
-                // Wenn im iFrame, versuchen wir Redirect, ansonsten Popup
-                if (isIframe) {
-                    await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
-                } else {
+                if (isIframe) await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
+                else {
                     const res = await msalInstance.loginPopup({ scopes: ["Tasks.ReadWrite"] });
                     localStorage.setItem("ms_token", res.accessToken);
                     window.refreshTasks();
                 }
             } catch (err) { console.error("Login failed", err); }
+        };
+
+        window.manualSync = () => {
+            const val = document.getElementById('sync-input').value.trim();
+            if(val) { localStorage.setItem("ms_token", val); window.refreshTasks(); }
+        };
+
+        window.showToken = () => {
+            const token = localStorage.getItem("ms_token");
+            prompt("Kopiere diesen Code für die Notion Desktop-App:", token);
         };
 
         async function handleResponse() {
@@ -264,8 +292,6 @@
         }
         handleResponse();
 
-        window.confirmLogout = () => { if(confirm("Abmelden?")) { localStorage.clear(); location.reload(); } };
-
         window.refreshTasks = async () => {
             const token = localStorage.getItem("ms_token");
             if (!token) return;
@@ -277,9 +303,7 @@
                 const listsData = await listRes.json();
                 if (listsData.error) throw listsData.error;
 
-                if(!listOrder.length) {
-                    listOrder = listsData.value.map(l => ({ id: l.id, name: l.displayName, visible: true }));
-                }
+                if(!listOrder.length) listOrder = listsData.value.map(l => ({ id: l.id, name: l.displayName, visible: true }));
                 renderView(token);
                 updateManagerUI();
             } catch(e) { 
@@ -290,7 +314,6 @@
             }
         };
 
-        // Restliche Funktionen (renderView, renderT, etc.) bleiben wie in v1.8.3
         async function renderView(token) {
             const accordion = document.getElementById('accordion-list');
             accordion.innerHTML = '';
@@ -312,7 +335,7 @@
                             <span>${list.name} (${active.length})</span>
                             <span class="material-symbols-rounded">expand_more</span>
                         </div>
-                        <div class="list-content">
+                        <div class="list-content active">
                             ${active.map(t => renderT(t, list.id)).join('')}
                             ${done.length > 0 ? `<div style="padding:10px 15px; font-size:11px; opacity:0.5; cursor:pointer" onclick="this.nextElementSibling.classList.toggle('active')">Erledigte (${done.length})</div><div class="list-content">${done.map(t => renderT(t, list.id)).join('')}</div>` : ''}
                         </div>`;
@@ -326,7 +349,7 @@
                 pGroup.innerHTML = `<div class="list-header" style="background:rgba(142,163,157,0.1)" onclick="this.nextElementSibling.classList.toggle('active')">
                     <span style="display:flex; align-items:center; gap:8px"><span class="material-symbols-rounded">calendar_month</span> Geplant (${plannedTasks.length})</span>
                     <span class="material-symbols-rounded">expand_more</span>
-                </div><div class="list-content">${plannedTasks.map(t => renderT(t, t.listId)).join('')}</div>`;
+                </div><div class="list-content active">${plannedTasks.map(t => renderT(t, t.listId)).join('')}</div>`;
                 accordion.prepend(pGroup);
             }
         }
@@ -383,7 +406,6 @@
             const token = localStorage.getItem("ms_token");
             let body = {};
             if(type === 'due') body.dueDateTime = { dateTime: document.getElementById('modal-date-input').value + "T00:00:00", timeZone: "UTC" };
-            if(type === 'importance') body.importance = val;
             await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}`, {
                 method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -416,20 +438,15 @@
             });
             container.addEventListener('dragover', e => {
                 e.preventDefault();
-                const after = getDragAfter(container, e.clientY);
                 const dragging = document.querySelector('.dragging');
+                const after = [...container.querySelectorAll('.manager-item:not(.dragging)')].reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = e.clientY - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+                    else return closest;
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
                 if (!after) container.appendChild(dragging); else container.insertBefore(dragging, after);
             });
-        }
-
-        function getDragAfter(container, y) {
-            const els = [...container.querySelectorAll('.manager-item:not(.dragging)')];
-            return els.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
-                else return closest;
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
 
         function saveOrder() {
@@ -440,42 +457,24 @@
 
         window.toggleVis = (i) => { listOrder[i].visible = !listOrder[i].visible; updateManagerUI(); renderView(localStorage.getItem("ms_token")); };
         window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
-
-        window.setDarkMode = (v) => {
-            const picker = document.getElementById('bg-color-picker');
-            if (v) {
-                document.body.classList.add('dark-mode');
-                window.updateBackgroundColor('#0a0a0a');
-                picker.value = '#0a0a0a';
-            } else {
-                document.body.classList.remove('dark-mode');
-                window.updateBackgroundColor('#f0f2f5');
-                picker.value = '#f0f2f5';
-            }
+        window.setDarkMode = (v) => { 
+            document.body.classList.toggle('dark-mode', v); 
+            const bg = v ? '#0a0a0a' : '#f0f2f5';
+            document.documentElement.style.setProperty('--bg-outer', bg);
+            document.getElementById('bg-color-picker').value = bg;
         };
-
-        window.updateBackgroundColor = (val) => {
-            document.documentElement.style.setProperty('--bg-outer', val);
-            document.body.style.backgroundColor = val; 
-        };
-
+        window.updateBackgroundColor = (val) => { document.documentElement.style.setProperty('--bg-outer', val); };
         window.updateColor = (prop, val) => document.documentElement.style.setProperty(prop, val);
         window.updateFont = (f) => document.documentElement.style.setProperty('--main-font', f);
         window.updateFontSize = (v) => document.documentElement.style.setProperty('--base-size', v + 'px');
         window.updateOpacity = (v) => document.documentElement.style.setProperty('--card-opacity', v);
-        window.updateBgImage = (url) => {
-            document.documentElement.style.setProperty('--bg-image', url ? `url('${url}')` : 'none');
-            document.getElementById('bg-url-input').value = url;
-        }
-        
+        window.updateBgImage = (url) => { document.documentElement.style.setProperty('--bg-image', url ? `url('${url}')` : 'none'); document.getElementById('bg-url-input').value = url; }
         window.uploadBgImage = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => updateBgImage(e.target.result);
-                reader.readAsDataURL(file);
-            }
+            const reader = new FileReader();
+            reader.onload = (e) => updateBgImage(e.target.result);
+            reader.readAsDataURL(event.target.files[0]);
         };
+        window.confirmLogout = () => { if(confirm("Abmelden?")) { localStorage.clear(); location.reload(); } };
 
         if (localStorage.getItem("ms_token")) window.refreshTasks();
     </script>
