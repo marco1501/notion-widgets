@@ -3,31 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v1.8.2 (Stable)</title>
+    <title>Marco Master System - v1.8.3 (Stable)</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --accent: #8EA39D; 
-            --bg-outer: #f0f2f5; 
-            --bg-inner: #ffffff;
-            --text-color: #1a1a1a; 
-            --border: rgba(0, 0, 0, 0.1);
-            --glass-heavy: rgba(255, 255, 255, 0.98); 
-            --base-size: 16px;
-            --main-font: 'Segoe UI';
-            --bg-image: none;
-            --card-opacity: 1;
+            --accent: #8EA39D; --bg-outer: #f0f2f5; --bg-inner: #ffffff;
+            --text-color: #1a1a1a; --border: rgba(0, 0, 0, 0.1);
+            --glass-heavy: rgba(255, 255, 255, 0.98); --base-size: 16px;
+            --main-font: 'Segoe UI'; --bg-image: none; --card-opacity: 1;
         }
 
-        /* Dark Mode Basis-Werte */
         body.dark-mode {
-            --bg-outer: #0a0a0a; 
-            --bg-inner: #1a1a1a;
-            --text-color: #ffffff; 
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-outer: #0a0a0a; --bg-inner: #1a1a1a;
+            --text-color: #ffffff; --border: rgba(255, 255, 255, 0.1);
             --glass-heavy: rgba(20, 20, 20, 0.95);
         }
 
@@ -39,20 +30,11 @@
         }
 
         body {
-            /* Die Hintergrundfarbe wird jetzt primär über die Variable gesteuert, 
-               aber wir lassen den JS-Override zu */
             background-color: var(--bg-outer);
             background-image: var(--bg-image);
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text-color); 
-            margin: 0; 
-            height: 100vh; 
-            overflow: hidden;
-            display: flex; 
-            flex-direction: column; 
-            font-size: var(--base-size);
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text-color); margin: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; font-size: var(--base-size);
         }
 
         header { padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 10; }
@@ -67,15 +49,11 @@
             border: 1px solid var(--border); border-radius: 28px;
             padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px;
-            margin-bottom: 45px; 
-            backdrop-filter: blur(10px);
+            margin-bottom: 45px; backdrop-filter: blur(10px);
         }
-        body.dark-mode .glass-card {
-            background-color: rgba(26, 26, 26, var(--card-opacity));
-        }
+        body.dark-mode .glass-card { background-color: rgba(26, 26, 26, var(--card-opacity)); }
 
         #main-title { font-size: 1.2rem; margin: 0 0 20px 0; text-transform: uppercase; text-align: center; }
-
         #todo-container { flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 10px; }
         .list-group { margin-bottom: 12px; border-radius: 18px; border: 1px solid var(--border); overflow: hidden; background: rgba(128,128,128,0.02); }
         .list-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: var(--base-size); align-items: center; background: rgba(0,0,0,0.02); }
@@ -144,7 +122,7 @@
             <div id="todo-container" style="display: none;"><div id="accordion-list"></div></div>
         </div>
         <div class="footer-info">
-            v1.8.2 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v1.8.3 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
@@ -239,16 +217,39 @@
     <script>
         let listOrder = [];
         let currentOpenTask = null;
-        const msalConfig = { auth: { clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", authority: "https://login.microsoftonline.com/common", redirectUri: window.location.href.split('#')[0] }, cache: { cacheLocation: "localStorage" } };
+        const msalConfig = { 
+            auth: { 
+                clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
+                authority: "https://login.microsoftonline.com/common", 
+                redirectUri: window.location.href.split('#')[0] 
+            }, 
+            cache: { cacheLocation: "localStorage" } 
+        };
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
+        // NOTION FIX: Redirect statt Popup
         window.login = async () => {
-            const res = await msalInstance.loginPopup({ scopes: ["Tasks.ReadWrite"] });
-            localStorage.setItem("ms_token", res.accessToken);
-            window.refreshTasks();
+            try {
+                await msalInstance.loginRedirect({ 
+                    scopes: ["Tasks.ReadWrite"],
+                    prompt: "select_account"
+                });
+            } catch (err) { console.error("Login failed", err); }
         };
 
-        window.confirmLogout = () => { if(confirm("Abmelden? Lokale Einstellungen werden gelöscht.")) { localStorage.clear(); location.reload(); } };
+        // Redirect-Antwort verarbeiten
+        async function handleResponse() {
+            try {
+                const response = await msalInstance.handleRedirectPromise();
+                if (response) {
+                    localStorage.setItem("ms_token", response.accessToken);
+                    window.refreshTasks();
+                }
+            } catch (err) { console.error("Handle Redirect failed", err); }
+        }
+        handleResponse();
+
+        window.confirmLogout = () => { if(confirm("Abmelden?")) { localStorage.clear(); location.reload(); } };
 
         window.refreshTasks = async () => {
             const token = localStorage.getItem("ms_token");
@@ -294,7 +295,6 @@
                     accordion.appendChild(group);
                 }
             }
-
             if(plannedTasks.length > 0) {
                 plannedTasks.sort((a, b) => new Date(a.dueDateTime.dateTime) - new Date(b.dueDateTime.dateTime));
                 const pGroup = document.createElement('div');
@@ -417,23 +417,23 @@
         window.toggleVis = (i) => { listOrder[i].visible = !listOrder[i].visible; updateManagerUI(); renderView(localStorage.getItem("ms_token")); };
         window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
 
+        // Dark Mode & Background Fix
         window.setDarkMode = (v) => {
             const picker = document.getElementById('bg-color-picker');
             if (v) {
                 document.body.classList.add('dark-mode');
-                window.updateBackgroundColor('#0a0a0a'); // Setzt Default Dark
+                window.updateBackgroundColor('#0a0a0a');
                 picker.value = '#0a0a0a';
             } else {
                 document.body.classList.remove('dark-mode');
-                window.updateBackgroundColor('#f0f2f5'); // Setzt Default Light
+                window.updateBackgroundColor('#f0f2f5');
                 picker.value = '#f0f2f5';
             }
         };
 
         window.updateBackgroundColor = (val) => {
-            // Wir setzen die Variable im :root UND direkt am Body, um CSS-Spezifität zu schlagen
             document.documentElement.style.setProperty('--bg-outer', val);
-            document.body.style.backgroundColor = val; 
+            document.body.style.backgroundColor = val; // Force Inline Style
         };
 
         window.updateColor = (prop, val) => document.documentElement.style.setProperty(prop, val);
