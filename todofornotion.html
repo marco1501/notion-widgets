@@ -236,51 +236,60 @@
 
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
+    <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
+
     <script>
         let listOrder = [];
         let currentOpenTask = null;
-       const msalConfig = { 
+
+        // MSAL Konfiguration mit Cookie-Support für Notion Desktop
+        const msalConfig = { 
             auth: { 
                 clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
                 authority: "https://login.microsoftonline.com/common", 
                 redirectUri: window.location.href.split(/[?#]/)[0] 
             }, 
-            cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
+            cache: { 
+                cacheLocation: "localStorage", 
+                storeAuthStateInCookie: true // Wichtig für Desktop-Apps/iFrames
+            } 
         };
 
         const msalInstance = new msal.PublicClientApplication(msalConfig);
-        const isIframe = window.self !== window.top;
 
-        // WICHTIG: Verarbeitet die Rückkehr vom Login (besonders für Notion wichtig)
+        // Diese Funktion läuft bei JEDEM Laden und prüft, ob wir gerade vom Login kommen
         async function handleAuth() {
             try {
                 const response = await msalInstance.handleRedirectPromise();
                 if (response) {
                     localStorage.setItem("ms_token", response.accessToken);
+                    console.log("Login erfolgreich via Redirect");
+                }
+                // Wenn ein Token da ist, Aufgaben laden
+                if (localStorage.getItem("ms_token")) {
                     window.refreshTasks();
                 }
             } catch (err) {
-                console.error("Auth Error:", err);
+                console.error("Auth Fehler beim Verarbeiten des Redirects:", err);
             }
         }
+
+        // Startet die Auth-Prüfung sofort
         handleAuth();
 
         window.login = async () => {
-            const loginRequest = { scopes: ["Tasks.ReadWrite"], prompt: "select_account" };
-            
-            if (isIframe) {
-                // In Notion: Nutze Redirect, da Popups oft blockiert werden
-                msalInstance.loginRedirect(loginRequest);
-            } else {
-                // Im Browser: Nutze Popup
-                try {
-                    const res = await msalInstance.loginPopup(loginRequest);
-                    localStorage.setItem("ms_token", res.accessToken);
-                    window.refreshTasks();
-                } catch (e) {
-                    console.error("Popup blocked or failed, trying redirect...", e);
-                    msalInstance.loginRedirect(loginRequest);
-                }
+            const loginRequest = { 
+                scopes: ["Tasks.ReadWrite"],
+                prompt: "select_account"
+            };
+
+            try {
+                // In der Notion Desktop App IMMER Redirect nutzen
+                console.log("Starte Login-Redirect...");
+                await msalInstance.loginRedirect(loginRequest);
+            } catch (err) {
+                console.error("Login fehlgeschlagen:", err);
+                alert("Login konnte nicht gestartet werden. Prüfe die Azure Redirect URI.");
             }
         };
 
@@ -302,8 +311,7 @@
                 const listRes = await fetch("https://graph.microsoft.com/v1.0/me/todo/lists", { 
                     headers: { Authorization: `Bearer ${token}` } 
                 });
-                
-                // Falls der Token abgelaufen ist (401), automatisch ausloggen/neu laden
+
                 if (listRes.status === 401) {
                     localStorage.removeItem("ms_token");
                     location.reload();
@@ -317,9 +325,13 @@
                 renderView(token);
                 updateManagerUI();
             } catch(e) { 
-                console.error("Refresh failed", e); 
+                console.error("Laden der Aufgaben fehlgeschlagen", e); 
             }
         };
+
+        // ... Hier folgen deine restlichen Funktionen (renderView, renderT, etc.) unverändert ...
+        // Stelle sicher, dass du die Funktionen von v1.8.2 (toggleTaskStatus, openDetails, etc.) behältst!
+        
         async function renderView(token) {
             const accordion = document.getElementById('accordion-list');
             accordion.innerHTML = '';
@@ -469,26 +481,22 @@
 
         window.toggleVis = (i) => { listOrder[i].visible = !listOrder[i].visible; updateManagerUI(); renderView(localStorage.getItem("ms_token")); };
         window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
-
         window.setDarkMode = (v) => {
             const picker = document.getElementById('bg-color-picker');
             if (v) {
                 document.body.classList.add('dark-mode');
-                window.updateBackgroundColor('#0a0a0a'); // Setzt Default Dark
+                window.updateBackgroundColor('#0a0a0a');
                 picker.value = '#0a0a0a';
             } else {
                 document.body.classList.remove('dark-mode');
-                window.updateBackgroundColor('#f0f2f5'); // Setzt Default Light
+                window.updateBackgroundColor('#f0f2f5');
                 picker.value = '#f0f2f5';
             }
         };
-
         window.updateBackgroundColor = (val) => {
-            // Wir setzen die Variable im :root UND direkt am Body, um CSS-Spezifität zu schlagen
             document.documentElement.style.setProperty('--bg-outer', val);
             document.body.style.backgroundColor = val; 
         };
-
         window.updateColor = (prop, val) => document.documentElement.style.setProperty(prop, val);
         window.updateFont = (f) => document.documentElement.style.setProperty('--main-font', f);
         window.updateFontSize = (v) => document.documentElement.style.setProperty('--base-size', v + 'px');
@@ -497,7 +505,6 @@
             document.documentElement.style.setProperty('--bg-image', url ? `url('${url}')` : 'none');
             document.getElementById('bg-url-input').value = url;
         }
-        
         window.uploadBgImage = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -506,8 +513,6 @@
                 reader.readAsDataURL(file);
             }
         };
-
-        if (localStorage.getItem("ms_token")) window.refreshTasks();
     </script>
 </body>
 </html>
