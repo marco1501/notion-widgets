@@ -232,7 +232,7 @@
             }, 
             cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
         };
-        const msalInstance = new msal.PublicClientApplication(msalConfig);
+const msalInstance = new msal.PublicClientApplication(msalConfig);
 
         // Überprüfen, ob wir in einem iFrame (Notion) sind
         const isIframe = window.self !== window.top;
@@ -242,30 +242,42 @@
 
         window.login = async () => {
             try {
-                // Wenn im iFrame, versuchen wir Redirect, ansonsten Popup
                 if (isIframe) {
+                    // Im iFrame nutzen wir Redirect, da Popups oft blockiert werden
                     await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
                 } else {
-                    const res = await msalInstance.loginPopup({ scopes: ["Tasks.ReadWrite"] });
-                    localStorage.setItem("ms_token", res.accessToken);
-                    window.refreshTasks();
+                    // Normaler Browser: Popup nutzen
+                    const res = await msalInstance.loginPopup({ 
+                        scopes: ["Tasks.ReadWrite"],
+                        prompt: "select_account" // Zwingt zur Kontoauswahl, verhindert oft Loops
+                    });
+                    if (res) {
+                        localStorage.setItem("ms_token", res.accessToken);
+                        window.refreshTasks();
+                    }
                 }
-            } catch (err) { console.error("Login failed", err); }
+            } catch (err) { 
+                console.error("Login failed", err); 
+            }
         };
 
         async function handleResponse() {
             try {
+                // Das hier ist entscheidend: Es verarbeitet das Ergebnis nach einem Redirect
                 const response = await msalInstance.handleRedirectPromise();
                 if (response) {
                     localStorage.setItem("ms_token", response.accessToken);
+                    // Falls wir in einem Fenster sind, das nur zum Login geöffnet wurde:
+                    if (window.opener) {
+                        window.close(); 
+                    }
                     window.refreshTasks();
                 }
-            } catch (err) { console.error("Handle Redirect failed", err); }
+            } catch (err) { 
+                console.error("Handle Redirect failed", err); 
+            }
         }
         handleResponse();
-
-        window.confirmLogout = () => { if(confirm("Abmelden?")) { localStorage.clear(); location.reload(); } };
-
         window.refreshTasks = async () => {
             const token = localStorage.getItem("ms_token");
             if (!token) return;
