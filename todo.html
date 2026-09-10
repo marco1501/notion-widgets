@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v2.0.0</title>
+    <title>Marco Master System - v2.0.2</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
@@ -79,7 +79,6 @@
         .list-content { display: none; padding: 5px 0; }
         .list-content.active { display: block; }
 
-        /* Eingabefeld für neue Aufgaben direkt in der Liste */
         .new-task-container { padding: 8px 14px; border-bottom: 1px solid rgba(128,128,128,0.08); }
         .new-task-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(128,128,128,0.04); color: var(--text-color); font-size: calc(var(--base-size) * 0.9); outline: none; margin: 0 !important; }
         .new-task-input:focus { border-color: var(--accent); background: rgba(128,128,128,0.08); }
@@ -94,7 +93,6 @@
         .star-priority { font-size: 22px; color: var(--accent); cursor: pointer; flex-shrink: 0; font-variation-settings: 'FILL' 0; transition: 0.2s; }
         .star-active { font-variation-settings: 'FILL' 1; }
 
-        /* Mülleimer-Icon */
         .todo-delete-btn { font-size: 19px; color: var(--text-color); opacity: 0; cursor: pointer; transition: 0.2s; flex-shrink: 0; padding: 3px; }
         .todo-delete-btn:hover { opacity: 1 !important; color: #ff4d4f; }
 
@@ -150,8 +148,14 @@
         <div class="glass-card" id="main-card">
             <h1 id="main-title">To Do's</h1>
             
+            <!-- Schnell-Banner zum Schlüssel kopieren (nur im Browser sichtbar nach Login) -->
+            <div id="browser-copy-banner" style="display:none; margin-bottom:15px;">
+                <button class="btn-primary" onclick="window.copySyncKey()">SCHLÜSSEL FÜR NOTION KOPIEREN</button>
+            </div>
+
             <!-- Auth-Bereich -->
             <div id="auth-section" style="text-align:center; padding-top: 10px;">
+                
                 <div id="browser-auth" style="display:none;">
                     <p style="opacity:0.8; font-size:14px; margin-bottom:15px;">Melde dich an, um den Schlüssel für Notion zu generieren.</p>
                     <button class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
@@ -162,7 +166,7 @@
                         Verbinde dein Widget in 2 Schritten mit Notion:
                     </p>
                     
-                    <a id="browser-login-link" href="#" target="_blank" class="btn-primary" style="margin-bottom:15px;">
+                    <a id="browser-login-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-primary" style="margin-bottom:15px;">
                         1. IM BROWSER ANMELDEN
                     </a>
                     
@@ -183,11 +187,11 @@
         </div>
 
         <div class="footer-info">
-            v2.0.0 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v2.0.2 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
-    <!-- Task Modal mit Lösch-Möglichkeit -->
+    <!-- Task Modal -->
     <div id="task-modal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
@@ -288,11 +292,12 @@
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
     <script>
-        console.log("Starte Marco Master System v2.0.0");
+        console.log("Starte Marco Master System v2.0.2");
 
         const isInIframe = window.self !== window.top;
         let listOrder = [];
         let currentOpenTask = null;
+        let immediateRedirectToken = null; // Speichert das Token direkt aus dem Redirect
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -321,13 +326,20 @@
             cache: { 
                 cacheLocation: "localStorage", 
                 storeAuthStateInCookie: true 
-            }
+            } 
         };
 
         const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+        // Login-Anfrage (darf prompt enthalten)
         const loginRequest = { 
             scopes: ["Tasks.ReadWrite"],
             prompt: "select_account"
+        };
+
+        // Hintergrund-Anfrage (darf KEIN prompt enthalten, sonst bricht acquireTokenSilent ab!)
+        const silentTokenRequest = {
+            scopes: ["Tasks.ReadWrite"]
         };
 
         window.getSyncKey = () => {
@@ -371,6 +383,13 @@
         };
 
         async function getAccessToken() {
+            // Falls wir gerade frisch aus dem Redirect kommen, direkt das frische Token nutzen
+            if (immediateRedirectToken) {
+                const token = immediateRedirectToken;
+                immediateRedirectToken = null;
+                return token;
+            }
+
             let account = msalInstance.getActiveAccount();
             if (!account) {
                 const accounts = msalInstance.getAllAccounts();
@@ -382,8 +401,9 @@
             if (!account) return null;
 
             try {
+                // Wichtig: silentTokenRequest OHNE "prompt"
                 const res = await msalInstance.acquireTokenSilent({
-                    ...loginRequest,
+                    ...silentTokenRequest,
                     account: account
                 });
                 return res.accessToken;
@@ -478,15 +498,23 @@
                 const response = await msalInstance.handleRedirectPromise();
                 if (response && response.account) {
                     msalInstance.setActiveAccount(response.account);
+                    immediateRedirectToken = response.accessToken;
+                    console.log("Redirect-Login erfolgreich!");
                 }
             } catch (err) {
                 console.error("Auth Redirect:", err);
+                setAuthStatus("Redirect-Fehler: " + (err.message || err), true);
             }
 
             const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
             if (account) {
                 msalInstance.setActiveAccount(account);
                 setAuthStatus("");
+                
+                if (!isInIframe) {
+                    document.getElementById('browser-copy-banner').style.display = 'block';
+                }
+
                 window.refreshTasks();
             } else {
                 showAuthUI();
@@ -495,7 +523,18 @@
 
         window.login = async () => {
             sessionStorage.removeItem("msal.interaction.status");
-            setAuthStatus("Öffne Microsoft-Anmeldung...");
+            setAuthStatus("Leite zu Microsoft weiter...");
+
+            if (!isInIframe) {
+                try {
+                    await msalInstance.loginRedirect(loginRequest);
+                    return;
+                } catch (err) {
+                    console.error("Redirect-Fehler:", err);
+                    setAuthStatus("Fehler: " + (err.message || err), true);
+                    return;
+                }
+            }
 
             try {
                 const response = await msalInstance.loginPopup(loginRequest);
@@ -524,7 +563,6 @@
             } 
         };
 
-        // Neue Aufgabe erstellen
         window.createTask = async (listId, title, inputElement) => {
             const cleanTitle = title.trim();
             if (!cleanTitle) return;
@@ -550,7 +588,6 @@
             }
         };
 
-        // Aufgabe löschen
         window.deleteTask = async (listId, taskId) => {
             if (!confirm("Aufgabe unwiderruflich löschen?")) return;
 
@@ -565,7 +602,6 @@
             }
         };
 
-        // Aktuell im Modal geöffnete Aufgabe löschen
         window.deleteCurrentTask = async () => {
             if (!currentOpenTask) return;
             document.getElementById('task-modal').style.display = 'none';
@@ -872,7 +908,6 @@
             localStorage.setItem('todo_settings', JSON.stringify(settings));
         }
 
-        // Lädt Einstellungen aus URL-Parametern (für geräteübergreifenden Sync) oder aus localStorage
         function loadSettings() {
             const params = new URLSearchParams(window.location.search);
             const sStr = localStorage.getItem('todo_settings');
@@ -881,7 +916,6 @@
                 try { s = JSON.parse(sStr); } catch(e) {}
             }
 
-            // URL-Parameter überschreiben lokale Werte (falls im Notion Embed-Link angegeben)
             const isDark = params.get('dark') !== null ? (params.get('dark') === 'true') : s.darkMode;
             const accent = params.get('accent') ? ('#' + params.get('accent').replace('#', '')) : s.accent;
             const font = params.get('font') || s.font;
