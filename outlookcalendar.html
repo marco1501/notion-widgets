@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar v1.0.0</title>
+    <title>Calendar v1.0.3</title>
     
     <!-- Icons & Typografie aus deinem Master System -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@700&family=Bungee&family=Comic+Neue:wght@700&family=Creepster&family=Lobster&family=Pacifico&family=Press+Start+2P&family=Righteous&family=Special+Elite&family=Comfortaa:wght@700&family=Permanent+Marker&family=Orbitron:wght@700&family=Fredoka+One&family=Syncopate:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
 
-    <!-- Funktionierende MSAL 2.35.0 Engine aus todo copy.html -->
+    <!-- Funktionierende MSAL Version aus todo copy.html -->
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
     <!-- FullCalendar v6 Standard Engine -->
@@ -21,7 +21,7 @@
             --bg-outer: #f0f2f5; 
             --bg-inner: #ffffff;
             --text-color: #1a1a1a; 
-            --border: rgba(0, 0, 0, 0.1);
+            --border: rgba(0, 0, 0, 0.12);
             --glass-heavy: rgba(255, 255, 255, 0.98); 
             --font-size: 14px;
             --main-font: 'Segoe UI';
@@ -32,14 +32,11 @@
             --bg-outer: #0a0a0a; 
             --bg-inner: #1a1a1a;
             --text-color: #ffffff; 
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.12);
             --glass-heavy: rgba(20, 20, 20, 0.95);
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body, input, button, select, textarea, h1, h2, h3 { 
             font-family: var(--main-font), -apple-system, BlinkMacSystemFont, sans-serif !important; 
@@ -57,7 +54,7 @@
             font-size: var(--font-size);
         }
 
-        /* 3-Spalten Header mit exakter Mitte */
+        /* 3-Spalten Header - sauber zentriert */
         header { 
             padding: 10px 18px; 
             display: grid; 
@@ -102,11 +99,7 @@
             gap: 4px;
             transition: 0.2s;
         }
-        .calendar-nav-btn:hover { 
-            background: var(--accent); 
-            color: #fff; 
-            border-color: var(--accent); 
-        }
+        .calendar-nav-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
 
         .btn-add-event {
             background: var(--accent);
@@ -124,29 +117,9 @@
         }
         .btn-add-event:hover { opacity: 0.9; transform: scale(0.98); }
 
-        .view-switcher { 
-            display: inline-flex; 
-            background: rgba(128,128,128,0.1); 
-            padding: 2px; 
-            border-radius: 8px; 
-            gap: 2px; 
-        }
-        .view-switcher button { 
-            background: transparent; 
-            border: none; 
-            padding: 5px 10px; 
-            border-radius: 6px; 
-            font-size: 0.8em; 
-            font-weight: 600; 
-            color: var(--text-color); 
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        .view-switcher button.active { 
-            background: var(--bg-inner); 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
-            color: var(--accent); 
-        }
+        .view-switcher { display: inline-flex; background: rgba(128,128,128,0.1); padding: 2px; border-radius: 8px; gap: 2px; }
+        .view-switcher button { background: transparent; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.8em; font-weight: 600; color: var(--text-color); cursor: pointer; transition: 0.2s; }
+        .view-switcher button.active { background: var(--bg-inner); box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: var(--accent); }
 
         main { 
             flex: 1; 
@@ -155,6 +128,7 @@
             padding: 12px; 
             overflow: hidden; 
             position: relative; 
+            min-height: 0;
         }
         
         .glass-card {
@@ -168,9 +142,17 @@
             flex-direction: column; 
             overflow: hidden;
             position: relative;
+            min-height: 0;
         }
 
-        #calendar-container { flex: 1; width: 100%; height: 100%; }
+        #calendar-container { 
+            flex: 1; 
+            width: 100%; 
+            height: 100%; 
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
 
         /* Notion Auth Screen */
         #notion-auth-screen {
@@ -193,23 +175,29 @@
             text-align: left;
         }
 
-        /* FullCalendar - Perfekte Ränder ohne doppelte Linien */
-        .fc { font-size: var(--font-size) !important; }
+        /* FullCalendar - Gitter & Zeilen voll sichtbar */
+        .fc { 
+            font-size: var(--font-size) !important; 
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .fc .fc-view-harness { flex: 1; }
         .fc .fc-header-toolbar { display: none !important; }
         .fc-theme-standard td, .fc-theme-standard th { border-color: var(--border) !important; }
-        .fc-theme-standard .fc-scrollgrid { border: none !important; }
-        .fc .fc-col-header-cell { padding: 5px 0; border-bottom: 1px solid var(--border) !important; }
+        .fc .fc-scrollgrid { border: 1px solid var(--border) !important; border-radius: 8px; overflow: hidden; width: 100%; height: 100%; }
+        .fc .fc-col-header-cell { padding: 6px 0; background: rgba(128,128,128,0.03); border-bottom: 1px solid var(--border) !important; }
         .fc .fc-col-header-cell-cushion { font-size: 0.85em; font-weight: 700; color: var(--text-color); text-decoration: none; text-transform: uppercase; opacity: 0.8; }
-        .fc .fc-daygrid-day-top { justify-content: flex-end; padding: 2px 5px; }
+        .fc .fc-daygrid-day-top { justify-content: flex-end; padding: 4px 6px; }
         .fc .fc-daygrid-day-number { font-size: 0.85em; font-weight: 600; color: var(--text-color); text-decoration: none; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .fc .fc-day-other .fc-daygrid-day-number { opacity: 0.3; }
-        .fc .fc-day-today { background: transparent !important; }
+        .fc .fc-day-other .fc-daygrid-day-number { opacity: 0.35; }
+        .fc .fc-day-today { background: rgba(128,128,128,0.02) !important; }
         .fc .fc-day-today .fc-daygrid-day-number { background-color: var(--today-badge); color: #ffffff !important; font-weight: bold; }
         
-        .fc-event { border-radius: 6px !important; padding: 1px 5px !important; border: 1px solid rgba(0,0,0,0.1) !important; font-size: 0.8em !important; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .fc-event { border-radius: 6px !important; padding: 2px 5px !important; border: 1px solid rgba(0,0,0,0.1) !important; font-size: 0.8em !important; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .fc-event-main { font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Side Panels aus basicstyle.html */
+        /* Side Panels */
         .side-panel { 
             position: fixed; top: 0; width: 340px; height: 100%; 
             background: var(--glass-heavy); z-index: 1000; 
@@ -230,7 +218,7 @@
         .subcalendar-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; border-radius: 8px; background: rgba(128,128,128,0.05); font-size: 12px; margin-top: 4px; }
         .subcalendar-label { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
 
-        /* Custom Range Slider (Master System Style) */
+        /* Custom Range Slider */
         input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(128,128,128,0.2); border-radius: 3px; }
         input[type="range"]::-webkit-slider-thumb { 
@@ -239,7 +227,7 @@
             border: 2px solid var(--bg-inner); box-shadow: 0 2px 5px rgba(0,0,0,0.15); 
         }
 
-        /* Kreisrunde Farbwähler (.color-circle-btn) */
+        /* Kreisrunde Farbwähler */
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .color-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
         .color-circle-btn { 
@@ -281,7 +269,7 @@
 </head>
 <body class="light-mode">
 
-    <!-- 3-Spalten Header -->
+    <!-- 3-Spalten Header: Buttons sauber innerhalb von header-left -->
     <header>
         <div class="header-left">
             <button class="icon-btn" onclick="togglePanel('menu-panel')" title="Kalender verwalten"><span class="material-symbols-rounded">calendar_month</span></button>
@@ -376,7 +364,7 @@
         </div>
     </div>
 
-    <!-- Rechtes Panel: Settings mit Firebase Sync -->
+    <!-- Rechtes Panel: Settings -->
     <div id="settings-panel" class="side-panel">
         <div class="panel-scroll">
             <div style="display:flex; justify-content:space-between; align-items:center">
@@ -506,7 +494,7 @@
     </div>
 
     <div class="footer-info">
-        v1.0.0 | made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+        v1.0.3 | made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
     </div>
 
     <!-- Firebase SDK (exakt aus basicstyle.html) -->
@@ -618,10 +606,9 @@
         });
     </script>
 
-    <!-- Calendar Engine & Robuste MSAL 2.35.0 Kopplung -->
-  <!-- Calendar Engine & Exakter Auth-Ablauf aus todo copy.html -->
+    <!-- Calendar Engine, Zuverlässiger Graph API Abruf & FullCalendar Engine -->
     <script>
-        console.log("Calendar v1.0.1 initialisiert.");
+        console.log("Calendar v1.0.3 initialisiert.");
 
         const isInIframe = window.self !== window.top;
         let immediateRedirectToken = null;
@@ -630,7 +617,6 @@
         let outlookEvents = [];
         let icalEvents = [];
 
-        // Exakt wie in deiner funktionierenden To-Do App
         const msalConfig = { 
             auth: { 
                 clientId: "cd6ed035-97e5-4c5c-b5c0-e88747e1f7de", 
@@ -668,11 +654,13 @@
                 firstDay: 1,
                 height: '100%',
                 headerToolbar: false,
-                dayMaxEvents: 3,
+                dayMaxEvents: 4,
                 eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false, hour12: false },
                 datesSet: (info) => {
                     const t = document.getElementById('calTitleDisplay');
                     if (t) t.innerText = info.view.title;
+                    // Automatisch Termine nachladen, wenn der Monat gewechselt wird
+                    refreshAllCalendars();
                 },
                 dateClick: (info) => openNewEventModal(info.dateStr),
                 eventClick: (info) => showEventModal(info.event)
@@ -681,9 +669,15 @@
         }
 
         function setupNavigation() {
-            document.getElementById('btnToday').onclick = () => window.fullCalendar.today();
-            document.getElementById('btnPrev').onclick = () => { window.fullCalendar.prev(); refreshAllCalendars(); };
-            document.getElementById('btnNext').onclick = () => { window.fullCalendar.next(); refreshAllCalendars(); };
+            document.getElementById('btnToday').onclick = () => {
+                window.fullCalendar.today();
+            };
+            document.getElementById('btnPrev').onclick = () => { 
+                window.fullCalendar.prev(); 
+            };
+            document.getElementById('btnNext').onclick = () => { 
+                window.fullCalendar.next(); 
+            };
 
             const viewBtns = document.querySelectorAll('.view-switcher button');
             viewBtns.forEach(btn => {
@@ -695,7 +689,6 @@
             });
         }
 
-        // Exakt der Auth-Ablauf aus deiner To-Do App
         async function handleAuth() {
             try {
                 const response = await msalInstance.handleRedirectPromise();
@@ -718,7 +711,7 @@
                 btnLogin.innerText = "ABMELDEN";
                 btnLogin.className = "btn-secondary";
 
-                document.getElementById('calendar-container').style.display = 'block';
+                document.getElementById('calendar-container').style.display = 'flex';
                 document.getElementById('notion-auth-screen').style.display = 'none';
 
                 if (!isInIframe) {
@@ -731,6 +724,10 @@
 
                 await loadOutlookCalendars();
                 await refreshAllCalendars();
+                
+                setTimeout(() => {
+                    if (window.fullCalendar) window.fullCalendar.updateSize();
+                }, 100);
             } else {
                 document.getElementById('browser-copy-banner').style.display = 'none';
                 document.getElementById('settings-copy-btn').style.display = 'none';
@@ -740,7 +737,7 @@
                     document.getElementById('notion-auth-screen').style.display = 'flex';
                     document.getElementById('notion-browser-link').href = window.location.href;
                 } else {
-                    document.getElementById('calendar-container').style.display = 'block';
+                    document.getElementById('calendar-container').style.display = 'flex';
                     document.getElementById('notion-auth-screen').style.display = 'none';
                 }
             }
@@ -756,7 +753,6 @@
         };
 
         window.login = async () => {
-            // Nur diesen einen spezifischen Key entfernen, wie in der To-Do App
             sessionStorage.removeItem("msal.interaction.status");
 
             if (!isInIframe) {
@@ -764,7 +760,6 @@
                     await msalInstance.loginRedirect(loginRequest);
                     return;
                 } catch (err) {
-                    console.error("Redirect-Fehler:", err);
                     alert("Login Fehler: " + (err.message || err));
                     return;
                 }
@@ -777,12 +772,10 @@
                     location.reload();
                 }
             } catch (err) {
-                console.error("Popup-Fehler:", err);
                 alert("Login Fehler: " + (err.message || err));
             }
         };
 
-        // Vollständiger Dump für Notion
         window.getSyncKey = () => {
             const allData = {};
             for (let i = 0; i < localStorage.length; i++) {
@@ -795,7 +788,7 @@
         window.copySyncKey = () => {
             const key = window.getSyncKey();
             navigator.clipboard.writeText(key).then(() => {
-                alert("Schlüssel kopiert!\n\nFüge ihn jetzt in Notion in das Feld ein.");
+                alert("Schlüssel kopiert! Öffne nun dein Notion-Widget und füge den Schlüssel ein.");
             }).catch(() => prompt("Kopiere deinen Schlüssel manuell:", key));
         };
 
@@ -884,7 +877,7 @@
             list.style.display = 'block';
             list.innerHTML = '';
 
-            const defaultPalette = ["#9fc5f8", "#a8df8e", "#ffd166", "#f3b0c3", "#c3aed6"];
+            const defaultPalette = ["#9fc5f8", "#a8df8e", "#ffd166", "#f3b0c3", "#c3aed6", "#b5e2fa", "#f7d6e0"];
 
             outlookCalendars.forEach((cal, idx) => {
                 const savedColor = localStorage.getItem("cal_color_" + cal.id) || defaultPalette[idx % defaultPalette.length];
@@ -905,7 +898,7 @@
 
                 document.getElementById(`chk_${cal.id}`).onchange = (e) => {
                     localStorage.setItem("cal_active_" + cal.id, e.target.checked);
-                    refreshAllCalendars();
+                    renderEventsFromAllSources();
                 };
                 document.getElementById(`col_${cal.id}`).onchange = (e) => {
                     localStorage.setItem("cal_color_" + cal.id, e.target.value);
@@ -925,38 +918,48 @@
             });
         }
 
+        // Zuverlässiger, direkter Abruf aller Termine über /me/calendarView
         async function fetchOutlookEvents() {
-            if (!msalInstance.getActiveAccount()) return [];
-            const start = window.fullCalendar.view.activeStart.toISOString();
-            const end = window.fullCalendar.view.activeEnd.toISOString();
+            if (!msalInstance.getActiveAccount() || !window.fullCalendar) return [];
+
+            const view = window.fullCalendar.view;
+            const start = view.activeStart.toISOString();
+            const end = view.activeEnd.toISOString();
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
-            const promises = outlookCalendars.map(async (cal) => {
-                const isChecked = localStorage.getItem("cal_active_" + cal.id) !== "false";
-                if (!isChecked) return [];
+            // Der universelle Microsoft Graph Endpoint für alle Termine des Nutzers
+            const url = `/me/calendarView?startDateTime=${encodeURIComponent(start)}&endDateTime=${encodeURIComponent(end)}&$top=250&$select=id,subject,start,end,isAllDay,location,webLink,bodyPreview,categories`;
 
-                const color = localStorage.getItem("cal_color_" + cal.id) || "#9fc5f8";
-                const res = await graphFetch(`/me/calendars/${cal.id}/calendarView?startDateTime=${encodeURIComponent(start)}&endDateTime=${encodeURIComponent(end)}&$top=150&$select=id,subject,start,end,isAllDay,location,webLink,bodyPreview`, {
-                    headers: { 'Prefer': `outlook.timezone="${tz}"` }
-                });
+            const res = await graphFetch(url, {
+                headers: { 'Prefer': `outlook.timezone="${tz}"` }
+            });
 
-                if (!res || !res.ok) return [];
-                const d = await res.json();
-                return (d.value || []).map(i => ({
+            if (!res || !res.ok) {
+                console.warn("Termine konnten nicht geladen werden:", res ? res.status : "Kein Token");
+                return [];
+            }
+
+            const data = await res.json();
+            const defaultColor = "#9fc5f8";
+
+            return (data.value || []).map(i => {
+                return {
                     id: "ms_" + i.id,
-                    title: i.subject || "Termin",
+                    title: i.subject || "(Ohne Titel)",
                     start: i.start.dateTime,
                     end: i.end.dateTime,
                     allDay: i.isAllDay,
-                    backgroundColor: color,
-                    borderColor: color,
+                    backgroundColor: defaultColor,
+                    borderColor: defaultColor,
                     textColor: "#1a1a1a",
-                    extendedProps: { source: cal.name, location: i.location?.displayName || "", body: i.bodyPreview || "", url: i.webLink }
-                }));
+                    extendedProps: { 
+                        source: "Outlook", 
+                        location: i.location?.displayName || "", 
+                        body: i.bodyPreview || "", 
+                        url: i.webLink 
+                    }
+                };
             });
-
-            const results = await Promise.all(promises);
-            return results.flat();
         }
 
         function loadIcalFeed() {
@@ -1066,7 +1069,6 @@
 
             if (!title) return alert("Bitte Titel eingeben.");
             if (!startVal || !endVal) return alert("Bitte Start & Ende wählen.");
-            if (!calId) return alert("Bitte einen Kalender wählen.");
 
             const btn = document.getElementById('btnSaveEvent');
             btn.innerText = "SPEICHERE...";
@@ -1082,7 +1084,8 @@
                     body: { contentType: "text", content: body }
                 };
 
-                const res = await graphFetch(`/me/calendars/${calId}/events`, {
+                const endpoint = calId ? `/me/calendars/${calId}/events` : `/me/events`;
+                const res = await graphFetch(endpoint, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
@@ -1091,7 +1094,7 @@
                 if (!res || !res.ok) throw new Error("Fehler beim Speichern");
 
                 closeNewEventModal();
-                refreshAllCalendars();
+                await refreshAllCalendars();
             } catch(e) {
                 alert("Fehler: " + e.message);
             } finally {
@@ -1111,6 +1114,7 @@
         };
 
         function renderEventsFromAllSources() {
+            if (!window.fullCalendar) return;
             window.fullCalendar.removeAllEvents();
             window.fullCalendar.addEventSource([...outlookEvents, ...icalEvents]);
         }
@@ -1134,7 +1138,12 @@
             document.getElementById('eventDetailModal').style.display = "flex";
         }
 
-        window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
+        window.togglePanel = (id) => {
+            document.getElementById(id).classList.toggle('active');
+            setTimeout(() => {
+                if (window.fullCalendar) window.fullCalendar.updateSize();
+            }, 360);
+        };
     </script>
 </body>
 </html>
