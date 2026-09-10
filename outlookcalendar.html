@@ -672,14 +672,20 @@
             }
         }
 
-        window.login = async () => {
+       window.login = async () => {
             const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
             if (account) {
                 window.confirmLogout();
                 return;
             }
 
-            sessionStorage.removeItem("msal.interaction.status");
+            // Radikaler Reset aller hängenden Microsoft Interaction-Flags
+            Object.keys(sessionStorage).forEach(key => {
+                if (key.includes("interaction")) sessionStorage.removeItem(key);
+            });
+            Object.keys(localStorage).forEach(key => {
+                if (key.includes("interaction")) localStorage.removeItem(key);
+            });
 
             if (!isInIframe) {
                 try {
@@ -687,7 +693,13 @@
                     return;
                 } catch (err) {
                     console.error("Redirect-Fehler:", err);
-                    alert("Login Fehler: " + (err.message || err));
+                    // Falls interaction_in_progress doch auftritt, sofort bereinigen und neu laden
+                    if (err.errorCode === "interaction_in_progress") {
+                        sessionStorage.clear();
+                        location.reload();
+                    } else {
+                        alert("Login Fehler: " + (err.message || err));
+                    }
                     return;
                 }
             }
@@ -700,7 +712,12 @@
                 }
             } catch (err) {
                 console.error("Popup-Fehler:", err);
-                alert("Login Fehler: " + (err.message || err));
+                if (err.errorCode === "interaction_in_progress") {
+                    sessionStorage.clear();
+                    location.reload();
+                } else {
+                    alert("Login Fehler: " + (err.message || err));
+                }
             }
         };
 
