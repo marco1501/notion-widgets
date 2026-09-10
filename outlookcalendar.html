@@ -619,32 +619,9 @@
     </script>
 
     <!-- Calendar Engine & Robuste MSAL 2.35.0 Kopplung -->
+  <!-- Calendar Engine & Exakter Auth-Ablauf aus todo copy.html -->
     <script>
-        console.log("Calendar v1.0.0 initialisiert.");
-
-        // Bereinigung von hängengebliebenen Microsoft Interaction-Flags
-        function clearAllInteractionFlags() {
-            try {
-                Object.keys(sessionStorage).forEach(k => {
-                    if (k.toLowerCase().includes("interaction") || k.toLowerCase().includes("status")) {
-                        sessionStorage.removeItem(k);
-                    }
-                });
-                Object.keys(localStorage).forEach(k => {
-                    if (k.toLowerCase().includes("interaction") || k.toLowerCase().includes("status")) {
-                        localStorage.removeItem(k);
-                    }
-                });
-                document.cookie.split(";").forEach(c => {
-                    const name = c.split("=")[0].trim();
-                    if (name.toLowerCase().includes("interaction") || name.toLowerCase().includes("status")) {
-                        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                    }
-                });
-            } catch(e) {}
-        }
-
-        clearAllInteractionFlags();
+        console.log("Calendar v1.0.1 initialisiert.");
 
         const isInIframe = window.self !== window.top;
         let immediateRedirectToken = null;
@@ -653,7 +630,7 @@
         let outlookEvents = [];
         let icalEvents = [];
 
-        // Deine neue Azure Client-ID fest konfiguriert
+        // Exakt wie in deiner funktionierenden To-Do App
         const msalConfig = { 
             auth: { 
                 clientId: "cd6ed035-97e5-4c5c-b5c0-e88747e1f7de", 
@@ -662,7 +639,7 @@
             }, 
             cache: { 
                 cacheLocation: "localStorage", 
-                storeAuthStateInCookie: false 
+                storeAuthStateInCookie: true 
             } 
         };
 
@@ -718,6 +695,7 @@
             });
         }
 
+        // Exakt der Auth-Ablauf aus deiner To-Do App
         async function handleAuth() {
             try {
                 const response = await msalInstance.handleRedirectPromise();
@@ -728,7 +706,6 @@
                 }
             } catch (err) {
                 console.error("Auth Redirect Fehler:", err);
-                clearAllInteractionFlags();
             }
 
             const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
@@ -779,19 +756,16 @@
         };
 
         window.login = async () => {
-            clearAllInteractionFlags();
+            // Nur diesen einen spezifischen Key entfernen, wie in der To-Do App
+            sessionStorage.removeItem("msal.interaction.status");
 
             if (!isInIframe) {
                 try {
                     await msalInstance.loginRedirect(loginRequest);
                     return;
                 } catch (err) {
-                    clearAllInteractionFlags();
-                    if (err.errorCode === "interaction_in_progress") {
-                        location.reload();
-                    } else {
-                        alert("Login Fehler: " + (err.message || err));
-                    }
+                    console.error("Redirect-Fehler:", err);
+                    alert("Login Fehler: " + (err.message || err));
                     return;
                 }
             }
@@ -803,12 +777,8 @@
                     location.reload();
                 }
             } catch (err) {
-                clearAllInteractionFlags();
-                if (err.errorCode === "interaction_in_progress") {
-                    location.reload();
-                } else {
-                    alert("Login Fehler: " + (err.message || err));
-                }
+                console.error("Popup-Fehler:", err);
+                alert("Login Fehler: " + (err.message || err));
             }
         };
 
@@ -842,11 +812,13 @@
             }
         };
 
-        // Sofortiger Logout ohne blockierte Dialoge
         window.forceLogout = () => { 
-            clearAllInteractionFlags();
+            const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
             localStorage.clear(); 
             sessionStorage.clear();
+            if (account) {
+                try { msalInstance.logoutPopup({ account: account }); } catch(e) {}
+            }
             location.reload(); 
         };
 
