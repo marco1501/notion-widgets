@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v1.9.1</title>
+    <title>Marco Master System - v2.0.0</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
@@ -79,14 +79,24 @@
         .list-content { display: none; padding: 5px 0; }
         .list-content.active { display: block; }
 
-        .todo-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        /* Eingabefeld für neue Aufgaben direkt in der Liste */
+        .new-task-container { padding: 8px 14px; border-bottom: 1px solid rgba(128,128,128,0.08); }
+        .new-task-input { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(128,128,128,0.04); color: var(--text-color); font-size: calc(var(--base-size) * 0.9); outline: none; margin: 0 !important; }
+        .new-task-input:focus { border-color: var(--accent); background: rgba(128,128,128,0.08); }
+
+        .todo-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.03); transition: 0.15s; }
+        .todo-item:hover .todo-delete-btn { opacity: 0.6; }
         .todo-text-wrapper { flex: 1; display: flex; flex-direction: column; cursor: pointer; overflow: hidden; }
         .todo-text { font-size: var(--base-size); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .todo-meta { font-size: calc(var(--base-size) * 0.75); opacity: 0.6; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
         .completed { text-decoration: line-through; opacity: 0.4; }
 
-        .star-priority { font-size: 24px; color: var(--accent); cursor: pointer; margin-left: auto; flex-shrink: 0; font-variation-settings: 'FILL' 0; }
+        .star-priority { font-size: 22px; color: var(--accent); cursor: pointer; flex-shrink: 0; font-variation-settings: 'FILL' 0; transition: 0.2s; }
         .star-active { font-variation-settings: 'FILL' 1; }
+
+        /* Mülleimer-Icon */
+        .todo-delete-btn { font-size: 19px; color: var(--text-color); opacity: 0; cursor: pointer; transition: 0.2s; flex-shrink: 0; padding: 3px; }
+        .todo-delete-btn:hover { opacity: 1 !important; color: #ff4d4f; }
 
         .side-panel { position: fixed; top: 0; width: 340px; height: 100%; background: var(--glass-heavy); z-index: 1000; transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(15px); overflow-x: hidden; }
         #menu-panel { left: -340px; border-right: 1px solid var(--border); }
@@ -142,14 +152,11 @@
             
             <!-- Auth-Bereich -->
             <div id="auth-section" style="text-align:center; padding-top: 10px;">
-                
-                <!-- Fall A: Direkt im Browser -->
                 <div id="browser-auth" style="display:none;">
                     <p style="opacity:0.8; font-size:14px; margin-bottom:15px;">Melde dich an, um den Schlüssel für Notion zu generieren.</p>
                     <button class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
                 </div>
 
-                <!-- Fall B: Im Notion-iFrame -->
                 <div id="notion-auth" style="display:none;">
                     <p style="font-size:13px; opacity:0.8; margin-bottom:15px;">
                         Verbinde dein Widget in 2 Schritten mit Notion:
@@ -176,11 +183,11 @@
         </div>
 
         <div class="footer-info">
-            v1.9.1 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v2.0.0 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
-    <!-- Task Modal -->
+    <!-- Task Modal mit Lösch-Möglichkeit -->
     <div id="task-modal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
@@ -192,7 +199,11 @@
             <div class="set-label">Schritte</div>
             <div id="subtask-list" style="max-height: 120px; overflow-y:auto; margin-bottom:10px; font-size: 13px;"></div>
             <input type="text" id="new-subtask-input" placeholder="+ Schritt hinzufügen..." onkeypress="if(event.key==='Enter') window.addSubtask()">
-            <button class="btn-primary" onclick="document.getElementById('task-modal').style.display='none'">SCHLIESSEN</button>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+                <button class="btn-primary" style="background:#ff4d4f;" onclick="window.deleteCurrentTask()">LÖSCHEN</button>
+                <button class="btn-primary" onclick="document.getElementById('task-modal').style.display='none'">SCHLIESSEN</button>
+            </div>
         </div>
     </div>
 
@@ -217,7 +228,6 @@
                 <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">close</span>
             </div>
 
-            <!-- Einheitlicher grüner Button ohne Emoticon -->
             <button class="btn-primary" id="copy-key-btn" onclick="window.copySyncKey()">
                 SCHLÜSSEL FÜR NOTION KOPIEREN
             </button>
@@ -278,7 +288,7 @@
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
     <script>
-        console.log("Starte Marco Master System v1.9.1");
+        console.log("Starte Marco Master System v2.0.0");
 
         const isInIframe = window.self !== window.top;
         let listOrder = [];
@@ -514,6 +524,54 @@
             } 
         };
 
+        // Neue Aufgabe erstellen
+        window.createTask = async (listId, title, inputElement) => {
+            const cleanTitle = title.trim();
+            if (!cleanTitle) return;
+
+            inputElement.disabled = true;
+            inputElement.style.opacity = 0.5;
+
+            try {
+                await graphFetch(`/me/todo/lists/${listId}/tasks`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title: cleanTitle })
+                });
+                inputElement.value = "";
+                await window.refreshTasks();
+            } catch (err) {
+                console.error("Fehler beim Erstellen der Aufgabe:", err);
+                alert("Aufgabe konnte nicht erstellt werden.");
+            } finally {
+                inputElement.disabled = false;
+                inputElement.style.opacity = 1;
+                inputElement.focus();
+            }
+        };
+
+        // Aufgabe löschen
+        window.deleteTask = async (listId, taskId) => {
+            if (!confirm("Aufgabe unwiderruflich löschen?")) return;
+
+            try {
+                await graphFetch(`/me/todo/lists/${listId}/tasks/${taskId}`, {
+                    method: 'DELETE'
+                });
+                await window.refreshTasks();
+            } catch (err) {
+                console.error("Fehler beim Löschen der Aufgabe:", err);
+                alert("Aufgabe konnte nicht gelöscht werden.");
+            }
+        };
+
+        // Aktuell im Modal geöffnete Aufgabe löschen
+        window.deleteCurrentTask = async () => {
+            if (!currentOpenTask) return;
+            document.getElementById('task-modal').style.display = 'none';
+            await window.deleteTask(currentOpenTask.lId, currentOpenTask.tId);
+        };
+
         window.refreshTasks = async () => {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('todo-container').style.display = 'block';
@@ -574,7 +632,7 @@
                              }
                          });
 
-                    if (list.visible && tasks.length > 0) {
+                    if (list.visible) {
                         const active = tasks.filter(t => t.status !== 'completed');
                         const done = tasks.filter(t => t.status === 'completed');
                         const group = document.createElement('div');
@@ -585,6 +643,9 @@
                                 <span class="material-symbols-rounded">expand_more</span>
                             </div>
                             <div class="list-content">
+                                <div class="new-task-container">
+                                    <input type="text" class="new-task-input" placeholder="+ Neue Aufgabe zu '${escapeHtml(list.name)}' hinzufügen..." onkeypress="if(event.key==='Enter') window.createTask('${escapeHtml(list.id)}', this.value, this)">
+                                </div>
                                 ${active.map(t => renderT(t, list.id)).join('')}
                                 ${done.length > 0 ? `
                                     <div style="padding:10px 15px; font-size:11px; opacity:0.5; cursor:pointer" onclick="this.nextElementSibling.classList.toggle('active')">
@@ -641,6 +702,7 @@
                 <span class="material-symbols-rounded star-priority ${isHigh ? 'star-active' : ''}" onclick="window.fastUpdateImportance('${escapeHtml(lId)}', '${escapeHtml(t.id)}', '${escapeHtml(t.importance)}')">
                     ${isHigh ? 'star' : 'star_outline'}
                 </span>
+                <span class="material-symbols-rounded todo-delete-btn" onclick="window.deleteTask('${escapeHtml(lId)}', '${escapeHtml(t.id)}'); event.stopPropagation();" title="Löschen">delete</span>
             </div>`;
         }
 
@@ -810,37 +872,47 @@
             localStorage.setItem('todo_settings', JSON.stringify(settings));
         }
 
+        // Lädt Einstellungen aus URL-Parametern (für geräteübergreifenden Sync) oder aus localStorage
         function loadSettings() {
+            const params = new URLSearchParams(window.location.search);
             const sStr = localStorage.getItem('todo_settings');
-            if (!sStr) return;
-            try {
-                const s = JSON.parse(sStr);
-                if (s.darkMode) document.body.classList.add('dark-mode');
-                if (s.accent) {
-                    document.documentElement.style.setProperty('--accent', s.accent);
-                    document.getElementById('accent-picker').value = s.accent;
-                }
-                if (s.bgOuter) {
-                    document.documentElement.style.setProperty('--bg-outer', s.bgOuter);
-                    document.body.style.backgroundColor = s.bgOuter;
-                    document.getElementById('bg-color-picker').value = s.bgOuter;
-                }
-                if (s.font) {
-                    document.documentElement.style.setProperty('--main-font', s.font);
-                    document.getElementById('font-select').value = s.font.replace(/['"]/g, '');
-                }
-                if (s.fontSize) {
-                    document.documentElement.style.setProperty('--base-size', s.fontSize);
-                    document.getElementById('fontsize-slider').value = parseInt(s.fontSize);
-                }
-                if (s.opacity) {
-                    document.documentElement.style.setProperty('--card-opacity', s.opacity);
-                    document.getElementById('opacity-slider').value = s.opacity;
-                }
-                if (s.bgImage && s.bgImage !== 'none') {
-                    document.documentElement.style.setProperty('--bg-image', s.bgImage);
-                }
-            } catch(e) {}
+            let s = {};
+            if (sStr) {
+                try { s = JSON.parse(sStr); } catch(e) {}
+            }
+
+            // URL-Parameter überschreiben lokale Werte (falls im Notion Embed-Link angegeben)
+            const isDark = params.get('dark') !== null ? (params.get('dark') === 'true') : s.darkMode;
+            const accent = params.get('accent') ? ('#' + params.get('accent').replace('#', '')) : s.accent;
+            const font = params.get('font') || s.font;
+            const fontSize = params.get('size') || s.fontSize;
+            const opacity = params.get('opacity') || s.opacity;
+
+            if (isDark) document.body.classList.add('dark-mode');
+            if (accent) {
+                document.documentElement.style.setProperty('--accent', accent);
+                document.getElementById('accent-picker').value = accent;
+            }
+            if (s.bgOuter) {
+                document.documentElement.style.setProperty('--bg-outer', s.bgOuter);
+                document.body.style.backgroundColor = s.bgOuter;
+                document.getElementById('bg-color-picker').value = s.bgOuter;
+            }
+            if (font) {
+                document.documentElement.style.setProperty('--main-font', font);
+                document.getElementById('font-select').value = font.replace(/['"]/g, '');
+            }
+            if (fontSize) {
+                document.documentElement.style.setProperty('--base-size', fontSize);
+                document.getElementById('fontsize-slider').value = parseInt(fontSize);
+            }
+            if (opacity) {
+                document.documentElement.style.setProperty('--card-opacity', opacity);
+                document.getElementById('opacity-slider').value = opacity;
+            }
+            if (s.bgImage && s.bgImage !== 'none') {
+                document.documentElement.style.setProperty('--bg-image', s.bgImage);
+            }
         }
 
         window.setDarkMode = (v) => {
