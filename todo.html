@@ -3,22 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v1.8.4 (Notion Fix)</title>
+    <title>Marco Master System - v1.8.3</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --accent: #8EA39D; --bg-outer: #f0f2f5; --bg-inner: #ffffff;
-            --text-color: #1a1a1a; --border: rgba(0, 0, 0, 0.1);
-            --glass-heavy: rgba(255, 255, 255, 0.98); --base-size: 16px;
-            --main-font: 'Segoe UI'; --bg-image: none; --card-opacity: 1;
+            --accent: #8EA39D; 
+            --bg-outer: #f0f2f5; 
+            --bg-inner: #ffffff;
+            --text-color: #1a1a1a; 
+            --border: rgba(0, 0, 0, 0.1);
+            --glass-heavy: rgba(255, 255, 255, 0.98); 
+            --base-size: 16px;
+            --main-font: 'Segoe UI';
+            --bg-image: none;
+            --card-opacity: 1;
         }
 
         body.dark-mode {
-            --bg-outer: #0a0a0a; --bg-inner: #1a1a1a;
-            --text-color: #ffffff; --border: rgba(255, 255, 255, 0.1);
+            --bg-outer: #0a0a0a; 
+            --bg-inner: #1a1a1a;
+            --text-color: #ffffff; 
+            --border: rgba(255, 255, 255, 0.1);
             --glass-heavy: rgba(20, 20, 20, 0.95);
         }
 
@@ -32,68 +40,79 @@
         body {
             background-color: var(--bg-outer);
             background-image: var(--bg-image);
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: var(--text-color); margin: 0; height: 100vh; overflow: hidden;
-            display: flex; flex-direction: column; font-size: var(--base-size);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color); 
+            margin: 0; 
+            height: 100vh; 
+            overflow: hidden;
+            display: flex; 
+            flex-direction: column; 
+            font-size: var(--base-size);
         }
 
-        header { padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 10; }
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 10; }
         .nav-group { display: flex; gap: 5px; }
         .icon-btn { cursor: pointer; padding: 10px; border-radius: 50%; font-size: 24px; color: var(--text-color); display: flex; align-items: center; justify-content: center; border: none; background: transparent; transition: 0.2s; }
         .icon-btn:hover { background: rgba(128,128,128,0.1); }
 
-        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; position: relative; overflow: hidden; z-index: 5; }
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 15px; position: relative; overflow: hidden; z-index: 5; }
         
         .glass-card {
             background-color: rgba(255, 255, 255, var(--card-opacity)); 
             border: 1px solid var(--border); border-radius: 28px;
             padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px;
-            margin-bottom: 45px; backdrop-filter: blur(10px);
+            margin-bottom: 25px; 
+            backdrop-filter: blur(10px);
         }
-        body.dark-mode .glass-card { background-color: rgba(26, 26, 26, var(--card-opacity)); }
+        body.dark-mode .glass-card {
+            background-color: rgba(26, 26, 26, var(--card-opacity));
+        }
 
-        #main-title { font-size: 1.2rem; margin: 0 0 20px 0; text-transform: uppercase; text-align: center; }
-        #todo-container { flex: 1; overflow-y: auto; padding-right: 8px; margin-bottom: 10px; }
+        #main-title { font-size: 1.2rem; margin: 0 0 15px 0; text-transform: uppercase; text-align: center; }
+
+        #todo-container { flex: 1; overflow-y: auto; padding-right: 6px; margin-bottom: 5px; }
         .list-group { margin-bottom: 12px; border-radius: 18px; border: 1px solid var(--border); overflow: hidden; background: rgba(128,128,128,0.02); }
-        .list-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: var(--base-size); align-items: center; background: rgba(0,0,0,0.02); }
+        .list-header { padding: 14px; cursor: pointer; display: flex; justify-content: space-between; font-weight: bold; font-size: var(--base-size); align-items: center; background: rgba(0,0,0,0.02); }
         .list-content { display: none; padding: 5px 0; }
         .list-content.active { display: block; }
 
-        .todo-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .todo-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.03); }
         .todo-text-wrapper { flex: 1; display: flex; flex-direction: column; cursor: pointer; overflow: hidden; }
         .todo-text { font-size: var(--base-size); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .todo-meta { font-size: calc(var(--base-size) * 0.75); opacity: 0.5; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+        .todo-meta { font-size: calc(var(--base-size) * 0.75); opacity: 0.6; margin-top: 2px; display: flex; align-items: center; gap: 6px; }
         .completed { text-decoration: line-through; opacity: 0.4; }
 
         .star-priority { font-size: 24px; color: var(--accent); cursor: pointer; margin-left: auto; flex-shrink: 0; font-variation-settings: 'FILL' 0; }
         .star-active { font-variation-settings: 'FILL' 1; }
 
-        .side-panel { position: fixed; top: 0; width: 340px; height: 100%; background: var(--glass-heavy); z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(15px); }
+        .side-panel { position: fixed; top: 0; width: 340px; height: 100%; background: var(--glass-heavy); z-index: 1000; transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); backdrop-filter: blur(15px); }
         #menu-panel { left: -340px; border-right: 1px solid var(--border); }
         #settings-panel { right: -340px; border-left: 1px solid var(--border); }
-        .side-panel.active { transform: translateX(340px); }
+        #menu-panel.active { transform: translateX(340px); }
         #settings-panel.active { transform: translateX(-340px); }
 
-        .panel-scroll { height: 100%; overflow-y: auto; padding: 40px 30px; display: flex; flex-direction: column; gap: 20px; }
+        .panel-scroll { height: 100%; overflow-y: auto; padding: 35px 25px; display: flex; flex-direction: column; gap: 18px; }
         .set-label { font-size: 11px; font-weight: 900; opacity: 0.6; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
         
-        .manager-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; background: rgba(128,128,128,0.08); border-radius: 14px; margin-bottom: 10px; cursor: grab; border: 1px solid transparent; }
-        .drag-handle { font-weight: 900; font-size: 18px; margin-right: 15px; color: var(--accent); opacity: 0.8; }
+        .manager-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(128,128,128,0.08); border-radius: 14px; margin-bottom: 8px; cursor: grab; border: 1px solid transparent; user-select: none; }
+        .drag-handle { font-weight: 900; font-size: 18px; margin-right: 12px; color: var(--accent); opacity: 0.8; }
         .manager-item.dragging { opacity: 0.3; border: 1px dashed var(--accent); }
 
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .color-circle-btn { position: relative; width: 34px; height: 34px; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); cursor: pointer; }
         .color-circle-btn input[type="color"] { position: absolute; width: 150%; height: 150%; cursor: pointer; border: none; top: -25%; left: -25%; }
 
-        .btn-primary { width: 100%; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-primary { width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-primary:active { transform: scale(0.98); }
         
-        .footer-info { position: absolute; bottom: 15px; width: 100%; text-align: center; font-size: 10px; opacity: 0.6; font-family: 'Inter', sans-serif !important; z-index: 10; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
-        body.dark-mode .footer-info { text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .footer-info { position: absolute; bottom: 8px; width: 100%; text-align: center; font-size: 10px; opacity: 0.6; font-family: 'Inter', sans-serif !important; z-index: 10; }
         .footer-info a { color: inherit; text-decoration: none; font-weight: bold; }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); display:none; z-index: 2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
-        .modal-content { background: var(--bg-inner); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; border: 1px solid var(--border); color: var(--text-color); }
+        .modal-content { background: var(--bg-inner); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; border: 1px solid var(--border); color: var(--text-color); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         
         input[type="text"], input[type="date"], select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(128,128,128,0.05); color: var(--text-color); margin-bottom: 10px; outline: none; }
         select option { background: var(--bg-inner); color: var(--text-color); }
@@ -108,35 +127,33 @@
 <body>
 
     <header>
-        <button class="icon-btn" onclick="togglePanel('menu-panel')"><span class="material-symbols-rounded">menu</span></button>
+        <button class="icon-btn" onclick="togglePanel('menu-panel')" title="Listen"><span class="material-symbols-rounded">menu</span></button>
         <div class="nav-group">
-            <button class="icon-btn" onclick="window.refreshTasks()"><span class="material-symbols-rounded">refresh</span></button>
-            <button class="icon-btn" onclick="togglePanel('settings-panel')"><span class="material-symbols-rounded">settings</span></button>
+            <button class="icon-btn" onclick="window.refreshTasks()" title="Aktualisieren"><span class="material-symbols-rounded">refresh</span></button>
+            <button class="icon-btn" onclick="togglePanel('settings-panel')" title="Einstellungen"><span class="material-symbols-rounded">settings</span></button>
         </div>
     </header>
 
     <main>
         <div class="glass-card" id="main-card">
             <h1 id="main-title">To Do's</h1>
-            <div id="auth-section" style="text-align:center;">
-                <button id="login-btn" class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
-                <p id="notion-hint" style="font-size: 11px; margin-top: 15px; opacity: 0.6; display: none;">
-                    Problem beim Login in Notion? <br>
-                    <a href="#" onclick="window.open(window.location.href, '_blank')" style="color: var(--accent); font-weight: bold;">In neuem Tab öffnen</a>
-                </p>
+            <div id="auth-section" style="text-align:center; padding-top: 40px;">
+                <p style="opacity:0.7; font-size:14px; margin-bottom:20px;">Melde dich an, um deine Aufgaben zu synchronisieren.</p>
+                <button class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
             </div>
             <div id="todo-container" style="display: none;"><div id="accordion-list"></div></div>
         </div>
         <div class="footer-info">
-            v1.8.4 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v1.8.3 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
+    <!-- Task Modal -->
     <div id="task-modal" class="modal-overlay" onclick="this.style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
-                <h3 id="modal-title" style="margin:0">Details</h3>
-                <span id="modal-star" class="material-symbols-rounded star-priority">star_outline</span>
+                <h3 id="modal-title" style="margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:85%;">Details</h3>
+                <span id="modal-star" class="material-symbols-rounded star-priority" onclick="window.toggleModalStar()" title="Priorität umschalten">star_outline</span>
             </div>
             <div class="set-label">Fälligkeitsdatum</div>
             <input type="date" id="modal-date-input" onchange="window.updateTaskDetail('due')">
@@ -147,18 +164,20 @@
         </div>
     </div>
 
+    <!-- Menü-Panel -->
     <div id="menu-panel" class="side-panel">
         <div class="panel-scroll">
             <div style="display:flex; justify-content:space-between; align-items:center">
                 <h2 style="margin:0">Listen</h2>
                 <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span>
             </div>
-            <div class="set-label">Gedrückt halten zum Sortieren</div>
+            <div class="set-label">Ziehen zum Sortieren</div>
             <div id="list-manager-container"></div>
             <button class="btn-primary" onclick="togglePanel('menu-panel')">FERTIG</button>
         </div>
     </div>
 
+    <!-- Einstellungs-Panel -->
     <div id="settings-panel" class="side-panel">
         <div class="panel-scroll">
             <div style="display:flex; justify-content:space-between; align-items:center">
@@ -183,15 +202,15 @@
             </div>
 
             <div class="set-label">Transparenz Karte</div>
-            <input type="range" min="0.1" max="1" step="0.05" value="1" oninput="updateOpacity(this.value)">
+            <input type="range" id="opacity-slider" min="0.1" max="1" step="0.05" value="1" oninput="updateOpacity(this.value)">
 
             <div class="set-label">Schriftgröße</div>
-            <input type="range" min="12" max="24" step="1" value="16" oninput="updateFontSize(this.value)">
+            <input type="range" id="fontsize-slider" min="12" max="24" step="1" value="16" oninput="updateFontSize(this.value)">
 
             <div class="set-label">Farben</div>
             <div class="color-grid">
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <div class="color-circle-btn"><input type="color" value="#8EA39D" oninput="updateColor('--accent', this.value)"></div>
+                    <div class="color-circle-btn"><input type="color" id="accent-picker" value="#8EA39D" oninput="updateColor('--accent', this.value)"></div>
                     <span style="font-size:12px">Akzent</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -201,7 +220,7 @@
             </div>
 
             <div class="set-label">Schriftart</div>
-            <select onchange="updateFont(this.value)">
+            <select id="font-select" onchange="updateFont(this.value)">
                 <option value="Segoe UI">Segoe UI</option>
                 <option value="Rubik Mono One">Rubik Mono One</option>
                 <option value="Inter">Inter</option>
@@ -214,206 +233,391 @@
                 <option value="Fraunces">Fraunces</option>
             </select>
 
-            <button class="btn-primary" style="background:#ff4444; margin-top: 20px;" onclick="window.confirmLogout()">ABMELDEN</button>
+            <button class="btn-primary" style="background:#ff4444; margin-top: 15px;" onclick="window.confirmLogout()">ABMELDEN</button>
         </div>
     </div>
 
+    <!-- MSAL Library (nur einmal eingebunden) -->
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
     <script>
         let listOrder = [];
         let currentOpenTask = null;
-        
+
+        // HTML-Escaping zur Vorbeugung von Layout- und XSS-Fehlern
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // MSAL Konfiguration
         const msalConfig = { 
             auth: { 
                 clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
                 authority: "https://login.microsoftonline.com/common", 
                 redirectUri: window.location.href.split(/[?#]/)[0] 
             }, 
-            cache: { cacheLocation: "localStorage", storeAuthStateInCookie: true } 
+            cache: { 
+                cacheLocation: "localStorage", 
+                storeAuthStateInCookie: true 
+            } 
         };
-const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        // Überprüfen, ob wir in einem iFrame (Notion) sind
-        const isIframe = window.self !== window.top;
-        if (isIframe) {
-            document.getElementById('notion-hint').style.display = 'block';
+        const msalInstance = new msal.PublicClientApplication(msalConfig);
+        const loginRequest = { 
+            scopes: ["Tasks.ReadWrite"],
+            prompt: "select_account"
+        };
+
+        // Automatisches Abrufen & Erneuern des Tokens (Silent Refresh)
+        async function getAccessToken() {
+            let account = msalInstance.getActiveAccount();
+            if (!account) {
+                const accounts = msalInstance.getAllAccounts();
+                if (accounts.length > 0) {
+                    account = accounts[0];
+                    msalInstance.setActiveAccount(account);
+                }
+            }
+            if (!account) return null;
+
+            try {
+                const res = await msalInstance.acquireTokenSilent({
+                    ...loginRequest,
+                    account: account
+                });
+                return res.accessToken;
+            } catch (err) {
+                console.warn("Silent Token-Abruf fehlgeschlagen:", err);
+                return null;
+            }
         }
 
+        // Zentrale Graph-API Fetch-Funktion mit Auth-Header & automatischer Fehlerbehandlung
+        async function graphFetch(endpoint, options = {}) {
+            let token = await getAccessToken();
+            if (!token) {
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('todo-container').style.display = 'none';
+                throw new Error("Nicht authentifiziert");
+            }
+
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+
+            let res = await fetch(`https://graph.microsoft.com/v1.0${endpoint}`, options);
+
+            // Bei 401 einmalig versuchen, ein frisches Token zu holen
+            if (res.status === 401) {
+                token = await getAccessToken();
+                if (token) {
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                    res = await fetch(`https://graph.microsoft.com/v1.0${endpoint}`, options);
+                }
+                if (res.status === 401) {
+                    document.getElementById('auth-section').style.display = 'block';
+                    document.getElementById('todo-container').style.display = 'none';
+                    throw new Error("Sitzung abgelaufen");
+                }
+            }
+
+            return res;
+        }
+
+        // Auth beim Start initialisieren
+        async function handleAuth() {
+            try {
+                const response = await msalInstance.handleRedirectPromise();
+                if (response && response.account) {
+                    msalInstance.setActiveAccount(response.account);
+                }
+            } catch (err) {
+                console.error("Auth-Fehler beim Verarbeiten des Redirects:", err);
+            }
+
+            const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
+            if (account) {
+                msalInstance.setActiveAccount(account);
+                window.refreshTasks();
+            } else {
+                document.getElementById('auth-section').style.display = 'block';
+                document.getElementById('todo-container').style.display = 'none';
+            }
+        }
+
+        // Login: Popup bevorzugen (verhindert Notion Desktop iFrame-Blockaden)
         window.login = async () => {
             try {
-                if (isIframe) {
-                    // Im iFrame nutzen wir Redirect, da Popups oft blockiert werden
-                    await msalInstance.loginRedirect({ scopes: ["Tasks.ReadWrite"] });
-                } else {
-                    // Normaler Browser: Popup nutzen
-                    const res = await msalInstance.loginPopup({ 
-                        scopes: ["Tasks.ReadWrite"],
-                        prompt: "select_account" // Zwingt zur Kontoauswahl, verhindert oft Loops
-                    });
-                    if (res) {
-                        localStorage.setItem("ms_token", res.accessToken);
-                        window.refreshTasks();
-                    }
+                console.log("Versuche Popup-Login...");
+                const response = await msalInstance.loginPopup(loginRequest);
+                if (response && response.account) {
+                    msalInstance.setActiveAccount(response.account);
+                    window.refreshTasks();
                 }
-            } catch (err) { 
-                console.error("Login failed", err); 
+            } catch (err) {
+                console.warn("Popup-Login fehlgeschlagen, versuche Redirect:", err);
+                try {
+                    await msalInstance.loginRedirect(loginRequest);
+                } catch (redirectErr) {
+                    console.error("Login komplett fehlgeschlagen:", redirectErr);
+                    alert("Login konnte nicht gestartet werden. Bitte prüfe deine Azure Redirect URI.");
+                }
             }
         };
 
-        async function handleResponse() {
-            try {
-                // Das hier ist entscheidend: Es verarbeitet das Ergebnis nach einem Redirect
-                const response = await msalInstance.handleRedirectPromise();
-                if (response) {
-                    localStorage.setItem("ms_token", response.accessToken);
-                    // Falls wir in einem Fenster sind, das nur zum Login geöffnet wurde:
-                    if (window.opener) {
-                        window.close(); 
-                    }
-                    window.refreshTasks();
+        window.confirmLogout = async () => { 
+            if (confirm("Abmelden? Lokale Einstellungen werden gelöscht.")) { 
+                const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
+                localStorage.clear(); 
+                if (account) {
+                    try {
+                        await msalInstance.logoutPopup({ account: account });
+                    } catch (e) {}
                 }
-            } catch (err) { 
-                console.error("Handle Redirect failed", err); 
-            }
-        }
-        handleResponse();
+                location.reload(); 
+            } 
+        };
+
+        // Aufgaben & Listen abrufen
         window.refreshTasks = async () => {
-            const token = localStorage.getItem("ms_token");
-            if (!token) return;
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('todo-container').style.display = 'block';
 
             try {
-                const listRes = await fetch("https://graph.microsoft.com/v1.0/me/todo/lists", { headers: { Authorization: `Bearer ${token}` } });
-                const listsData = await listRes.json();
-                if (listsData.error) throw listsData.error;
+                const listRes = await graphFetch("/me/todo/lists");
+                if (!listRes.ok) return;
 
-                if(!listOrder.length) {
-                    listOrder = listsData.value.map(l => ({ id: l.id, name: l.displayName, visible: true }));
+                const listsData = await listRes.json();
+                const serverLists = listsData.value || [];
+
+                // Gespeicherte Sortierung & Sichtbarkeit laden
+                const savedOrder = JSON.parse(localStorage.getItem("todo_list_order") || "[]");
+                if (savedOrder.length > 0) {
+                    const reordered = [];
+                    savedOrder.forEach(so => {
+                        const found = serverLists.find(sl => sl.id === so.id);
+                        if (found) reordered.push({ id: found.id, name: found.displayName, visible: so.visible ?? true });
+                    });
+                    // Neue Listen anhängen, die noch nicht in savedOrder waren
+                    serverLists.forEach(sl => {
+                        if (!reordered.some(r => r.id === sl.id)) {
+                            reordered.push({ id: sl.id, name: sl.displayName, visible: true });
+                        }
+                    });
+                    listOrder = reordered;
+                } else {
+                    listOrder = serverLists.map(l => ({ id: l.id, name: l.displayName, visible: true }));
                 }
-                renderView(token);
+
+                await renderView();
                 updateManagerUI();
             } catch(e) { 
-                console.error("Refresh failed", e);
-                localStorage.removeItem("ms_token");
-                document.getElementById('auth-section').style.display = 'block';
-                document.getElementById('todo-container').style.display = 'none';
+                console.error("Laden der Aufgaben fehlgeschlagen:", e); 
             }
         };
 
-        // Restliche Funktionen (renderView, renderT, etc.) bleiben wie in v1.8.3
-        async function renderView(token) {
+        // Schnelles, paralleles Rendern aller Listen
+        async function renderView() {
             const accordion = document.getElementById('accordion-list');
-            accordion.innerHTML = '';
-            let plannedTasks = [];
+            accordion.innerHTML = '<div style="text-align:center; padding: 25px; opacity:0.5; font-size:13px;">Lade Aufgaben...</div>';
+            
+            try {
+                // Paralleler Abruf aller Listen (mit $top=100)
+                const results = await Promise.all(listOrder.map(async (list) => {
+                    try {
+                        const taskRes = await graphFetch(`/me/todo/lists/${list.id}/tasks?$top=100`);
+                        const data = await taskRes.json();
+                        return { list, tasks: data.value || [] };
+                    } catch (e) {
+                        return { list, tasks: [] };
+                    }
+                }));
 
-            for (const list of listOrder) {
-                const taskRes = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${list.id}/tasks`, { headers: { Authorization: `Bearer ${token}` } });
-                const tasksData = await taskRes.json();
-                const tasks = tasksData.value || [];
-                tasks.filter(t => t.dueDateTime && t.status !== 'completed').forEach(t => plannedTasks.push({...t, listId: list.id}));
+                accordion.innerHTML = '';
+                let plannedTasks = [];
 
-                if (list.visible && tasks.length > 0) {
-                    const active = tasks.filter(t => t.status !== 'completed');
-                    const done = tasks.filter(t => t.status === 'completed');
-                    const group = document.createElement('div');
-                    group.className = 'list-group';
-                    group.innerHTML = `
-                        <div class="list-header" onclick="this.nextElementSibling.classList.toggle('active')">
-                            <span>${list.name} (${active.length})</span>
+                for (const { list, tasks } of results) {
+                    tasks.filter(t => t.dueDateTime && t.status !== 'completed')
+                         .forEach(t => plannedTasks.push({...t, listId: list.id}));
+
+                    if (list.visible && tasks.length > 0) {
+                        const active = tasks.filter(t => t.status !== 'completed');
+                        const done = tasks.filter(t => t.status === 'completed');
+                        const group = document.createElement('div');
+                        group.className = 'list-group';
+                        group.innerHTML = `
+                            <div class="list-header" onclick="this.nextElementSibling.classList.toggle('active')">
+                                <span>${escapeHtml(list.name)} (${active.length})</span>
+                                <span class="material-symbols-rounded">expand_more</span>
+                            </div>
+                            <div class="list-content">
+                                ${active.map(t => renderT(t, list.id)).join('')}
+                                ${done.length > 0 ? `
+                                    <div style="padding:10px 15px; font-size:11px; opacity:0.5; cursor:pointer" onclick="this.nextElementSibling.classList.toggle('active')">
+                                        Erledigte (${done.length})
+                                    </div>
+                                    <div class="list-content">${done.map(t => renderT(t, list.id)).join('')}</div>
+                                ` : ''}
+                            </div>`;
+                        accordion.appendChild(group);
+                    }
+                }
+
+                if (plannedTasks.length > 0) {
+                    plannedTasks.sort((a, b) => new Date(a.dueDateTime.dateTime) - new Date(b.dueDateTime.dateTime));
+                    const pGroup = document.createElement('div');
+                    pGroup.className = 'list-group'; 
+                    pGroup.style.border = '1px solid var(--accent)';
+                    pGroup.innerHTML = `
+                        <div class="list-header" style="background:rgba(142,163,157,0.1)" onclick="this.nextElementSibling.classList.toggle('active')">
+                            <span style="display:flex; align-items:center; gap:8px">
+                                <span class="material-symbols-rounded">calendar_month</span> Geplant (${plannedTasks.length})
+                            </span>
                             <span class="material-symbols-rounded">expand_more</span>
                         </div>
-                        <div class="list-content">
-                            ${active.map(t => renderT(t, list.id)).join('')}
-                            ${done.length > 0 ? `<div style="padding:10px 15px; font-size:11px; opacity:0.5; cursor:pointer" onclick="this.nextElementSibling.classList.toggle('active')">Erledigte (${done.length})</div><div class="list-content">${done.map(t => renderT(t, list.id)).join('')}</div>` : ''}
-                        </div>`;
-                    accordion.appendChild(group);
+                        <div class="list-content">${plannedTasks.map(t => renderT(t, t.listId)).join('')}</div>`;
+                    accordion.prepend(pGroup);
+                } else if (accordion.children.length === 0) {
+                    accordion.innerHTML = '<div style="text-align:center; padding: 25px; opacity:0.5; font-size:13px;">Keine Aufgaben vorhanden.</div>';
                 }
-            }
-            if(plannedTasks.length > 0) {
-                plannedTasks.sort((a, b) => new Date(a.dueDateTime.dateTime) - new Date(b.dueDateTime.dateTime));
-                const pGroup = document.createElement('div');
-                pGroup.className = 'list-group'; pGroup.style.border = '1px solid var(--accent)';
-                pGroup.innerHTML = `<div class="list-header" style="background:rgba(142,163,157,0.1)" onclick="this.nextElementSibling.classList.toggle('active')">
-                    <span style="display:flex; align-items:center; gap:8px"><span class="material-symbols-rounded">calendar_month</span> Geplant (${plannedTasks.length})</span>
-                    <span class="material-symbols-rounded">expand_more</span>
-                </div><div class="list-content">${plannedTasks.map(t => renderT(t, t.listId)).join('')}</div>`;
-                accordion.prepend(pGroup);
+            } catch (err) {
+                console.error("Fehler beim Rendern:", err);
+                accordion.innerHTML = '<div style="text-align:center; padding: 20px; color:#ff5555;">Fehler beim Laden der Aufgaben.</div>';
             }
         }
 
         function renderT(t, lId) {
             let meta = "";
             const isHigh = t.importance === 'high';
-            if(t.dueDateTime) meta += `<span><span class="material-symbols-rounded" style="font-size:12px">calendar_today</span> ${new Date(t.dueDateTime.dateTime).toLocaleDateString()}</span>`;
-            return `<div class="todo-item">
-                <span class="material-symbols-rounded" style="color:var(--accent); cursor:pointer" onclick="window.toggleTaskStatus('${lId}', '${t.id}', '${t.status}')">${t.status === 'completed' ? 'check_circle' : 'radio_button_unchecked'}</span>
-                <div class="todo-text-wrapper" onclick="window.openDetails('${lId}', '${t.id}')">
-                    <div class="todo-text ${t.status === 'completed' ? 'completed' : ''}">${t.title}</div>
+            const isDone = t.status === 'completed';
+
+            if (t.dueDateTime && t.dueDateTime.dateTime) {
+                const d = new Date(t.dueDateTime.dateTime);
+                meta += `<span><span class="material-symbols-rounded" style="font-size:12px">calendar_today</span> ${d.toLocaleDateString()}</span>`;
+            }
+
+            return `<div class="todo-item" data-task-id="${escapeHtml(t.id)}">
+                <span class="material-symbols-rounded" style="color:var(--accent); cursor:pointer" onclick="window.toggleTaskStatus('${escapeHtml(lId)}', '${escapeHtml(t.id)}', '${escapeHtml(t.status)}')">
+                    ${isDone ? 'check_circle' : 'radio_button_unchecked'}
+                </span>
+                <div class="todo-text-wrapper" onclick="window.openDetails('${escapeHtml(lId)}', '${escapeHtml(t.id)}')">
+                    <div class="todo-text ${isDone ? 'completed' : ''}">${escapeHtml(t.title)}</div>
                     ${meta ? `<div class="todo-meta">${meta}</div>` : ''}
                 </div>
-                <span class="material-symbols-rounded star-priority ${isHigh ? 'star-active' : ''}" onclick="window.fastUpdateImportance('${lId}', '${t.id}', '${t.importance}')">${isHigh ? 'star' : 'star_outline'}</span>
+                <span class="material-symbols-rounded star-priority ${isHigh ? 'star-active' : ''}" onclick="window.fastUpdateImportance('${escapeHtml(lId)}', '${escapeHtml(t.id)}', '${escapeHtml(t.importance)}')">
+                    ${isHigh ? 'star' : 'star_outline'}
+                </span>
             </div>`;
         }
 
         window.fastUpdateImportance = async (lId, tId, currentImp) => {
-            const token = localStorage.getItem("ms_token");
-            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}`, {
-                method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ importance: currentImp === 'high' ? 'normal' : 'high' })
+            const nextImp = currentImp === 'high' ? 'normal' : 'high';
+            await graphFetch(`/me/todo/lists/${lId}/tasks/${tId}`, {
+                method: 'PATCH', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ importance: nextImp })
             });
             window.refreshTasks();
         };
 
         window.toggleTaskStatus = async (lId, tId, s) => {
-            const token = localStorage.getItem("ms_token");
-            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}`, {
-                method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: s === 'completed' ? 'notStarted' : 'completed' })
+            const nextStatus = s === 'completed' ? 'notStarted' : 'completed';
+            await graphFetch(`/me/todo/lists/${lId}/tasks/${tId}`, {
+                method: 'PATCH', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: nextStatus })
             });
             window.refreshTasks();
         };
 
         window.openDetails = async (lId, tId) => {
-            const token = localStorage.getItem("ms_token");
-            const res = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}`, { headers: { Authorization: `Bearer ${token}` } });
-            const task = await res.json();
-            currentOpenTask = { lId, tId };
-            document.getElementById('modal-title').innerText = task.title;
-            document.getElementById('modal-date-input').value = task.dueDateTime ? task.dueDateTime.dateTime.split('T')[0] : "";
-            document.getElementById('modal-star').innerText = task.importance === "high" ? "star" : "star_outline";
-            if(task.importance === "high") document.getElementById('modal-star').classList.add('star-active'); else document.getElementById('modal-star').classList.remove('star-active');
-            
-            const subRes = await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${lId}/tasks/${tId}/checklistItems`, { headers: { Authorization: `Bearer ${token}` } });
-            const subData = await subRes.json();
-            document.getElementById('subtask-list').innerHTML = (subData.value || []).map(s => `<div>• ${s.displayName}</div>`).join('') || "Keine Schritte";
-            document.getElementById('task-modal').style.display = 'flex';
+            try {
+                const res = await graphFetch(`/me/todo/lists/${lId}/tasks/${tId}`);
+                const task = await res.json();
+                currentOpenTask = { lId, tId, importance: task.importance || 'normal' };
+                
+                document.getElementById('modal-title').innerText = task.title || 'Details';
+                document.getElementById('modal-date-input').value = task.dueDateTime && task.dueDateTime.dateTime ? task.dueDateTime.dateTime.split('T')[0] : "";
+                
+                const starEl = document.getElementById('modal-star');
+                const isHigh = task.importance === "high";
+                starEl.innerText = isHigh ? "star" : "star_outline";
+                if (isHigh) starEl.classList.add('star-active'); else starEl.classList.remove('star-active');
+                
+                const subRes = await graphFetch(`/me/todo/lists/${lId}/tasks/${tId}/checklistItems`);
+                const subData = await subRes.json();
+                const items = subData.value || [];
+                document.getElementById('subtask-list').innerHTML = items.length > 0 
+                    ? items.map(s => `<div style="padding: 2px 0;">• ${escapeHtml(s.displayName)}</div>`).join('') 
+                    : '<div style="opacity:0.5; font-style:italic;">Keine Schritte vorhanden</div>';
+                
+                document.getElementById('task-modal').style.display = 'flex';
+            } catch (err) {
+                console.error("Fehler beim Öffnen der Details:", err);
+            }
         };
 
+        // Klick auf den Stern im Modal
+        window.toggleModalStar = async () => {
+            if (!currentOpenTask) return;
+            const newImp = currentOpenTask.importance === 'high' ? 'normal' : 'high';
+            currentOpenTask.importance = newImp;
+            
+            const starEl = document.getElementById('modal-star');
+            starEl.innerText = newImp === "high" ? "star" : "star_outline";
+            if (newImp === "high") starEl.classList.add('star-active'); else starEl.classList.remove('star-active');
+            
+            await window.updateTaskDetail('importance', newImp);
+        };
+
+        // Datum oder Wichtigkeit aktualisieren (inkl. Bugfix beim Löschen des Datums)
         window.updateTaskDetail = async (type, val) => {
-            const token = localStorage.getItem("ms_token");
+            if (!currentOpenTask) return;
             let body = {};
-            if(type === 'due') body.dueDateTime = { dateTime: document.getElementById('modal-date-input').value + "T00:00:00", timeZone: "UTC" };
-            if(type === 'importance') body.importance = val;
-            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}`, {
-                method: 'PATCH', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            
+            if (type === 'due') {
+                const dateVal = document.getElementById('modal-date-input').value;
+                if (dateVal) {
+                    body.dueDateTime = { dateTime: dateVal + "T00:00:00", timeZone: "UTC" };
+                } else {
+                    body.dueDateTime = null; // Bugfix: Graph API akzeptiert null zum Löschen
+                }
+            }
+            if (type === 'importance') {
+                body.importance = val;
+            }
+
+            await graphFetch(`/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}`, {
+                method: 'PATCH', 
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
             window.refreshTasks();
         };
 
         window.addSubtask = async () => {
-            const token = localStorage.getItem("ms_token");
-            const val = document.getElementById('new-subtask-input').value;
-            await fetch(`https://graph.microsoft.com/v1.0/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}/checklistItems`, {
-                method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            if (!currentOpenTask) return;
+            const input = document.getElementById('new-subtask-input');
+            const val = input.value.trim();
+            if (!val) return;
+
+            await graphFetch(`/me/todo/lists/${currentOpenTask.lId}/tasks/${currentOpenTask.tId}/checklistItems`, {
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ displayName: val })
             });
-            document.getElementById('new-subtask-input').value = "";
+            input.value = "";
             window.openDetails(currentOpenTask.lId, currentOpenTask.tId);
         };
 
+        // Listen-Manager mit sauberen IDs statt Textsuche
         function updateManagerUI() {
             const container = document.getElementById('list-manager-container');
             container.innerHTML = '';
@@ -421,7 +625,11 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
                 const item = document.createElement('div');
                 item.className = 'manager-item';
                 item.draggable = true;
-                item.innerHTML = `<span><span class="drag-handle">⋮⋮</span> ${l.name}</span><span class="material-symbols-rounded icon-btn" onclick="window.toggleVis(${i}); event.stopPropagation();" style="font-size:18px">${l.visible ? 'visibility' : 'visibility_off'}</span>`;
+                item.dataset.id = l.id;
+                item.innerHTML = `<span><span class="drag-handle">⋮⋮</span> ${escapeHtml(l.name)}</span>
+                    <span class="material-symbols-rounded icon-btn" onclick="window.toggleVis(${i}); event.stopPropagation();" style="font-size:18px">
+                        ${l.visible ? 'visibility' : 'visibility_off'}
+                    </span>`;
                 item.addEventListener('dragstart', () => item.classList.add('dragging'));
                 item.addEventListener('dragend', () => { item.classList.remove('dragging'); saveOrder(); });
                 container.appendChild(item);
@@ -446,12 +654,71 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
 
         function saveOrder() {
             const items = [...document.querySelectorAll('.manager-item')];
-            listOrder = items.map(it => listOrder.find(l => l.name === it.innerText.replace('⋮⋮', '').replace('visibility', '').replace('visibility_off', '').trim()));
-            renderView(localStorage.getItem("ms_token"));
+            const newOrder = [];
+            items.forEach(it => {
+                const found = listOrder.find(l => l.id === it.dataset.id);
+                if (found) newOrder.push(found);
+            });
+            listOrder = newOrder;
+            localStorage.setItem("todo_list_order", JSON.stringify(listOrder.map(l => ({ id: l.id, visible: l.visible }))));
+            renderView();
         }
 
-        window.toggleVis = (i) => { listOrder[i].visible = !listOrder[i].visible; updateManagerUI(); renderView(localStorage.getItem("ms_token")); };
+        window.toggleVis = (i) => { 
+            listOrder[i].visible = !listOrder[i].visible; 
+            localStorage.setItem("todo_list_order", JSON.stringify(listOrder.map(l => ({ id: l.id, visible: l.visible }))));
+            updateManagerUI(); 
+            renderView(); 
+        };
+
         window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
+
+        // Design & UI Einstellungen mit Speicherung im localStorage
+        function saveSettings() {
+            const settings = {
+                darkMode: document.body.classList.contains('dark-mode'),
+                accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+                bgOuter: getComputedStyle(document.documentElement).getPropertyValue('--bg-outer').trim(),
+                font: getComputedStyle(document.documentElement).getPropertyValue('--main-font').trim(),
+                fontSize: getComputedStyle(document.documentElement).getPropertyValue('--base-size').trim(),
+                opacity: getComputedStyle(document.documentElement).getPropertyValue('--card-opacity').trim(),
+                bgImage: getComputedStyle(document.documentElement).getPropertyValue('--bg-image').trim()
+            };
+            localStorage.setItem('todo_settings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const sStr = localStorage.getItem('todo_settings');
+            if (!sStr) return;
+            try {
+                const s = JSON.parse(sStr);
+                if (s.darkMode) document.body.classList.add('dark-mode');
+                if (s.accent) {
+                    document.documentElement.style.setProperty('--accent', s.accent);
+                    document.getElementById('accent-picker').value = s.accent;
+                }
+                if (s.bgOuter) {
+                    document.documentElement.style.setProperty('--bg-outer', s.bgOuter);
+                    document.body.style.backgroundColor = s.bgOuter;
+                    document.getElementById('bg-color-picker').value = s.bgOuter;
+                }
+                if (s.font) {
+                    document.documentElement.style.setProperty('--main-font', s.font);
+                    document.getElementById('font-select').value = s.font.replace(/['"]/g, '');
+                }
+                if (s.fontSize) {
+                    document.documentElement.style.setProperty('--base-size', s.fontSize);
+                    document.getElementById('fontsize-slider').value = parseInt(s.fontSize);
+                }
+                if (s.opacity) {
+                    document.documentElement.style.setProperty('--card-opacity', s.opacity);
+                    document.getElementById('opacity-slider').value = s.opacity;
+                }
+                if (s.bgImage && s.bgImage !== 'none') {
+                    document.documentElement.style.setProperty('--bg-image', s.bgImage);
+                }
+            } catch(e) {}
+        }
 
         window.setDarkMode = (v) => {
             const picker = document.getElementById('bg-color-picker');
@@ -464,22 +731,41 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
                 window.updateBackgroundColor('#f0f2f5');
                 picker.value = '#f0f2f5';
             }
+            saveSettings();
         };
 
         window.updateBackgroundColor = (val) => {
             document.documentElement.style.setProperty('--bg-outer', val);
             document.body.style.backgroundColor = val; 
+            saveSettings();
         };
 
-        window.updateColor = (prop, val) => document.documentElement.style.setProperty(prop, val);
-        window.updateFont = (f) => document.documentElement.style.setProperty('--main-font', f);
-        window.updateFontSize = (v) => document.documentElement.style.setProperty('--base-size', v + 'px');
-        window.updateOpacity = (v) => document.documentElement.style.setProperty('--card-opacity', v);
+        window.updateColor = (prop, val) => {
+            document.documentElement.style.setProperty(prop, val);
+            saveSettings();
+        };
+
+        window.updateFont = (f) => {
+            document.documentElement.style.setProperty('--main-font', f);
+            saveSettings();
+        };
+
+        window.updateFontSize = (v) => {
+            document.documentElement.style.setProperty('--base-size', v + 'px');
+            saveSettings();
+        };
+
+        window.updateOpacity = (v) => {
+            document.documentElement.style.setProperty('--card-opacity', v);
+            saveSettings();
+        };
+
         window.updateBgImage = (url) => {
             document.documentElement.style.setProperty('--bg-image', url ? `url('${url}')` : 'none');
             document.getElementById('bg-url-input').value = url;
-        }
-        
+            saveSettings();
+        };
+
         window.uploadBgImage = (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -489,7 +775,9 @@ const msalInstance = new msal.PublicClientApplication(msalConfig);
             }
         };
 
-        if (localStorage.getItem("ms_token")) window.refreshTasks();
+        // Starten
+        loadSettings();
+        handleAuth();
     </script>
 </body>
 </html>
