@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar v1.0.3</title>
+    <title>Calendar v1.0.4</title>
     
     <!-- Icons & Typografie aus deinem Master System -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
@@ -36,7 +36,10 @@
             --glass-heavy: rgba(20, 20, 20, 0.95);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+        }
         
         body, input, button, select, textarea, h1, h2, h3 { 
             font-family: var(--main-font), -apple-system, BlinkMacSystemFont, sans-serif !important; 
@@ -54,7 +57,7 @@
             font-size: var(--font-size);
         }
 
-        /* 3-Spalten Header - sauber zentriert */
+        /* 3-Spalten Header mit exakt zentrierter Mitte */
         header { 
             padding: 10px 18px; 
             display: grid; 
@@ -99,7 +102,11 @@
             gap: 4px;
             transition: 0.2s;
         }
-        .calendar-nav-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .calendar-nav-btn:hover { 
+            background: var(--accent); 
+            color: #fff; 
+            border-color: var(--accent); 
+        }
 
         .btn-add-event {
             background: var(--accent);
@@ -117,9 +124,29 @@
         }
         .btn-add-event:hover { opacity: 0.9; transform: scale(0.98); }
 
-        .view-switcher { display: inline-flex; background: rgba(128,128,128,0.1); padding: 2px; border-radius: 8px; gap: 2px; }
-        .view-switcher button { background: transparent; border: none; padding: 5px 10px; border-radius: 6px; font-size: 0.8em; font-weight: 600; color: var(--text-color); cursor: pointer; transition: 0.2s; }
-        .view-switcher button.active { background: var(--bg-inner); box-shadow: 0 1px 3px rgba(0,0,0,0.1); color: var(--accent); }
+        .view-switcher { 
+            display: inline-flex; 
+            background: rgba(128,128,128,0.1); 
+            padding: 2px; 
+            border-radius: 8px; 
+            gap: 2px; 
+        }
+        .view-switcher button { 
+            background: transparent; 
+            border: none; 
+            padding: 5px 10px; 
+            border-radius: 6px; 
+            font-size: 0.8em; 
+            font-weight: 600; 
+            color: var(--text-color); 
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+        .view-switcher button.active { 
+            background: var(--bg-inner); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            color: var(--accent); 
+        }
 
         main { 
             flex: 1; 
@@ -145,6 +172,7 @@
             min-height: 0;
         }
 
+        /* Verhindert das Kollabieren von FullCalendar in Flexbox */
         #calendar-container { 
             flex: 1; 
             width: 100%; 
@@ -175,7 +203,7 @@
             text-align: left;
         }
 
-        /* FullCalendar - Gitter & Zeilen voll sichtbar */
+        /* FullCalendar - Scharfes Monatsgitter */
         .fc { 
             font-size: var(--font-size) !important; 
             flex: 1;
@@ -197,7 +225,7 @@
         .fc-event { border-radius: 6px !important; padding: 2px 5px !important; border: 1px solid rgba(0,0,0,0.1) !important; font-size: 0.8em !important; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .fc-event-main { font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Side Panels */
+        /* Side Panels aus basicstyle.html */
         .side-panel { 
             position: fixed; top: 0; width: 340px; height: 100%; 
             background: var(--glass-heavy); z-index: 1000; 
@@ -269,7 +297,7 @@
 </head>
 <body class="light-mode">
 
-    <!-- 3-Spalten Header: Buttons sauber innerhalb von header-left -->
+    <!-- 3-Spalten Header -->
     <header>
         <div class="header-left">
             <button class="icon-btn" onclick="togglePanel('menu-panel')" title="Kalender verwalten"><span class="material-symbols-rounded">calendar_month</span></button>
@@ -372,7 +400,6 @@
                 <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">close</span>
             </div>
 
-            <!-- Nur im normalen Browser sichtbar -->
             <button class="btn-primary" id="settings-copy-btn" onclick="window.copySyncKey()">SCHLÜSSEL FÜR NOTION KOPIEREN</button>
 
             <div class="settings-section">
@@ -494,7 +521,7 @@
     </div>
 
     <div class="footer-info">
-        v1.0.3 | made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+        v1.0.4 | made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
     </div>
 
     <!-- Firebase SDK (exakt aus basicstyle.html) -->
@@ -606,9 +633,9 @@
         });
     </script>
 
-    <!-- Calendar Engine, Zuverlässiger Graph API Abruf & FullCalendar Engine -->
+    <!-- Calendar Engine & Multi-Kalender Synchronisation -->
     <script>
-        console.log("Calendar v1.0.3 initialisiert.");
+        console.log("Calendar v1.0.4 initialisiert.");
 
         const isInIframe = window.self !== window.top;
         let immediateRedirectToken = null;
@@ -625,7 +652,7 @@
             }, 
             cache: { 
                 cacheLocation: "localStorage", 
-                storeAuthStateInCookie: true 
+                storeAuthStateInCookie: false 
             } 
         };
 
@@ -659,7 +686,6 @@
                 datesSet: (info) => {
                     const t = document.getElementById('calTitleDisplay');
                     if (t) t.innerText = info.view.title;
-                    // Automatisch Termine nachladen, wenn der Monat gewechselt wird
                     refreshAllCalendars();
                 },
                 dateClick: (info) => openNewEventModal(info.dateStr),
@@ -873,11 +899,11 @@
 
         function renderSubcalendarList() {
             const list = document.getElementById('subcalendarList');
-            if (outlookCalendars.length === 0) return;
+            if (!list || outlookCalendars.length === 0) return;
             list.style.display = 'block';
             list.innerHTML = '';
 
-            const defaultPalette = ["#9fc5f8", "#a8df8e", "#ffd166", "#f3b0c3", "#c3aed6", "#b5e2fa", "#f7d6e0"];
+            const defaultPalette = ["#9fc5f8", "#a8df8e", "#ffd166", "#f3b0c3", "#c3aed6", "#b5e2fa", "#f7d6e0", "#d8e2dc"];
 
             outlookCalendars.forEach((cal, idx) => {
                 const savedColor = localStorage.getItem("cal_color_" + cal.id) || defaultPalette[idx % defaultPalette.length];
@@ -896,13 +922,16 @@
                 `;
                 list.appendChild(div);
 
-                document.getElementById(`chk_${cal.id}`).onchange = (e) => {
+                // Live Aktualisierung beim Klick auf Checkbox
+                document.getElementById(`chk_${cal.id}`).onchange = async (e) => {
                     localStorage.setItem("cal_active_" + cal.id, e.target.checked);
-                    renderEventsFromAllSources();
+                    await refreshAllCalendars();
                 };
-                document.getElementById(`col_${cal.id}`).onchange = (e) => {
+
+                // Live Aktualisierung bei Farbänderung
+                document.getElementById(`col_${cal.id}`).onchange = async (e) => {
                     localStorage.setItem("cal_color_" + cal.id, e.target.value);
-                    renderEventsFromAllSources();
+                    await refreshAllCalendars();
                 };
             });
         }
@@ -918,7 +947,7 @@
             });
         }
 
-        // Zuverlässiger, direkter Abruf aller Termine über /me/calendarView
+        // Lädt alle aktiven Kalender parallel mit ihren individuellen Farben
         async function fetchOutlookEvents() {
             if (!msalInstance.getActiveAccount() || !window.fullCalendar) return [];
 
@@ -927,39 +956,42 @@
             const end = view.activeEnd.toISOString();
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
-            // Der universelle Microsoft Graph Endpoint für alle Termine des Nutzers
-            const url = `/me/calendarView?startDateTime=${encodeURIComponent(start)}&endDateTime=${encodeURIComponent(end)}&$top=250&$select=id,subject,start,end,isAllDay,location,webLink,bodyPreview,categories`;
+            const promises = outlookCalendars.map(async (cal) => {
+                const isChecked = localStorage.getItem("cal_active_" + cal.id) !== "false";
+                if (!isChecked) return []; // Überspringen, wenn abgewählt
 
-            const res = await graphFetch(url, {
-                headers: { 'Prefer': `outlook.timezone="${tz}"` }
+                const color = localStorage.getItem("cal_color_" + cal.id) || "#9fc5f8";
+                const url = `/me/calendars/${cal.id}/calendarView?startDateTime=${encodeURIComponent(start)}&endDateTime=${encodeURIComponent(end)}&$top=250&$select=id,subject,start,end,isAllDay,location,webLink,bodyPreview`;
+
+                try {
+                    const res = await graphFetch(url, { headers: { 'Prefer': `outlook.timezone="${tz}"` } });
+                    if (!res || !res.ok) return [];
+                    const data = await res.json();
+
+                    return (data.value || []).map(i => ({
+                        id: "ms_" + i.id,
+                        title: i.subject || "(Ohne Titel)",
+                        start: i.start.dateTime,
+                        end: i.end.dateTime,
+                        allDay: i.isAllDay,
+                        backgroundColor: color,
+                        borderColor: color,
+                        textColor: "#1a1a1a",
+                        extendedProps: { 
+                            source: cal.name, 
+                            location: i.location?.displayName || "", 
+                            body: i.bodyPreview || "", 
+                            url: i.webLink 
+                        }
+                    }));
+                } catch(err) {
+                    console.warn(`Fehler bei Kalender ${cal.name}:`, err);
+                    return [];
+                }
             });
 
-            if (!res || !res.ok) {
-                console.warn("Termine konnten nicht geladen werden:", res ? res.status : "Kein Token");
-                return [];
-            }
-
-            const data = await res.json();
-            const defaultColor = "#9fc5f8";
-
-            return (data.value || []).map(i => {
-                return {
-                    id: "ms_" + i.id,
-                    title: i.subject || "(Ohne Titel)",
-                    start: i.start.dateTime,
-                    end: i.end.dateTime,
-                    allDay: i.isAllDay,
-                    backgroundColor: defaultColor,
-                    borderColor: defaultColor,
-                    textColor: "#1a1a1a",
-                    extendedProps: { 
-                        source: "Outlook", 
-                        location: i.location?.displayName || "", 
-                        body: i.bodyPreview || "", 
-                        url: i.webLink 
-                    }
-                };
-            });
+            const results = await Promise.all(promises);
+            return results.flat();
         }
 
         function loadIcalFeed() {
