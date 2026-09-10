@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v1.8.3</title>
+    <title>Marco Master System - v1.8.5</title>
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
@@ -137,14 +137,15 @@
     <main>
         <div class="glass-card" id="main-card">
             <h1 id="main-title">To Do's</h1>
-            <div id="auth-section" style="text-align:center; padding-top: 40px;">
+            <div id="auth-section" style="text-align:center; padding-top: 30px;">
                 <p style="opacity:0.7; font-size:14px; margin-bottom:20px;">Melde dich an, um deine Aufgaben zu synchronisieren.</p>
                 <button class="btn-primary" onclick="window.login()">LOGIN MIT MICROSOFT</button>
+                <div id="auth-status" style="margin-top:15px; font-size:12px; min-height:18px; word-break:break-word; padding: 0 10px;"></div>
             </div>
             <div id="todo-container" style="display: none;"><div id="accordion-list"></div></div>
         </div>
         <div class="footer-info">
-            v1.8.3 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
+            v1.8.5 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
         </div>
     </main>
 
@@ -237,14 +238,15 @@
         </div>
     </div>
 
-    <!-- MSAL Library (nur einmal eingebunden) -->
+    <!-- MSAL Library -->
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
     <script>
+        console.log("Starte Marco Master System v1.8.5");
+
         let listOrder = [];
         let currentOpenTask = null;
 
-        // HTML-Escaping zur Vorbeugung von Layout- und XSS-Fehlern
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)
@@ -255,7 +257,15 @@
                 .replace(/'/g, '&#039;');
         }
 
-        // MSAL Konfiguration
+        function setAuthStatus(msg, isError = false) {
+            const el = document.getElementById('auth-status');
+            if (el) {
+                el.innerText = msg;
+                el.style.color = isError ? '#ff4d4f' : 'inherit';
+            }
+        }
+
+        // MSAL Konfiguration mit aktivierter iFrame-Weiterleitung
         const msalConfig = { 
             auth: { 
                 clientId: "5bbbc194-5d72-43c3-b49c-367ab69bfb19", 
@@ -265,7 +275,10 @@
             cache: { 
                 cacheLocation: "localStorage", 
                 storeAuthStateInCookie: true 
-            } 
+            },
+            system: {
+                allowRedirectInIframe: true // WICHTIG: Erlaubt den Redirect im Notion-iFrame
+            }
         };
 
         const msalInstance = new msal.PublicClientApplication(msalConfig);
@@ -274,7 +287,6 @@
             prompt: "select_account"
         };
 
-        // Automatisches Abrufen & Erneuern des Tokens (Silent Refresh)
         async function getAccessToken() {
             let account = msalInstance.getActiveAccount();
             if (!account) {
@@ -298,7 +310,6 @@
             }
         }
 
-        // Zentrale Graph-API Fetch-Funktion mit Auth-Header & automatischer Fehlerbehandlung
         async function graphFetch(endpoint, options = {}) {
             let token = await getAccessToken();
             if (!token) {
@@ -314,7 +325,6 @@
 
             let res = await fetch(`https://graph.microsoft.com/v1.0${endpoint}`, options);
 
-            // Bei 401 einmalig versuchen, ein frisches Token zu holen
             if (res.status === 401) {
                 token = await getAccessToken();
                 if (token) {
@@ -331,44 +341,41 @@
             return res;
         }
 
-        // Auth beim Start initialisieren
         async function handleAuth() {
             try {
                 const response = await msalInstance.handleRedirectPromise();
                 if (response && response.account) {
                     msalInstance.setActiveAccount(response.account);
+                    console.log("Login via Redirect erfolgreich abgeschlossen");
                 }
             } catch (err) {
                 console.error("Auth-Fehler beim Verarbeiten des Redirects:", err);
+                setAuthStatus("Redirect-Fehler: " + (err.message || err), true);
             }
 
             const account = msalInstance.getActiveAccount() || msalInstance.getAllAccounts()[0];
             if (account) {
                 msalInstance.setActiveAccount(account);
+                setAuthStatus("");
                 window.refreshTasks();
             } else {
+                setAuthStatus("");
                 document.getElementById('auth-section').style.display = 'block';
                 document.getElementById('todo-container').style.display = 'none';
             }
         }
 
-        // Login: Popup bevorzugen (verhindert Notion Desktop iFrame-Blockaden)
+        // Login: In Notion Desktop nutzen wir jetzt den sauberen Redirect (dank allowRedirectInIframe: true)
         window.login = async () => {
+            sessionStorage.removeItem("msal.interaction.status");
+            setAuthStatus("Leite zu Microsoft weiter...");
+
             try {
-                console.log("Versuche Popup-Login...");
-                const response = await msalInstance.loginPopup(loginRequest);
-                if (response && response.account) {
-                    msalInstance.setActiveAccount(response.account);
-                    window.refreshTasks();
-                }
+                console.log("Starte Login-Redirect in Notion...");
+                await msalInstance.loginRedirect(loginRequest);
             } catch (err) {
-                console.warn("Popup-Login fehlgeschlagen, versuche Redirect:", err);
-                try {
-                    await msalInstance.loginRedirect(loginRequest);
-                } catch (redirectErr) {
-                    console.error("Login komplett fehlgeschlagen:", redirectErr);
-                    alert("Login konnte nicht gestartet werden. Bitte prüfe deine Azure Redirect URI.");
-                }
+                console.error("Login-Redirect fehlgeschlagen:", err);
+                setAuthStatus("Fehler: " + (err.message || err.errorCode || err), true);
             }
         };
 
@@ -385,7 +392,6 @@
             } 
         };
 
-        // Aufgaben & Listen abrufen
         window.refreshTasks = async () => {
             document.getElementById('auth-section').style.display = 'none';
             document.getElementById('todo-container').style.display = 'block';
@@ -397,7 +403,6 @@
                 const listsData = await listRes.json();
                 const serverLists = listsData.value || [];
 
-                // Gespeicherte Sortierung & Sichtbarkeit laden
                 const savedOrder = JSON.parse(localStorage.getItem("todo_list_order") || "[]");
                 if (savedOrder.length > 0) {
                     const reordered = [];
@@ -405,7 +410,6 @@
                         const found = serverLists.find(sl => sl.id === so.id);
                         if (found) reordered.push({ id: found.id, name: found.displayName, visible: so.visible ?? true });
                     });
-                    // Neue Listen anhängen, die noch nicht in savedOrder waren
                     serverLists.forEach(sl => {
                         if (!reordered.some(r => r.id === sl.id)) {
                             reordered.push({ id: sl.id, name: sl.displayName, visible: true });
@@ -423,13 +427,11 @@
             }
         };
 
-        // Schnelles, paralleles Rendern aller Listen
         async function renderView() {
             const accordion = document.getElementById('accordion-list');
             accordion.innerHTML = '<div style="text-align:center; padding: 25px; opacity:0.5; font-size:13px;">Lade Aufgaben...</div>';
             
             try {
-                // Paralleler Abruf aller Listen (mit $top=100)
                 const results = await Promise.all(listOrder.map(async (list) => {
                     try {
                         const taskRes = await graphFetch(`/me/todo/lists/${list.id}/tasks?$top=100`);
@@ -564,7 +566,6 @@
             }
         };
 
-        // Klick auf den Stern im Modal
         window.toggleModalStar = async () => {
             if (!currentOpenTask) return;
             const newImp = currentOpenTask.importance === 'high' ? 'normal' : 'high';
@@ -577,7 +578,6 @@
             await window.updateTaskDetail('importance', newImp);
         };
 
-        // Datum oder Wichtigkeit aktualisieren (inkl. Bugfix beim Löschen des Datums)
         window.updateTaskDetail = async (type, val) => {
             if (!currentOpenTask) return;
             let body = {};
@@ -587,7 +587,7 @@
                 if (dateVal) {
                     body.dueDateTime = { dateTime: dateVal + "T00:00:00", timeZone: "UTC" };
                 } else {
-                    body.dueDateTime = null; // Bugfix: Graph API akzeptiert null zum Löschen
+                    body.dueDateTime = null;
                 }
             }
             if (type === 'importance') {
@@ -617,7 +617,6 @@
             window.openDetails(currentOpenTask.lId, currentOpenTask.tId);
         };
 
-        // Listen-Manager mit sauberen IDs statt Textsuche
         function updateManagerUI() {
             const container = document.getElementById('list-manager-container');
             container.innerHTML = '';
@@ -673,7 +672,6 @@
 
         window.togglePanel = (id) => document.getElementById(id).classList.toggle('active');
 
-        // Design & UI Einstellungen mit Speicherung im localStorage
         function saveSettings() {
             const settings = {
                 darkMode: document.body.classList.contains('dark-mode'),
@@ -775,7 +773,6 @@
             }
         };
 
-        // Starten
         loadSettings();
         handleAuth();
     </script>
