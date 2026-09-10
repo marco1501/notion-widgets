@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - Kalender Widget v0.2.0</title>
+    <title>Calendar v0.2.2</title>
     
-    <!-- Icons & Typografie aus basicstyle.html -->
+    <!-- Icons & Typografie -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;600;700&family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700&family=Roboto:wght@400;500;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@700&family=Bungee&family=Comic+Neue:wght@700&family=Creepster&family=Lobster&family=Pacifico&family=Press+Start+2P&family=Righteous&family=Special+Elite&family=Comfortaa:wght@700&family=Permanent+Marker&family=Orbitron:wght@700&family=Fredoka+One&family=Syncopate:wght@700&display=swap" rel="stylesheet">
 
@@ -119,7 +119,7 @@
             gap: 4px;
             transition: 0.2s;
         }
-        .btn-add-event:hover { opacity: 0.9; transform: scale(0.98); }
+        .btn-add-event:hover { opacity: 0.9; }
 
         .view-switcher {
             display: inline-flex;
@@ -173,7 +173,7 @@
             height: 100%;
         }
 
-        /* --- FullCalendar Anpassung an Größenslider --- */
+        /* FullCalendar Anpassung an CSS-Größenslider */
         .fc {
             font-size: var(--font-size) !important;
             font-family: inherit !important;
@@ -231,9 +231,9 @@
             text-overflow: ellipsis;
         }
 
-        /* --- Side Panels --- */
+        /* Side Panels */
         .side-panel {
-            position: fixed; top: 0; width: 100%; max-width: 380px; height: 100%;
+            position: fixed; top: 0; width: 100%; max-width: 340px; height: 100%;
             background: var(--glass-heavy); backdrop-filter: blur(30px);
             z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 24px; border-left: 1px solid var(--border); overflow-y: auto;
@@ -244,7 +244,7 @@
         #settings-panel.active { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.15); }
         #menu-panel.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.15); }
 
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
         .panel-header h2 { font-size: 15px; letter-spacing: 1px; font-weight: 800; }
 
         .settings-section { margin-bottom: 20px; }
@@ -270,33 +270,39 @@
         .btn-primary { flex: 2; background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 11px; }
         .btn-secondary { flex: 1; background: rgba(128,128,128,0.1); color: var(--text-color); border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 11px; }
 
-        /* Multi-Kalender Karten */
-        .calendar-source-card {
+        /* Saubere Kalenderkarten im linken Menü */
+        .calendar-card {
             background: rgba(128,128,128,0.06);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
+            padding: 14px;
+            margin-bottom: 14px;
             display: flex;
             flex-direction: column;
+            gap: 10px;
+        }
+        .calendar-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 13px;
+        }
+        .calendar-card-title {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
-        .source-header { display: flex; align-items: center; justify-content: space-between; }
-        .source-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
-        .source-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
-        .source-btn { background: var(--accent); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .source-btn-sub { background: rgba(128,128,128,0.15); color: var(--text-color); border: none; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; }
 
-        /* Kalender Checkbox-Liste für Unterkalender */
         .subcalendar-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 8px;
-            border-radius: 6px;
-            background: rgba(128,128,128,0.05);
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: rgba(128,128,128,0.06);
             font-size: 12px;
-            margin-top: 4px;
+            margin-top: 6px;
         }
         .subcalendar-label {
             display: flex;
@@ -305,16 +311,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-        }
-
-        .info-box {
-            font-size: 11px;
-            background: rgba(128,128,128,0.08);
-            border-radius: 8px;
-            padding: 8px 10px;
-            line-height: 1.4;
-            opacity: 0.85;
-            word-break: break-all;
+            cursor: pointer;
         }
 
         /* Modals */
@@ -328,19 +325,18 @@
             background: var(--bg-inner);
             border: 1px solid var(--border);
             border-radius: 20px;
-            max-width: 460px; width: 100%;
+            max-width: 440px; width: 100%;
             padding: 22px;
             color: var(--text-color);
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
         }
         .modal-box h3 { margin-bottom: 12px; font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-        .modal-box p { font-size: 12px; opacity: 0.8; line-height: 1.4; margin-bottom: 12px; }
         
         .form-group { margin-bottom: 10px; text-align: left; }
         .form-group label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; opacity: 0.8; }
 
         footer {
-            padding: 6px;
+            padding: 8px;
             text-align: center;
             font-size: 11px;
             opacity: 0.7;
@@ -389,71 +385,62 @@
         </div>
     </header>
 
-    <!-- Kalender Hauptansicht in Glass-Card -->
+    <!-- Kalender Hauptansicht -->
     <main>
         <div class="glass-card">
             <div id="calendar-container"></div>
         </div>
     </main>
 
-    <!-- Linkes Panel: Multi-Kalender Manager -->
+    <!-- Linkes Panel: Kalender-Verwaltung -->
     <div id="menu-panel" class="side-panel">
         <div class="panel-header">
-            <h2 id="t-menu-head">KALENDER VERWALTEN</h2>
+            <h2 id="t-menu-head">KALENDER</h2>
             <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span>
         </div>
 
-        <!-- 1. Microsoft Outlook (inkl. Unterkalender) -->
-        <div class="calendar-source-card">
-            <div class="source-header">
-                <div class="source-title">
+        <!-- 1. Microsoft Outlook Bereich -->
+        <div class="calendar-card">
+            <div class="calendar-card-header">
+                <div class="calendar-card-title">
                     <span class="material-symbols-rounded" style="color:#0078d4;">mail</span>
                     <span>Microsoft Outlook</span>
                 </div>
             </div>
-            <div id="msAccountStatus" style="font-size: 11px; opacity: 0.8;">Nicht angemeldet</div>
-            <div class="source-actions" id="msActions"></div>
             
-            <!-- Liste aller erkannten Outlook-Unterkalender -->
-            <div id="subcalendarListContainer" style="display:none; margin-top: 6px;">
-                <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 4px; opacity: 0.7;">Verfügbare Kalender:</div>
-                <div id="subcalendarList"></div>
+            <div id="msAccountStatus" style="font-size: 12px; opacity: 0.8;">Nicht angemeldet</div>
+
+            <div id="msActionButtons" style="display: flex; flex-direction: column; gap: 8px;">
+                <button class="btn-primary" id="btnMsAuth" style="width: 100%;" onclick="handleMsAuth()">LOGIN MIT MICROSOFT</button>
+                <button class="btn-secondary" id="btnExportKey" style="width: 100%; display: none; font-weight: bold;" onclick="exportPairingKey()">SCHLÜSSEL FÜR NOTION KOPIEREN</button>
             </div>
 
-            <div class="info-box" style="margin-top: 6px;">
-                <strong>Benötigte Azure Redirect-URI:</strong><br>
-                <code id="currentRedirectUri">...</code><br>
-                <button class="source-btn-sub" style="margin-top: 4px; padding: 3px 6px; font-size: 10px;" onclick="copyRedirectUri()">URI KOPIEREN</button>
-            </div>
+            <!-- Liste der erkannten Outlook Unterkalender -->
+            <div id="subcalendarList" style="display:none; margin-top: 4px;"></div>
         </div>
 
-        <!-- 2. Direkter iCal-Feed (z. B. Outlook Web ICS / Google Kalender) -->
-        <div class="calendar-source-card">
-            <div class="source-header">
-                <div class="source-title">
+        <!-- 2. iCal / Web-Feed Bereich (Zurückgebracht & Aufgeräumt) -->
+        <div class="calendar-card">
+            <div class="calendar-card-header">
+                <div class="calendar-card-title">
                     <span class="material-symbols-rounded" style="color:var(--accent);">link</span>
-                    <span>iCal / Web-Kalender Feed</span>
+                    <span>iCal / Web-Feed</span>
                 </div>
                 <input type="color" id="icalCalColor" value="#ffd166" onchange="renderEventsFromAllSources()">
             </div>
-            <div class="info-box">
-                <strong>Direkt ohne Azure-Setup:</strong> Trage hier deinen ICS-Link aus Outlook Web (unter <em>Einstellungen &rarr; Geteilte Kalender &rarr; Veröffentlichen</em>) oder Gmail ein.
-            </div>
-            <input type="url" id="genericIcalInput" class="marco-input" placeholder="https://.../calendar.ics" style="margin-top: 4px;">
-            <div class="source-actions">
-                <button class="source-btn" onclick="saveGenericIcalFeed()">FEED SPEICHERN</button>
-            </div>
+            <input type="url" id="genericIcalInput" class="marco-input" placeholder="https://.../calendar.ics">
+            <button class="btn-secondary" style="width: 100%;" onclick="saveGenericIcalFeed()">FEED SPEICHERN</button>
         </div>
 
-        <!-- Notion Kopplung -->
-        <div style="margin-top: 15px;">
+        <!-- Notion Kopplung Button (für Notion Iframe Modus) -->
+        <div style="margin-top: 10px;" id="notionPairArea">
             <button class="btn-primary" style="width: 100%;" onclick="openPairModal()">
-                NOTION KOPPLUNGSSCHLÜSSEL
+                MIT NOTION KOPPELN
             </button>
         </div>
     </div>
 
-    <!-- Rechtes Panel: Settings (basicstyle.html Funktionalität) -->
+    <!-- Rechtes Panel: Original Settings aus basicstyle.html -->
     <div id="settings-panel" class="side-panel">
         <div class="panel-header">
             <h2 id="t-set-head">SETTINGS</h2>
@@ -519,13 +506,8 @@
         </div>
 
         <div class="settings-section">
-            <label id="t-set-size">Schriftgröße (Skaliert Kalender)</label>
+            <label id="t-set-size">Schriftgröße</label>
             <input type="range" id="sizePicker" min="11" max="22" value="14" oninput="window.liveApply()">
-        </div>
-
-        <div class="settings-section">
-            <label>Azure App Client ID (Optional)</label>
-            <input type="text" id="azureClientIdInput" class="marco-input" placeholder="5bbbc194-5d72-43c3-b49c-367ab69bfb19" onchange="updateAzureClientId(this.value)">
         </div>
 
         <div class="btn-group">
@@ -541,7 +523,7 @@
             
             <div class="form-group">
                 <label>Titel</label>
-                <input type="text" id="eventTitleInput" class="marco-input" placeholder="z. B. Meeting mit Team">
+                <input type="text" id="eventTitleInput" class="marco-input" placeholder="Terminname">
             </div>
 
             <div class="form-group" style="display: flex; gap: 8px;">
@@ -557,19 +539,17 @@
 
             <div class="form-group">
                 <label>Kalender</label>
-                <select id="eventCalendarSelect" class="marco-input">
-                    <!-- Dynamisch befüllt mit deinen Outlook-Kalendern -->
-                </select>
+                <select id="eventCalendarSelect" class="marco-input"></select>
             </div>
 
             <div class="form-group">
-                <label>Ort (Optional)</label>
-                <input type="text" id="eventLocationInput" class="marco-input" placeholder="z. B. Konferenzraum / Teams">
+                <label>Ort</label>
+                <input type="text" id="eventLocationInput" class="marco-input" placeholder="Ort oder Teams">
             </div>
 
             <div class="form-group">
                 <label>Notizen</label>
-                <textarea id="eventBodyInput" class="marco-input" style="height: 60px; resize: vertical;" placeholder="Beschreibung..."></textarea>
+                <textarea id="eventBodyInput" class="marco-input" style="height: 60px; resize: vertical;"></textarea>
             </div>
 
             <div class="btn-group">
@@ -579,15 +559,13 @@
         </div>
     </div>
 
-    <!-- Modal für Notion Kopplungsschlüssel -->
+    <!-- Modal für Notion Kopplung -->
     <div id="pairModal" class="modal-overlay" style="display: none;">
         <div class="modal-box">
             <h3>NOTION KOPPLUNG</h3>
-            <p>Kopiere den Schlüssel aus deinem Hauptbrowser oder füge ihn hier in Notion ein, um alle verbundenen Kalender sofort zu synchronisieren.</p>
-            <textarea id="syncKeyInput" placeholder="Kopplungsschlüssel hier einfügen..."></textarea>
-            <div class="btn-group" style="margin-top: 10px;">
-                <button class="btn-secondary" onclick="document.getElementById('pairModal').style.display='none'">ABBRECHEN</button>
-                <button class="btn-primary" onclick="exportPairingKey()">SCHLÜSSEL KOPIEREN</button>
+            <textarea id="syncKeyInput" class="marco-input" style="height: 100px; font-family: monospace; margin-bottom: 12px;" placeholder="Kopplungsschlüssel hier einfügen..."></textarea>
+            <div class="btn-group">
+                <button class="btn-secondary" onclick="document.getElementById('pairModal').style.display='none'">SCHLIESSEN</button>
                 <button class="btn-primary" onclick="importPairingKey()">AKTIVIEREN</button>
             </div>
         </div>
@@ -607,9 +585,9 @@
         </div>
     </div>
 
+    <!-- Footer mit Version links neben Made by Marco Förster getrennt durch | -->
     <footer>
-        <div style="opacity: 0.5; margin-bottom: 2px;">V 0.2.0</div>
-        <div>made by <a href="http://www.marcofoerster.com" target="_blank" class="footer-link">Marco Förster</a></div>
+        v0.2.2 | made by <a href="http://www.marcofoerster.com" target="_blank" class="footer-link">Marco Förster</a>
     </footer>
 
     <!-- Firebase SDK (wie in basicstyle.html) -->
@@ -727,39 +705,47 @@
         });
     </script>
 
-    <!-- Multi-Kalender Engine mit Terminerstellung -->
+    <!-- Calendar Engine & Notion Sync -->
     <script>
-        const APP_VERSION = "0.2.0";
-        console.log(`[Marco Master Calendar] v${APP_VERSION} initialisiert.`);
+        const APP_VERSION = "0.2.2";
+        console.log(`[Calendar] v${APP_VERSION}`);
 
-        // State Stores
+        // State
         window.fullCalendar = null;
-        let outlookCalendars = []; // Array von Kalendern aus /me/calendars
+        let outlookCalendars = [];
         let outlookEvents = [];
-        let genericIcalEvents = [];
+        let icalEvents = [];
 
-        const currentCleanUri = window.location.origin + window.location.pathname;
-
-        // MSAL Outlook State (inkl. Schreibberechtigung für Termine)
+        // MSAL Outlook State
         let msalInstance = null;
         let activeMsAccount = null;
-        let msClientId = localStorage.getItem("azure_client_id") || "5bbbc194-5d72-43c3-b49c-367ab69bfb19";
+        const MS_CLIENT_ID = "5bbbc194-5d72-43c3-b49c-367ab69bfb19";
         const MS_SCOPES = ["User.Read", "Calendars.ReadWrite"];
 
         const isInIframe = window.self !== window.top;
 
         window.addEventListener("DOMContentLoaded", async () => {
-            document.getElementById('currentRedirectUri').innerText = currentCleanUri;
-            document.getElementById('azureClientIdInput').value = msClientId;
-
             initFullCalendar();
             setupHeaderNavigation();
             await initOutlookMsal();
-            loadStoredFeeds();
+            loadStoredIcalFeed();
             refreshAllCalendars();
+            adaptUiForNotionIframe();
         });
 
-        // 1. FullCalendar
+        function adaptUiForNotionIframe() {
+            const notionPairArea = document.getElementById('notionPairArea');
+            if (!isInIframe) {
+                // Im normalen Browser brauchen wir den "Mit Notion koppeln"-Button nicht im Fokus
+                notionPairArea.style.display = 'none';
+            } else {
+                // Im Notion Iframe: Microsoft Login ausblenden, Kopplung aktivieren
+                document.getElementById('btnMsAuth').style.display = 'none';
+                notionPairArea.style.display = 'block';
+            }
+        }
+
+        // 1. FullCalendar Setup
         function initFullCalendar() {
             const el = document.getElementById('calendar-container');
             window.fullCalendar = new FullCalendar.Calendar(el, {
@@ -774,7 +760,6 @@
                     document.getElementById('calTitleDisplay').innerText = info.view.title;
                 },
                 dateClick: (info) => {
-                    // Klick auf leeren Tag öffnet direkt Terminerstellung
                     openNewEventModal(info.dateStr);
                 },
                 eventClick: (info) => {
@@ -799,22 +784,18 @@
             });
         }
 
-        // 2. Microsoft Outlook Anbindung & Alle Kalender ermitteln
+        // 2. Microsoft MSAL Setup
         async function initOutlookMsal() {
             try {
                 msalInstance = new msal.PublicClientApplication({
                     auth: {
-                        clientId: msClientId,
-                        authority: "https://login.microsoftonline.com/common",
-                        redirectUri: currentCleanUri
+                        clientId: MS_CLIENT_ID,
+                        authority: "https://login.microsoftonline.com/common"
                     },
                     cache: { cacheLocation: "localStorage", storeAuthStateInCookie: false }
                 });
 
                 await msalInstance.initialize();
-
-                const res = await msalInstance.handleRedirectPromise();
-                if (res) activeMsAccount = res.account;
 
                 const accounts = msalInstance.getAllAccounts();
                 if (accounts.length > 0) {
@@ -831,39 +812,43 @@
 
         function renderOutlookControls() {
             const statusEl = document.getElementById('msAccountStatus');
-            const actionsEl = document.getElementById('msActions');
-            actionsEl.innerHTML = "";
+            const btnAuth = document.getElementById('btnMsAuth');
+            const btnExport = document.getElementById('btnExportKey');
 
             if (activeMsAccount) {
-                statusEl.innerText = "Verbunden: " + (activeMsAccount.username || activeMsAccount.name);
-                const btnLogout = document.createElement("button");
-                btnLogout.className = "source-btn-sub";
-                btnLogout.innerText = "TRENNEN";
-                btnLogout.onclick = () => {
-                    localStorage.clear();
-                    location.reload();
-                };
-                actionsEl.appendChild(btnLogout);
+                statusEl.innerText = activeMsAccount.username || activeMsAccount.name;
+                btnAuth.innerText = "ABMELDEN";
+                btnAuth.className = "btn-secondary";
+                if (!isInIframe) btnExport.style.display = "block";
             } else {
                 statusEl.innerText = "Nicht angemeldet";
-                const btnLogin = document.createElement("button");
-                btnLogin.className = "source-btn";
-                btnLogin.innerText = "LOGIN OUTLOOK";
-                btnLogin.onclick = async () => {
-                    if (isInIframe) {
-                        alert("Im Notion-Iframe: Bitte öffne den Kalender einmalig im normalen Browser-Tab zum Anmelden und kopiere den Schlüssel!");
-                        openPairModal();
-                        return;
-                    }
-                    try {
-                        await msalInstance.loginRedirect({ scopes: MS_SCOPES, prompt: "select_account" });
-                    } catch(err) {
-                        alert("Fehler beim Login: " + err.message);
-                    }
-                };
-                actionsEl.appendChild(btnLogin);
+                btnAuth.innerText = "LOGIN MIT MICROSOFT";
+                btnAuth.className = "btn-primary";
+                btnExport.style.display = "none";
             }
         }
+
+        window.handleMsAuth = async () => {
+            if (activeMsAccount) {
+                localStorage.clear();
+                location.reload();
+                return;
+            }
+
+            try {
+                const res = await msalInstance.loginPopup({ scopes: MS_SCOPES, prompt: "select_account" });
+                if (res && res.account) {
+                    activeMsAccount = res.account;
+                    msalInstance.setActiveAccount(activeMsAccount);
+                    await loadOutlookSubcalendars();
+                    renderOutlookControls();
+                    refreshAllCalendars();
+                }
+            } catch(err) {
+                console.error("[Login]", err);
+                alert("Login fehlgeschlagen: " + err.message);
+            }
+        };
 
         // Alle Unterkalender aus Outlook laden
         async function loadOutlookSubcalendars() {
@@ -878,21 +863,20 @@
                 renderSubcalendarList();
                 populateCalendarSelect();
             } catch(e) {
-                console.warn("[Subcalendars Error]", e);
+                console.warn("[Subcalendars]", e);
             }
         }
 
         function renderSubcalendarList() {
-            const container = document.getElementById('subcalendarListContainer');
             const list = document.getElementById('subcalendarList');
             if (outlookCalendars.length === 0) {
-                container.style.display = 'none';
+                list.style.display = 'none';
                 return;
             }
-            container.style.display = 'block';
+            list.style.display = 'block';
             list.innerHTML = "";
 
-            const defaultPalette = ["#9fc5f8", "#a8df8e", "#f3b0c3", "#ffd166", "#c3aed6"];
+            const defaultPalette = ["#9fc5f8", "#a8df8e", "#ffd166", "#f3b0c3", "#c3aed6"];
 
             outlookCalendars.forEach((cal, idx) => {
                 const item = document.createElement("div");
@@ -906,7 +890,7 @@
                         <input type="checkbox" id="chk_${cal.id}" ${isChecked ? 'checked' : ''}>
                         <span>${cal.name}</span>
                     </label>
-                    <input type="color" id="col_${cal.id}" value="${savedColor}" style="width:24px;height:24px;margin-left:8px;">
+                    <input type="color" id="col_${cal.id}" value="${savedColor}" style="width:24px;height:24px;">
                 `;
 
                 list.appendChild(item);
@@ -926,19 +910,12 @@
         function populateCalendarSelect() {
             const sel = document.getElementById('eventCalendarSelect');
             sel.innerHTML = "";
-            if (outlookCalendars.length > 0) {
-                outlookCalendars.forEach(cal => {
-                    const opt = document.createElement("option");
-                    opt.value = cal.id;
-                    opt.innerText = cal.name + (cal.isDefaultCalendar ? " (Standard)" : "");
-                    sel.appendChild(opt);
-                });
-            } else {
+            outlookCalendars.forEach(cal => {
                 const opt = document.createElement("option");
-                opt.value = "web";
-                opt.innerText = "In Outlook Web öffnen";
+                opt.value = cal.id;
+                opt.innerText = cal.name + (cal.isDefaultCalendar ? " (Standard)" : "");
                 sel.appendChild(opt);
-            }
+            });
         }
 
         async function fetchOutlookEvents() {
@@ -949,7 +926,6 @@
                 const end = window.fullCalendar.view.activeEnd.toISOString();
                 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
-                // Termine für alle aktiven Kalender abrufen
                 const allPromises = outlookCalendars.map(async (cal) => {
                     const isChecked = localStorage.getItem("cal_active_" + cal.id) !== "false";
                     if (!isChecked) return [];
@@ -984,96 +960,15 @@
                 const results = await Promise.all(allPromises);
                 return results.flat();
             } catch(e) {
-                console.warn("[Outlook Events]", e);
+                console.warn("[Fetch Events]", e);
                 return [];
             }
         }
 
-        // 3. Neuer Termin erstellen
-        window.openNewEventModal = (dateStr) => {
-            const now = dateStr ? new Date(dateStr) : new Date();
-            // Startzeit auf die nächste volle Stunde runden
-            now.setMinutes(0, 0, 0);
-            const startStr = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            
-            const end = new Date(now.getTime() + 60 * 60 * 1000);
-            const endStr = new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-
-            document.getElementById('eventStartInput').value = startStr;
-            document.getElementById('eventEndInput').value = endStr;
-            document.getElementById('eventTitleInput').value = "";
-            document.getElementById('eventLocationInput').value = "";
-            document.getElementById('eventBodyInput').value = "";
-
-            populateCalendarSelect();
-            document.getElementById('newEventModal').style.display = "flex";
-        };
-
-        window.closeNewEventModal = () => {
-            document.getElementById('newEventModal').style.display = "none";
-        };
-
-        window.saveNewEvent = async () => {
-            const title = document.getElementById('eventTitleInput').value.trim();
-            const startVal = document.getElementById('eventStartInput').value;
-            const endVal = document.getElementById('eventEndInput').value;
-            const calId = document.getElementById('eventCalendarSelect').value;
-            const location = document.getElementById('eventLocationInput').value.trim();
-            const body = document.getElementById('eventBodyInput').value.trim();
-
-            if (!title) return alert("Bitte einen Titel eingeben.");
-            if (!startVal || !endVal) return alert("Bitte Start und Ende wählen.");
-
-            // Falls nicht mit Microsoft verbunden: Deep Link nach Outlook Web
-            if (!activeMsAccount || calId === "web") {
-                const url = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(startVal)}&enddt=${encodeURIComponent(endVal)}&location=${encodeURIComponent(location)}&body=${encodeURIComponent(body)}`;
-                window.open(url, "_blank");
-                closeNewEventModal();
-                return;
-            }
-
-            const btnSave = document.getElementById('btnSaveNewEvent');
-            btnSave.innerText = "SPEICHERE...";
-            btnSave.disabled = true;
-
-            try {
-                const tokenRes = await msalInstance.acquireTokenSilent({ scopes: MS_SCOPES, account: activeMsAccount });
-                const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-
-                const newEventPayload = {
-                    subject: title,
-                    start: { dateTime: startVal, timeZone: tz },
-                    end: { dateTime: endVal, timeZone: tz },
-                    location: { displayName: location },
-                    body: { contentType: "text", content: body }
-                };
-
-                const res = await fetch(`https://graph.microsoft.com/v1.0/me/calendars/${calId}/events`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${tokenRes.accessToken}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(newEventPayload)
-                });
-
-                if (!res.ok) throw new Error("Fehler beim Erstellen: " + res.statusText);
-
-                alert("Termin erfolgreich erstellt!");
-                closeNewEventModal();
-                refreshAllCalendars();
-            } catch(err) {
-                alert("Fehler beim Speichern: " + err.message);
-            } finally {
-                btnSave.innerText = "SPEICHERN";
-                btnSave.disabled = false;
-            }
-        };
-
-        // 4. iCal Feeds
-        function loadStoredFeeds() {
-            const iUrl = localStorage.getItem("generic_ical_url");
-            if (iUrl) document.getElementById('genericIcalInput').value = iUrl;
+        // 3. iCal Web-Feed Logik
+        function loadStoredIcalFeed() {
+            const url = localStorage.getItem("generic_ical_url");
+            if (url) document.getElementById('genericIcalInput').value = url;
         }
 
         window.saveGenericIcalFeed = () => {
@@ -1081,156 +976,4 @@
             if (url) {
                 localStorage.setItem("generic_ical_url", url);
                 alert("iCal Feed gespeichert!");
-                refreshAllCalendars();
-            } else {
-                localStorage.removeItem("generic_ical_url");
-                genericIcalEvents = [];
-                renderEventsFromAllSources();
-            }
-        };
-
-        async function fetchIcalFromUrl(url, color, sourceName) {
-            if (!url) return [];
-            try {
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                const res = await fetch(proxyUrl);
-                if (!res.ok) throw new Error("Feed HTTP Status: " + res.status);
-                const icsText = await res.text();
-                return parseICS(icsText, color, sourceName);
-            } catch(e) {
-                console.warn(`[iCal Feed: ${sourceName}]`, e);
-                return [];
-            }
-        }
-
-        function parseICS(icsData, color, sourceName) {
-            const lines = icsData.split(/\r\n|\n|\r/);
-            const events = [];
-            let cur = null;
-
-            for (let line of lines) {
-                if (line.startsWith("BEGIN:VEVENT")) cur = {};
-                else if (line.startsWith("END:VEVENT")) {
-                    if (cur && cur.start && cur.title) {
-                        events.push({
-                            id: "ical_" + Math.random().toString(36).substr(2, 9),
-                            title: cur.title,
-                            start: cur.start,
-                            end: cur.end || cur.start,
-                            allDay: cur.allDay || false,
-                            backgroundColor: color,
-                            borderColor: color,
-                            textColor: "#1a1a1a",
-                            extendedProps: { source: sourceName, location: cur.location || "", body: cur.desc || "" }
-                        });
-                    }
-                    cur = null;
-                } else if (cur) {
-                    if (line.startsWith("SUMMARY:")) cur.title = line.substring(8);
-                    if (line.startsWith("DESCRIPTION:")) cur.desc = line.substring(12);
-                    if (line.startsWith("LOCATION:")) cur.location = line.substring(9);
-                    if (line.startsWith("DTSTART")) {
-                        const val = line.split(":")[1];
-                        cur.start = formatIcsDate(val);
-                        if (val && val.length === 8) cur.allDay = true;
-                    }
-                    if (line.startsWith("DTEND")) {
-                        const val = line.split(":")[1];
-                        cur.end = formatIcsDate(val);
-                    }
-                }
-            }
-            return events;
-        }
-
-        function formatIcsDate(d) {
-            if (!d) return null;
-            if (d.length === 8) {
-                return `${d.substr(0,4)}-${d.substr(4,2)}-${d.substr(6,2)}`;
-            }
-            return `${d.substr(0,4)}-${d.substr(4,2)}-${d.substr(6,2)}T${d.substr(9,2)}:${d.substr(11,2)}:${d.substr(13,2)}Z`;
-        }
-
-        // 5. Gesamtsynchronisation
-        window.refreshAllCalendars = async () => {
-            const genericUrl = localStorage.getItem("generic_ical_url");
-            const [ms, ic] = await Promise.all([
-                fetchOutlookEvents(),
-                fetchIcalFromUrl(genericUrl, document.getElementById('icalCalColor').value, "Feed")
-            ]);
-
-            outlookEvents = ms;
-            genericIcalEvents = ic;
-            renderEventsFromAllSources();
-        };
-
-        window.renderEventsFromAllSources = () => {
-            window.fullCalendar.removeAllEvents();
-            window.fullCalendar.addEventSource([...outlookEvents, ...genericIcalEvents]);
-        };
-
-        // Modal Handlers
-        function showEventModal(event) {
-            document.getElementById('eventDetailTitle').innerText = event.title;
-            const timeStr = event.allDay 
-                ? "Ganztägig (" + event.start.toLocaleDateString() + ")"
-                : `${event.start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${event.end ? event.end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : ''}`;
-            document.getElementById('eventDetailTime').innerText = timeStr + ` [${event.extendedProps.source || 'Kalender'}]`;
-            document.getElementById('eventDetailLocation').innerText = event.extendedProps.location ? "Ort: " + event.extendedProps.location : "";
-            document.getElementById('eventDetailBody').innerText = event.extendedProps.body || "(Keine weiteren Details)";
-
-            const link = document.getElementById('eventDetailLink');
-            if (event.extendedProps.url) {
-                link.href = event.extendedProps.url;
-                link.style.display = "block";
-            } else {
-                link.style.display = "none";
-            }
-            document.getElementById('eventDetailModal').style.display = "flex";
-        }
-
-        window.copyRedirectUri = () => {
-            navigator.clipboard.writeText(currentCleanUri).then(() => {
-                alert("Redirect-URI kopiert:\n" + currentCleanUri);
-            }).catch(() => prompt("Kopiere diese URI:", currentCleanUri));
-        };
-
-        window.updateAzureClientId = (val) => {
-            if (val && val.trim()) {
-                localStorage.setItem("azure_client_id", val.trim());
-                alert("Client-ID gespeichert. Seite lädt neu...");
-                location.reload();
-            }
-        };
-
-        window.openPairModal = () => {
-            document.getElementById('pairModal').style.display = 'flex';
-        };
-
-        window.exportPairingKey = () => {
-            const dump = {};
-            for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i);
-                dump[k] = localStorage.getItem(k);
-            }
-            const key = btoa(unescape(encodeURIComponent(JSON.stringify(dump))));
-            navigator.clipboard.writeText(key).then(() => {
-                alert("Kopplungsschlüssel kopiert! Füge ihn nun im Notion-Iframe ein.");
-            }).catch(() => prompt("Kopiere den Schlüssel:", key));
-        };
-
-        window.importPairingKey = () => {
-            const val = document.getElementById('syncKeyInput').value.trim();
-            if (!val) return alert("Bitte Schlüssel eingeben.");
-            try {
-                const dump = JSON.parse(decodeURIComponent(escape(atob(val))));
-                for (let k in dump) localStorage.setItem(k, dump[k]);
-                alert("Erfolgreich gekoppelt! Seite lädt neu...");
-                location.reload();
-            } catch(e) {
-                alert("Ungültiger Schlüssel: " + e.message);
-            }
-        };
-    </script>
-</body>
-</html>
+                re
