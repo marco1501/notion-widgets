@@ -332,15 +332,13 @@
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
         // Login-Anfrage (darf prompt enthalten)
-        const loginRequest = { 
-            scopes: ["Tasks.ReadWrite"],
-            prompt: "select_account"
-        };
-
-        // Hintergrund-Anfrage (darf KEIN prompt enthalten, sonst bricht acquireTokenSilent ab!)
-        const silentTokenRequest = {
-            scopes: ["Tasks.ReadWrite"]
-        };
+      const loginRequest = { 
+    scopes: ["Tasks.ReadWrite", "offline_access"],
+    prompt: "select_account"
+};
+const silentTokenRequest = {
+    scopes: ["Tasks.ReadWrite", "offline_access"]
+};
 
         window.getSyncKey = () => {
             const msalData = {};
