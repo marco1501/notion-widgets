@@ -658,14 +658,14 @@
 
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        const loginRequest = { 
-            scopes: ["Calendars.ReadWrite", "User.Read"],
-            prompt: "select_account"
-        };
-
-        const silentTokenRequest = {
-            scopes: ["Calendars.ReadWrite", "User.Read"]
-        };
+    const loginRequest = { 
+    scopes: ["Calendars.ReadWrite", "User.Read", "offline_access"],
+    prompt: "select_account"
+};
+        
+const silentTokenRequest = {
+    scopes: ["Calendars.ReadWrite", "User.Read", "offline_access"]
+};
 
         window.addEventListener("DOMContentLoaded", async () => {
             initFullCalendar();
