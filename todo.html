@@ -2,8 +2,9 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marco Master System - v2.0.2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ToDoList by forester.labs</title>
+    <link rel="icon" type="image/png" href="https://marco1501.github.io/notion-widgets/fl favicon - schwarz.png">
     
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@700&family=Playfair+Display:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
@@ -64,14 +65,13 @@
             border: 1px solid var(--border); border-radius: 28px;
             padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             display: flex; flex-direction: column; height: 100%; width: 100%; max-width: 480px;
-            margin-bottom: 25px; 
             backdrop-filter: blur(10px);
         }
         body.dark-mode .glass-card {
             background-color: rgba(26, 26, 26, var(--card-opacity));
         }
 
-        #main-title { font-size: 1.2rem; margin: 0 0 15px 0; text-transform: uppercase; text-align: center; }
+        #main-title { font-size: 1.2rem; margin: 0 0 15px 0; text-transform: none; text-align: center; }
 
         #todo-container { flex: 1; overflow-y: auto; padding-right: 6px; margin-bottom: 5px; }
         .list-group { margin-bottom: 12px; border-radius: 18px; border: 1px solid var(--border); overflow: hidden; background: rgba(128,128,128,0.02); }
@@ -115,9 +115,93 @@
 
         .btn-primary { width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; text-decoration: none; display: block; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; }
         .btn-primary:active { transform: scale(0.98); }
-        
-        .footer-info { position: absolute; bottom: 8px; width: 100%; text-align: center; font-size: 10px; opacity: 0.6; font-family: 'Inter', sans-serif !important; z-index: 10; }
-        .footer-info a { color: inherit; text-decoration: none; font-weight: bold; }
+
+        /* 3-teiliger forester.labs Marken-Footer (Exakt wie beim Kalender) */
+        .footer-info {
+            height: 46px;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            font-size: 13px;
+            opacity: 0.9;
+            flex-shrink: 0;
+            user-select: none;
+            border-top: 1px solid var(--border);
+            background: var(--bg-inner);
+            overflow: visible;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .footer-left {
+            justify-self: start;
+            font-family: monospace;
+            font-size: 12px;
+            opacity: 0.75;
+            white-space: nowrap;
+        }
+
+        .footer-center {
+            justify-self: center;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .footer-center a {
+            color: inherit;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-center a:hover {
+            color: var(--accent);
+        }
+
+        .footer-right {
+            justify-self: end;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-logo {
+            height: 36px;
+            width: auto;
+            object-fit: contain;
+            display: block;
+            transform: scale(1);
+            transform-origin: right center;
+        }
+
+        /* Automatischer Logo-Wechsel Light/Dark */
+        body:not(.dark-mode) .logo-dark,
+        body.light-mode .logo-dark {
+            display: none !important;
+        }
+
+        body.dark-mode .logo-light {
+            display: none !important;
+        }
+
+        body.dark-mode .logo-dark {
+            display: block !important;
+        }
+
+        /* Smartphone Skalierung */
+        @media (max-width: 600px) {
+            .footer-info {
+                height: 40px;
+                padding: 0 10px;
+                font-size: 11px;
+            }
+            .footer-left {
+                font-size: 10px;
+            }
+            .footer-logo {
+                height: 28px;
+                transform: scale(1.2);
+            }
+        }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.4); display:none; z-index: 2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); }
         .modal-content { background: var(--bg-inner); width: 90%; max-width: 400px; border-radius: 24px; padding: 25px; border: 1px solid var(--border); color: var(--text-color); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
@@ -146,7 +230,7 @@
 
     <main>
         <div class="glass-card" id="main-card">
-            <h1 id="main-title">To Do's</h1>
+            <h1 id="main-title">ToDoList</h1>
             
             <!-- Schnell-Banner zum Schlüssel kopieren (nur im Browser sichtbar nach Login) -->
             <div id="browser-copy-banner" style="display:none; margin-bottom:15px;">
@@ -185,11 +269,17 @@
                 <div id="accordion-list"></div>
             </div>
         </div>
-
-        <div class="footer-info">
-            v2.0.2 | Made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a>
-        </div>
     </main>
+
+    <!-- 3-teiliger forester.labs Marken-Footer -->
+    <footer class="footer-info">
+        <div class="footer-left">v2.0.2</div>
+        <div class="footer-center">made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a></div>
+        <div class="footer-right">
+            <img class="footer-logo logo-light" src="https://marco1501.github.io/notion-widgets/fl%20logo%20-%20schwarz.png" alt="forester.labs">
+            <img class="footer-logo logo-dark" src="https://marco1501.github.io/notion-widgets/fl%20logo%20-%20wei%C3%9F.png" alt="forester.labs">
+        </div>
+    </footer>
 
     <!-- Task Modal -->
     <div id="task-modal" class="modal-overlay" onclick="this.style.display='none'">
@@ -292,12 +382,12 @@
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
     <script>
-        console.log("Starte Marco Master System v2.0.2");
+        console.log("Starte ToDoList by forester.labs v2.0.2");
 
         const isInIframe = window.self !== window.top;
         let listOrder = [];
         let currentOpenTask = null;
-        let immediateRedirectToken = null; // Speichert das Token direkt aus dem Redirect
+        let immediateRedirectToken = null;
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -331,14 +421,15 @@
 
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        // Login-Anfrage (darf prompt enthalten)
-      const loginRequest = { 
-    scopes: ["Tasks.ReadWrite", "offline_access"],
-    prompt: "select_account"
-};
-const silentTokenRequest = {
-    scopes: ["Tasks.ReadWrite", "offline_access"]
-};
+        // Dauerhafte Anmeldung via offline_access Scope
+        const loginRequest = { 
+            scopes: ["Tasks.ReadWrite", "offline_access"],
+            prompt: "select_account"
+        };
+
+        const silentTokenRequest = {
+            scopes: ["Tasks.ReadWrite", "offline_access"]
+        };
 
         window.getSyncKey = () => {
             const msalData = {};
@@ -381,7 +472,6 @@ const silentTokenRequest = {
         };
 
         async function getAccessToken() {
-            // Falls wir gerade frisch aus dem Redirect kommen, direkt das frische Token nutzen
             if (immediateRedirectToken) {
                 const token = immediateRedirectToken;
                 immediateRedirectToken = null;
@@ -399,7 +489,6 @@ const silentTokenRequest = {
             if (!account) return null;
 
             try {
-                // Wichtig: silentTokenRequest OHNE "prompt"
                 const res = await msalInstance.acquireTokenSilent({
                     ...silentTokenRequest,
                     account: account
@@ -419,11 +508,7 @@ const silentTokenRequest = {
             }
 
             const fullUrl = endpoint.startsWith("http") ? endpoint : `https://graph.microsoft.com/v1.0${endpoint}`;
-
-            options.headers = {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`
-            };
+            options.headers = { ...options.headers, 'Authorization': `Bearer ${token}` };
 
             let res = await fetch(fullUrl, options);
 
@@ -457,10 +542,7 @@ const silentTokenRequest = {
                     continue;
                 }
 
-                if (!res.ok) {
-                    console.error(`Fehler bei Liste ${listId}: Status ${res.status}`);
-                    break;
-                }
+                if (!res.ok) break;
 
                 const data = await res.json();
                 if (data.value && Array.isArray(data.value)) {
