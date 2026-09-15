@@ -6,7 +6,7 @@
     <title>Calendar by forester.labs v1.0.0</title>
     <link rel="icon" type="image/png" href="https://marco1501.github.io/notion-widgets/assets/favicon.png">
     
-    <!-- Icons & Typografie -->
+    <!-- Icons & Typografie inkl. All Round Gothic Fallbacks -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Comfortaa:wght@500;700&family=Inter:wght@400;600;700&family=Montserrat:wght@500;700&family=Poppins:wght@500;700&family=Roboto:wght@400;700&family=Rubik+Mono+One&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
@@ -258,13 +258,11 @@
         .fc .fc-col-header-cell { padding: 6px 0; background: rgba(128,128,128,0.05); border-bottom: 1px solid var(--border) !important; }
         .fc .fc-col-header-cell-cushion { font-size: 0.88em; font-weight: 700; color: var(--text-color); text-decoration: none; text-transform: uppercase; opacity: 0.85; }
         
-    
-
-     /* Feste Leiste oben im Tag */
+        /* Feste Verankerung für die Tagesleiste (Wetter links, Tag rechts) */
         .fc .fc-daygrid-day-top { 
             position: relative !important;
             height: 28px !important;
-            display: block !important; /* Schaltet FullCalendars Flexbox komplett aus! */
+            display: block !important;
             padding: 0 !important;
         }
 
@@ -308,7 +306,6 @@
             border-radius: 50%; 
         }
 
-        .fc .fc-daygrid-day-number { font-size: 0.9em; font-weight: 700; color: var(--text-color); text-decoration: none; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
         .fc .fc-day-other .fc-daygrid-day-number { opacity: 0.35; }
         .fc .fc-day-today { background: rgba(128,128,128,0.04) !important; }
         .fc .fc-day-today .fc-daygrid-day-number { background-color: var(--today-badge); color: #ffffff !important; font-weight: bold; }
@@ -328,7 +325,7 @@
             opacity: 0.95;
         }
 
-        /* REPARATUR DES "+ MEHR" (POPOVER) POPUPS IM LIGHT & DARK MODE */
+        /* Popover für mehr Termine */
         .fc .fc-popover {
             background-color: var(--bg-inner) !important;
             border: 1px solid var(--border) !important;
@@ -357,9 +354,7 @@
             opacity: 0.7 !important;
             cursor: pointer !important;
         }
-        .fc .fc-popover-close:hover {
-            opacity: 1 !important;
-        }
+        .fc .fc-popover-close:hover { opacity: 1 !important; }
         .fc .fc-popover-body {
             padding: 8px !important;
             background-color: var(--bg-inner) !important;
@@ -378,7 +373,7 @@
             background: rgba(128, 128, 128, 0.1) !important;
         }
 
-        /* Listenansicht Fix */
+        /* Listenansicht */
         .fc .fc-list { border-color: var(--border) !important; }
         .fc .fc-list-day-cushion { 
             background: rgba(128,128,128,0.15) !important; 
@@ -586,10 +581,7 @@
 
     <main>
         <div class="glass-card" id="main-glass-card">
-            <div id="browser-copy-banner" style="margin-bottom: 8px; display:none;">
-                <button class="btn-primary" onclick="window.copySyncKey()">SCHLÜSSEL FÜR NOTION KOPIEREN</button>
-            </div>
-
+            <!-- "Next Up" Countdown Leiste -->
             <div id="next-up-bar">
                 <div style="display:flex; align-items:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; gap:6px;">
                     <span class="next-up-pulse"></span>
@@ -599,8 +591,10 @@
                 <div id="next-up-timer" style="font-weight:700; color:var(--accent); flex-shrink:0;"></div>
             </div>
 
+            <!-- Kalender Canvas -->
             <div id="calendar-container"></div>
 
+            <!-- Notion Auth Screen (nur in Notion wenn noch nicht gekoppelt) -->
             <div id="notion-auth-screen" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;">
                 <h3 style="margin-bottom: 6px;">Widget mit Notion verbinden</h3>
                 <p style="font-size: 13px; opacity: 0.8; margin-bottom: 15px;">Melde dich einmalig im Browser an und füge den Schlüssel hier ein:</p>
@@ -707,6 +701,7 @@
                 </div>
             </div>
 
+            <!-- Farbwähler mit optimierten Bezeichnungen -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-colors">Farben</label>
                 <div class="color-grid">
@@ -729,6 +724,7 @@
                 </div>
             </div>
 
+            <!-- Saubere Schriftartenauswahl -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-font">Schriftart</label>
                 <select id="fontPicker" onchange="window.liveApply()" style="font-weight: 600;">
@@ -792,7 +788,7 @@
         </div>
     </div>
 
-    <!-- Footer -->
+    <!-- 3-teiliger forester.labs Marken-Footer -->
     <footer class="footer-info">
         <div class="footer-left">v1.0.0</div>
         <div class="footer-center">made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a></div>
@@ -892,8 +888,10 @@
 
         window.updateLangTexts = (lang) => {
             const d = translations[lang] || translations.de;
+            
             document.getElementById('t-set-head').innerText = d.settingsHead;
             document.getElementById('t-menu-head').innerText = d.menuHead;
+
             document.getElementById('t-set-lang').innerText = d.lang;
             document.getElementById('t-set-mode').innerText = d.mode;
             document.getElementById('t-set-colors').innerText = d.colors;
@@ -911,14 +909,17 @@
             document.getElementById('t-lbl-show-nextup').innerText = d.showNextUp;
             document.getElementById('t-btn-logout').innerText = d.logout;
             document.getElementById('settings-copy-btn').innerText = d.copyKey;
+
             document.getElementById('t-next-up-label').innerText = d.nextUpLabel;
             document.getElementById('btnToday').innerText = d.today;
             document.getElementById('t-btn-add-text').innerText = d.addText;
             document.getElementById('btnViewMonth').innerText = d.viewMonth;
             document.getElementById('btnViewWeek').innerText = d.viewWeek;
             document.getElementById('btnViewList').innerText = d.viewList;
+
             document.getElementById('t-btn-save-feed').innerText = d.saveFeed;
             document.getElementById('t-btn-panel-done').innerText = d.panelDone;
+
             document.getElementById('t-modal-new-title').innerText = d.modalNew;
             document.getElementById('t-btn-modal-cancel').innerText = d.modalCancel;
             document.getElementById('t-btn-modal-close').innerText = d.modalClose;
@@ -948,7 +949,6 @@
             bStyle.setProperty('--font-size', size);
             bStyle.setProperty('--main-font', font);
             
-            // Verhindert das transparente/weiße Panel-Problem im Dark Mode!
             bStyle.setProperty('--glass-heavy', isDark ? 'rgba(26, 26, 26, 0.98)' : 'rgba(255, 255, 255, 0.98)');
             bStyle.setProperty('--border', isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)');
 
@@ -1031,7 +1031,6 @@
         window.fullCalendar = null;
         let outlookCalendars = [];
         
-        // Zentraler Cache für Events pro Kalender-ID: { [calId]: [events] }
         let calendarEventsCache = {};
         let todoReminderEvents = [];
         let icalEvents = [];
@@ -1156,15 +1155,14 @@
             }
         }
 
-        /* Ersetze die beiden Funktionen durch diesen Code: */
         function getWeatherIcon(code) {
-            if (code === 0) return "sunny";              // Sonne
-            if (code <= 3) return "partly_cloudy_day";   // Leicht bewölkt
-            if (code <= 48) return "foggy";              // Nebel
-            if (code <= 67) return "rainy";              // Regen
-            if (code <= 77) return "weather_snowy";      // Schnee
-            if (code <= 82) return "rainy";              // Schauer
-            return "thunderstorm";                       // Gewitter
+            if (code === 0) return "sunny";
+            if (code <= 3) return "partly_cloudy_day";
+            if (code <= 48) return "foggy";
+            if (code <= 67) return "rainy";
+            if (code <= 77) return "weather_snowy";
+            if (code <= 82) return "rainy";
+            return "thunderstorm";
         }
 
         function injectWeatherIntoCalendar() {
@@ -1248,7 +1246,6 @@
             const now = new Date();
             const todayStr = now.toISOString().slice(0, 10);
             
-            // Alle aktuell sichtbaren Outlook Events zusammenfassen
             const allEvents = Object.values(calendarEventsCache).flat();
             const upcoming = allEvents
                 .filter(e => !e.allDay && e.start && e.start.startsWith(todayStr))
@@ -1278,7 +1275,7 @@
             if (show) updateNextUpBar();
         };
 
-        // Robuster To-Do Abruf mit JavaScript-Filterung (kein Filter-Crash bei Microsoft)
+        // Robuste Zeitzonen-Umrechnung: Fälligkeitsdatum landet exakt auf dem richtigen Tag
         async function fetchTodoDeadlines() {
             if (!document.getElementById('toggleTodoDeadlines').checked) return [];
             if (!msalInstance.getActiveAccount()) return [];
@@ -1290,7 +1287,6 @@
                 const lists = listData.value || [];
 
                 const promises = lists.map(async (l) => {
-                    // Kein OData-Filter auf dueDateTime, da dieser bei Personal-Accounts 400 wirft!
                     const res = await graphFetch(`/me/todo/lists/${l.id}/tasks?$top=100`);
                     if (!res || !res.ok) return [];
                     const tData = await res.json();
@@ -1299,7 +1295,13 @@
                     return tasks
                         .filter(t => t.dueDateTime && t.dueDateTime.dateTime && t.status !== 'completed')
                         .map(t => {
-                            const dueDate = t.dueDateTime.dateTime.split('T')[0];
+                            // Lokale Zeitzonen-Umrechnung (verhindert den 1-Tag-Rücksprung!)
+                            const d = new Date(t.dueDateTime.dateTime);
+                            const year = d.getFullYear();
+                            const month = String(d.getMonth() + 1).padStart(2, '0');
+                            const day = String(d.getDate()).padStart(2, '0');
+                            const dueDate = `${year}-${month}-${day}`;
+
                             return {
                                 id: "todo_reminder_" + t.id,
                                 title: `✓ ${t.title || 'Aufgabe'}`,
@@ -1357,11 +1359,10 @@
                 document.getElementById('calendar-container').style.display = 'flex';
                 document.getElementById('notion-auth-screen').style.display = 'none';
 
+                // Schlüssel-Button bleibt sauber NUR in den Einstellungen aktiv
                 if (!isInIframe) {
-                    document.getElementById('browser-copy-banner').style.display = 'block';
                     document.getElementById('settings-copy-btn').style.display = 'block';
                 } else {
-                    document.getElementById('browser-copy-banner').style.display = 'none';
                     document.getElementById('settings-copy-btn').style.display = 'none';
                 }
 
@@ -1372,7 +1373,6 @@
                     if (window.fullCalendar) window.fullCalendar.updateSize();
                 }, 100);
             } else {
-                document.getElementById('browser-copy-banner').style.display = 'none';
                 document.getElementById('settings-copy-btn').style.display = 'none';
 
                 if (isInIframe) {
@@ -1524,7 +1524,6 @@
                 const color = getCalColor(cal.id, idx);
                 const isChecked = isCalActive(cal.id);
 
-                // Initialfarbe im Speicher sichern, damit Dot und Kalender 100% matchen!
                 if (!localStorage.getItem("cal_color_" + cal.id)) {
                     localStorage.setItem("cal_color_" + cal.id, color);
                 }
@@ -1542,17 +1541,14 @@
                 `;
                 list.appendChild(div);
 
-                // Checkbox schaltet lokal in 1ms um (kein Netzwerk-Ladefehler mehr!)
                 document.getElementById(`chk_${cal.id}`).onchange = (e) => {
                     localStorage.setItem("cal_active_" + cal.id, e.target.checked);
                     renderEventsFromCache();
                 };
 
-                // Farbe ändert sich sofort live im Monatsraster
                 document.getElementById(`col_${cal.id}`).onchange = (e) => {
                     const newColor = e.target.value;
                     localStorage.setItem("cal_color_" + cal.id, newColor);
-                    // Events im Cache farblich aktualisieren
                     if (calendarEventsCache[cal.id]) {
                         calendarEventsCache[cal.id].forEach(ev => {
                             ev.backgroundColor = newColor;
@@ -1576,7 +1572,6 @@
             });
         }
 
-        // Lädt die Events aller Kalender aus dem Netzwerk und speichert sie im Cache
         async function fetchOutlookEventsFromNetwork() {
             if (isFetchingOutlook) return;
             if (!msalInstance.getActiveAccount() || !window.fullCalendar) return;
@@ -1631,7 +1626,6 @@
             renderEventsFromCache();
         }
 
-        // Rendert blitzschnell nur die aktivierten Kalender aus dem Cache
         function renderEventsFromCache() {
             if (!window.fullCalendar) return;
 
@@ -1788,7 +1782,6 @@
             }
         };
 
-        // Gesamtsynchronisation mit Netzwerk-Option
         window.refreshAllCalendars = async (forceNetwork = false) => {
             const [ic, todos] = await Promise.all([
                 fetchIcalEvents(),
