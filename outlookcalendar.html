@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Calendar by forester.labs</title>
-    <link rel="icon" type="image/png" href="https://marco1501.github.io/notion-widgets/fl favicon - schwarz.png">
+    <title>Calendar by forester.labs v1.0.0</title>
+    <link rel="icon" type="image/png" href="https://marco1501.github.io/notion-widgets/assets/favicon.png">
     
-    <!-- Icons & Typografie aus deinem Master System -->
+    <!-- Icons & Typografie inkl. All Round Gothic Fallbacks -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Inter:wght@400;700&family=Roboto+Mono&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Roboto:wght@400;700&family=Oswald:wght@400;700&family=Playfair+Display:wght@700&family=Bungee&family=Comic+Neue:wght@700&family=Creepster&family=Lobster&family=Pacifico&family=Press+Start+2P&family=Righteous&family=Special+Elite&family=Comfortaa:wght@700&family=Permanent+Marker&family=Orbitron:wght@700&family=Fredoka+One&family=Syncopate:wght@700&family=Bebas+Neue&family=Outfit:wght@600&family=Space+Grotesk:wght@600&family=Lexend:wght@600&family=Fraunces:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Comfortaa:wght@500;700&family=Inter:wght@400;600;700&family=Montserrat:wght@500;700&family=Poppins:wght@500;700&family=Roboto:wght@400;700&family=Rubik+Mono+One&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
-    <!-- Funktionierende MSAL Version aus todo copy.html -->
+    <!-- Funktionierende MSAL 2.35.0 Version -->
     <script src="https://alcdn.msauth.net/browser/2.35.0/js/msal-browser.min.js"></script>
 
-    <!-- FullCalendar v6 Standard Engine -->
+    <!-- FullCalendar v6 Standard Engine & Locales -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/locales-all.global.min.js"></script>
 
     <style>
+        @font-face {
+            font-family: 'All Round Gothic Book';
+            src: local('All Round Gothic Book'), local('All Round Gothic-Book'), local('All Round Gothic'), local('AllRoundGothic-Book');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
             --accent: #8EA39D; 
             --bg-outer: #f0f2f5; 
@@ -24,17 +32,14 @@
             --text-color: #1a1a1a; 
             --border: rgba(0, 0, 0, 0.12);
             --glass-heavy: rgba(255, 255, 255, 0.98); 
-            --font-size: 14px;
-            --main-font: 'Segoe UI';
+            --font-size: 16px; /* Von 14px auf 16px Standard vergrößert */
+            --main-font: 'All Round Gothic Book', 'All Round Gothic', 'Outfit', 'Comfortaa', -apple-system, BlinkMacSystemFont, sans-serif;
             --today-badge: #d9383a;
         }
 
         body.dark-mode {
-            --bg-outer: #0a0a0a; 
-            --bg-inner: #1a1a1a;
-            --text-color: #ffffff; 
             --border: rgba(255, 255, 255, 0.12);
-            --glass-heavy: rgba(20, 20, 20, 0.95);
+            --glass-heavy: rgba(26, 26, 26, 0.98);
         }
 
         * { 
@@ -43,8 +48,8 @@
         }
         
         body, input, button, select, textarea, h1, h2, h3 { 
-            font-family: var(--main-font), -apple-system, BlinkMacSystemFont, sans-serif !important; 
-            transition: background 0.3s ease, color 0.3s ease;
+            font-family: var(--main-font) !important; 
+            transition: background 0.25s ease, color 0.25s ease;
         }
 
         body {
@@ -58,9 +63,9 @@
             font-size: var(--font-size);
         }
 
-        /* Desktop Header */
+        /* 3-Spalten Header */
         header { 
-            padding: 8px 16px; 
+            padding: 10px 18px; 
             display: grid; 
             grid-template-columns: 1fr auto 1fr; 
             align-items: center; 
@@ -71,11 +76,10 @@
             gap: 8px;
         }
 
-        .header-left { display: flex; align-items: center; gap: 6px; justify-self: start; }
-        .header-center { font-weight: 700; font-size: 1.15em; user-select: none; text-align: center; white-space: nowrap; }
-        .header-right { display: flex; align-items: center; gap: 6px; justify-self: end; }
+        .header-left { display: flex; align-items: center; gap: 8px; justify-self: start; }
+        .header-center { font-weight: 700; font-size: 1.2em; user-select: none; text-align: center; white-space: nowrap; color: var(--text-color); }
+        .header-right { display: flex; align-items: center; gap: 8px; justify-self: end; }
 
-        /* Mobil-Optimierung für Handys */
         @media (max-width: 768px) {
             header {
                 display: flex;
@@ -83,14 +87,12 @@
                 padding: 8px 12px;
                 gap: 8px;
             }
-
             .header-top-row {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 width: 100%;
             }
-
             .header-bottom-row {
                 display: flex;
                 align-items: center;
@@ -99,32 +101,16 @@
                 overflow-x: auto;
                 padding-bottom: 2px;
             }
-
-            .header-left, .header-right {
-                justify-self: unset;
-            }
-
-            .view-switcher button {
-                padding: 4px 8px !important;
-                font-size: 0.75em !important;
-            }
-
-            .calendar-nav-btn {
-                padding: 4px 8px !important;
-                font-size: 0.8em !important;
-            }
-
-            .btn-add-event {
-                padding: 4px 9px !important;
-                font-size: 0.8em !important;
-            }
+            .view-switcher button { padding: 5px 9px !important; font-size: 0.8em !important; }
+            .calendar-nav-btn { padding: 5px 9px !important; font-size: 0.85em !important; }
+            .btn-add-event { padding: 5px 10px !important; font-size: 0.85em !important; }
         }
 
         .icon-btn { 
             cursor: pointer; 
-            padding: 7px; 
+            padding: 8px; 
             border-radius: 50%; 
-            font-size: 21px; 
+            font-size: 22px; 
             color: var(--text-color); 
             display: flex; 
             align-items: center; 
@@ -134,20 +120,20 @@
             transition: 0.2s; 
             flex-shrink: 0;
         }
-        .icon-btn:hover { background: rgba(128,128,128,0.12); }
+        .icon-btn:hover { background: rgba(128,128,128,0.15); }
 
         .calendar-nav-btn {
-            background: rgba(128,128,128,0.08);
+            background: rgba(128,128,128,0.1);
             border: 1px solid var(--border);
             color: var(--text-color);
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: 0.9em;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             transition: 0.2s;
             flex-shrink: 0;
         }
@@ -161,14 +147,14 @@
             background: var(--accent);
             color: #fff;
             border: none;
-            padding: 5px 11px;
+            padding: 6px 13px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: 0.9em;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             transition: 0.2s;
             flex-shrink: 0;
         }
@@ -176,7 +162,7 @@
 
         .view-switcher { 
             display: inline-flex; 
-            background: rgba(128,128,128,0.1); 
+            background: rgba(128,128,128,0.12); 
             padding: 2px; 
             border-radius: 8px; 
             gap: 2px; 
@@ -185,9 +171,9 @@
         .view-switcher button { 
             background: transparent; 
             border: none; 
-            padding: 5px 9px; 
+            padding: 6px 11px; 
             border-radius: 6px; 
-            font-size: 0.8em; 
+            font-size: 0.85em; 
             font-weight: 600; 
             color: var(--text-color); 
             cursor: pointer; 
@@ -195,15 +181,39 @@
         }
         .view-switcher button.active { 
             background: var(--bg-inner); 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15); 
             color: var(--accent); 
+        }
+
+        /* Next Up Countdown-Leiste */
+        #next-up-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 16px;
+            background: rgba(128,128,128,0.06);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            flex-shrink: 0;
+            color: var(--text-color);
+        }
+        .next-up-pulse {
+            width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+            display: inline-block; margin-right: 6px; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
 
         main { 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
-            padding: 8px; 
+            padding: 10px; 
             overflow: hidden; 
             position: relative; 
             min-height: 0;
@@ -213,13 +223,13 @@
             background-color: var(--bg-inner); 
             border: 1px solid var(--border); 
             border-radius: 18px;
-            padding: 8px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            padding: 10px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
             flex: 1; 
             display: flex; 
             flex-direction: column; 
             overflow: hidden;
-            position: relative;
+            position: relative; 
             min-height: 0;
         }
 
@@ -233,82 +243,170 @@
             touch-action: pan-y;
         }
 
-        /* Notion Auth Screen */
-        #notion-auth-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            padding: 20px;
-            text-align: center;
-        }
-        .sync-box {
-            background: rgba(128,128,128,0.06);
-            padding: 20px;
-            border-radius: 18px;
-            border: 1px solid var(--border);
-            max-width: 380px;
-            width: 100%;
-            margin-top: 10px;
-            text-align: left;
-        }
-
-        /* FullCalendar */
+        /* FullCalendar Customizing */
         .fc { 
             font-size: var(--font-size) !important; 
             flex: 1;
             display: flex;
             flex-direction: column;
+            color: var(--text-color) !important;
         }
         .fc .fc-view-harness { flex: 1; }
         .fc .fc-header-toolbar { display: none !important; }
         .fc-theme-standard td, .fc-theme-standard th { border-color: var(--border) !important; }
         .fc .fc-scrollgrid { border: 1px solid var(--border) !important; border-radius: 8px; overflow: hidden; width: 100%; height: 100%; }
-        .fc .fc-col-header-cell { padding: 4px 0; background: rgba(128,128,128,0.03); border-bottom: 1px solid var(--border) !important; }
-        .fc .fc-col-header-cell-cushion { font-size: 0.85em; font-weight: 700; color: var(--text-color); text-decoration: none; text-transform: uppercase; opacity: 0.8; }
-        .fc .fc-daygrid-day-top { justify-content: flex-end; padding: 2px 4px; }
-        .fc .fc-daygrid-day-number { font-size: 0.82em; font-weight: 600; color: var(--text-color); text-decoration: none; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .fc .fc-col-header-cell { padding: 6px 0; background: rgba(128,128,128,0.05); border-bottom: 1px solid var(--border) !important; }
+        .fc .fc-col-header-cell-cushion { font-size: 0.88em; font-weight: 700; color: var(--text-color); text-decoration: none; text-transform: uppercase; opacity: 0.85; }
+        
+        .fc .fc-daygrid-day-top { 
+            justify-content: space-between !important; 
+            align-items: center;
+            padding: 3px 6px; 
+        }
+
+        /* Vergrößerte, deutlich erkennbare Wetter-Anzeige */
+        .day-weather-badge {
+            font-size: 0.9em; /* Deutlich vergrößert */
+            opacity: 0.95;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            cursor: default;
+        }
+
+        .fc .fc-daygrid-day-number { font-size: 0.9em; font-weight: 700; color: var(--text-color); text-decoration: none; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
         .fc .fc-day-other .fc-daygrid-day-number { opacity: 0.35; }
-        .fc .fc-day-today { background: rgba(128,128,128,0.02) !important; }
+        .fc .fc-day-today { background: rgba(128,128,128,0.04) !important; }
         .fc .fc-day-today .fc-daygrid-day-number { background-color: var(--today-badge); color: #ffffff !important; font-weight: bold; }
         
-        .fc-event { border-radius: 5px !important; padding: 1px 4px !important; border: 1px solid rgba(0,0,0,0.1) !important; font-size: 0.78em !important; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .fc-event { border-radius: 6px !important; padding: 2px 6px !important; border: 1px solid rgba(0,0,0,0.1) !important; font-size: 0.82em !important; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
         .fc-event-main { font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Side Panels aus basicstyle.html */
+        /* Dezenter To-Do Reminder-Pill (Read-Only) */
+        .fc-event.todo-reminder-pill {
+            background-color: transparent !important;
+            border: 1px dashed var(--accent) !important;
+            color: var(--text-color) !important;
+            box-shadow: none !important;
+        }
+        .fc-event.todo-reminder-pill .fc-event-main {
+            color: var(--text-color) !important;
+            opacity: 0.9;
+        }
+
+        /* Listenansicht Fix */
+        .fc .fc-list { border-color: var(--border) !important; }
+        .fc .fc-list-day-cushion { 
+            background: rgba(128,128,128,0.15) !important; 
+            color: var(--text-color) !important; 
+        }
+        .fc .fc-list-day-text, .fc .fc-list-day-side-text {
+            color: var(--text-color) !important;
+            font-weight: 700 !important;
+            text-decoration: none !important;
+        }
+        .fc .fc-list-event td {
+            border-color: var(--border) !important;
+            background: transparent !important;
+            color: var(--text-color) !important;
+        }
+        .fc .fc-list-event:hover td {
+            background-color: rgba(128,128,128,0.08) !important;
+        }
+
+        /* Smarter Kompakt-Modus */
+        .compact-widget header {
+            padding: 6px 8px;
+            gap: 4px;
+        }
+        .compact-widget .header-center {
+            font-size: 1.05em;
+        }
+        .compact-widget .fc-event {
+            font-size: 0.75em !important;
+            padding: 1px 3px !important;
+        }
+        .compact-widget .day-weather-badge {
+            display: none !important;
+        }
+
+        /* Side Panels */
         .side-panel { 
             position: fixed; top: 0; width: 100%; max-width: 340px; height: 100%; 
-            background: var(--glass-heavy); z-index: 1000; 
+            background: var(--glass-heavy) !important; 
+            color: var(--text-color) !important;
+            z-index: 1000; 
             transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1); 
             backdrop-filter: blur(25px); overflow-x: hidden; 
         }
         #menu-panel { left: -100%; border-right: 1px solid var(--border); }
         #settings-panel { right: -100%; border-left: 1px solid var(--border); }
-        #menu-panel.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.15); }
-        #settings-panel.active { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.15); }
+        #menu-panel.active { left: 0; box-shadow: 10px 0 30px rgba(0,0,0,0.2); }
+        #settings-panel.active { right: 0; box-shadow: -10px 0 30px rgba(0,0,0,0.2); }
         .panel-scroll { height: 100%; overflow-y: auto; padding: 25px 20px; display: flex; flex-direction: column; gap: 16px; }
 
-        .set-label { font-size: 10px; font-weight: 800; color: var(--accent); letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
+        .set-label { font-size: 11px; font-weight: 800; color: var(--accent); letter-spacing: 1px; margin-bottom: 6px; text-transform: uppercase; }
 
-        .calendar-card { background: rgba(128,128,128,0.06); border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .calendar-card { background: rgba(128,128,128,0.08); border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px; color: var(--text-color); }
         .calendar-card-header { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 13px; }
 
-        .subcalendar-item { display: flex; align-items: center; justify-content: space-between; padding: 7px 10px; border-radius: 8px; background: rgba(128,128,128,0.05); font-size: 12px; margin-top: 4px; }
-        .subcalendar-label { display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+        .subcalendar-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border-radius: 8px; background: rgba(128,128,128,0.06); font-size: 13px; margin-top: 4px; color: var(--text-color); }
+        .subcalendar-label { display: flex; align-items: center; gap: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+
+        /* RUNDE FORESTER.LABS CHECKBOX MIT WEISSEM HAKEN */
+        .forester-round-checkbox {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 21px;
+            height: 21px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            outline: none;
+            cursor: pointer;
+            background-color: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            margin: 0;
+            position: relative;
+        }
+        /* Der weiße Haken */
+        .forester-round-checkbox::before {
+            content: "";
+            width: 5px;
+            height: 9px;
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg) scale(0);
+            transition: 0.15s transform ease-in-out;
+            margin-bottom: 2px;
+        }
+        .forester-round-checkbox:checked {
+            background-color: var(--accent) !important;
+            border-color: var(--accent) !important;
+        }
+        .forester-round-checkbox:checked::before {
+            transform: rotate(45deg) scale(1);
+        }
+        .forester-round-checkbox:hover {
+            border-color: var(--accent);
+        }
 
         /* Custom Range Slider */
         input[type="range"] { -webkit-appearance: none; width: 100%; background: transparent; }
-        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(128,128,128,0.2); border-radius: 3px; }
+        input[type="range"]::-webkit-slider-runnable-track { width: 100%; height: 6px; cursor: pointer; background: rgba(128,128,128,0.25); border-radius: 3px; }
         input[type="range"]::-webkit-slider-thumb { 
             -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; 
             background: var(--accent); cursor: pointer; margin-top: -6px; 
-            border: 2px solid var(--bg-inner); box-shadow: 0 2px 5px rgba(0,0,0,0.15); 
+            border: 2px solid var(--bg-inner); box-shadow: 0 2px 5px rgba(0,0,0,0.2); 
         }
 
         /* Kreisrunde Farbwähler */
         .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .color-item { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+        .color-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-color); font-weight: 500; }
         .color-circle-btn { 
             position: relative; width: 34px; height: 34px; border-radius: 50%; 
             overflow: hidden; border: 2px solid var(--border); cursor: pointer; flex-shrink: 0; 
@@ -321,33 +419,27 @@
 
         .btn-group { display: flex; gap: 10px; margin-top: 20px; }
         .btn-primary { 
-            background: var(--accent); color: white; border: none; padding: 11px; 
-            border-radius: 11px; font-weight: bold; cursor: pointer; text-align: center; 
-            text-decoration: none; display: block; text-transform: uppercase; font-size: 11px; width: 100%;
+            background: var(--accent); color: white; border: none; padding: 12px; 
+            border-radius: 12px; font-weight: bold; cursor: pointer; text-align: center; 
+            text-decoration: none; display: block; text-transform: uppercase; font-size: 12px; width: 100%;
             transition: opacity 0.2s, transform 0.1s;
         }
         .btn-primary:active { transform: scale(0.98); }
         .btn-secondary { 
-            background: rgba(128,128,128,0.1); color: var(--text-color); border: none; 
-            padding: 11px; border-radius: 11px; font-weight: bold; cursor: pointer; 
-            font-size: 11px; text-transform: uppercase; width: 100%; text-align: center; text-decoration: none;
+            background: rgba(128,128,128,0.12); color: var(--text-color); border: none; 
+            padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; 
+            font-size: 12px; text-transform: uppercase; width: 100%; text-align: center; text-decoration: none;
         }
 
         input[type="text"], input[type="datetime-local"], select, textarea { 
-            width: 100%; padding: 9px 11px; border-radius: 9px; border: 1px solid var(--border); 
-            background: rgba(128,128,128,0.05); color: var(--text-color); outline: none; font-family: inherit; font-size: 12px; 
+            width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); 
+            background: rgba(128,128,128,0.08); color: var(--text-color) !important; outline: none; font-family: inherit; font-size: 13px; 
         }
-        select option { background: var(--bg-inner); color: var(--text-color); }
-
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.45); display:none; z-index: 2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); padding: 15px; }
-        .modal-content { background: var(--bg-inner); width: 100%; max-width: 420px; border-radius: 20px; padding: 20px; border: 1px solid var(--border); color: var(--text-color); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        select option { background: var(--bg-inner); color: var(--text-color); padding: 8px; }
 
         /* 3-teiliger forester.labs Marken-Footer */
-/* 3-teiliger forester.labs Marken-Footer */
-       /* 3-teiliger forester.labs Marken-Footer */
-   /* 3-teiliger forester.labs Marken-Footer (Voll responsiv) */
-       .footer-info {
-            height: 46px;
+        .footer-info {
+            height: 48px;
             padding: 0 20px;
             display: grid;
             grid-template-columns: 1fr auto 1fr;
@@ -358,79 +450,39 @@
             user-select: none;
             border-top: 1px solid var(--border);
             background: var(--bg-inner);
-            overflow: visible; /* Verhindert das Abschneiden des vergrößerten Logos */
+            overflow: visible;
             box-sizing: border-box;
+            color: var(--text-color);
         }
 
-        .footer-left {
-            justify-self: start;
-            font-family: monospace;
-            font-size: 12px;
-            opacity: 0.75;
-            white-space: nowrap;
-        }
-
-        .footer-center {
-            justify-self: center;
-            white-space: nowrap;
-            text-align: center;
-        }
-
-        .footer-center a {
-            color: inherit;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .footer-center a:hover {
-            color: var(--accent);
-        }
-
-        .footer-right {
-            justify-self: end;
-            display: flex;
-            align-items: center;
-        }
+        .footer-left { justify-self: start; font-family: monospace; font-size: 12px; opacity: 0.75; white-space: nowrap; }
+        .footer-center { justify-self: center; white-space: nowrap; text-align: center; }
+        .footer-center a { color: inherit; text-decoration: none; font-weight: bold; }
+        .footer-center a:hover { color: var(--accent); }
+        .footer-right { justify-self: end; display: flex; align-items: center; }
 
         .footer-logo {
             height: 36px;
             width: auto;
             object-fit: contain;
             display: block;
-            /* Das Geheimnis: Vergrößert das Logo optisch um 40%, OHNE den Footer zu verändern! */
-            transform: scale(1);
+            transform: scale(1.4);
             transform-origin: right center;
         }
 
-        /* Automatischer Logo-Wechsel Light/Dark */
-        body:not(.dark-mode) .logo-dark,
-        body.light-mode .logo-dark {
-            display: none !important;
-        }
+        body.dark-mode .logo-light { display: none !important; }
+        body.dark-mode .logo-dark { display: block !important; }
+        body:not(.dark-mode) .logo-dark { display: none !important; }
+        body:not(.dark-mode) .logo-light { display: block !important; }
 
-        body.dark-mode .logo-light {
-            display: none !important;
-        }
-
-        body.dark-mode .logo-dark {
-            display: block !important;
-        }
-
-        /* Smartphone-Anpassung: Schmalere Ränder & dezente Skalierung */
         @media (max-width: 600px) {
-            .footer-info {
-                height: 40px;
-                padding: 0 10px;
-                font-size: 11px;
-            }
-            .footer-left {
-                font-size: 10px;
-            }
-            .footer-logo {
-                height: 26px; /* Passt sich schmalen Handys an */
-                max-width: 100px;
-            }
+            .footer-info { height: 42px; padding: 0 10px; font-size: 11px; }
+            .footer-left { font-size: 10px; }
+            .footer-logo { height: 28px; transform: scale(1.2); }
         }
+
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; z-index: 2000; align-items:center; justify-content:center; backdrop-filter: blur(4px); padding: 15px; }
+        .modal-content { background: var(--bg-inner); width: 100%; max-width: 440px; border-radius: 20px; padding: 22px; border: 1px solid var(--border); color: var(--text-color); box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body class="light-mode">
@@ -443,16 +495,16 @@
                 <button class="calendar-nav-btn" id="btnToday">Heute</button>
                 <button class="icon-btn" id="btnPrev" title="Zurück"><span class="material-symbols-rounded">chevron_left</span></button>
                 <button class="icon-btn" id="btnNext" title="Weiter"><span class="material-symbols-rounded">chevron_right</span></button>
-                <button class="btn-add-event" onclick="openNewEventModal()" title="Neuer Termin"><span class="material-symbols-rounded" style="font-size: 17px;">add</span> Termin</button>
+                <button class="btn-add-event" onclick="openNewEventModal()" title="Neuer Termin"><span class="material-symbols-rounded" style="font-size: 18px;">add</span> <span id="t-btn-add-text">Termin</span></button>
             </div>
 
             <div class="header-center" id="calTitleDisplay">Calendar</div>
 
             <div class="header-right">
                 <div class="view-switcher">
-                    <button class="active" data-view="dayGridMonth">Monat</button>
-                    <button data-view="timeGridWeek">Woche</button>
-                    <button data-view="listWeek">Liste</button>
+                    <button class="active" id="btnViewMonth" data-view="dayGridMonth">Monat</button>
+                    <button id="btnViewWeek" data-view="timeGridWeek">Woche</button>
+                    <button id="btnViewList" data-view="listWeek">Liste</button>
                 </div>
                 <button class="icon-btn" onclick="window.refreshAllCalendars()" title="Aktualisieren"><span class="material-symbols-rounded">refresh</span></button>
                 <button class="icon-btn" onclick="togglePanel('settings-panel')" title="Einstellungen"><span class="material-symbols-rounded">settings</span></button>
@@ -461,25 +513,35 @@
     </header>
 
     <main>
-        <div class="glass-card">
-            <!-- Kopieren-Banner: Nur im normalen Browser nach dem Login sichtbar -->
+        <div class="glass-card" id="main-glass-card">
+            <!-- Kopieren-Banner -->
             <div id="browser-copy-banner" style="margin-bottom: 8px; display:none;">
                 <button class="btn-primary" onclick="window.copySyncKey()">SCHLÜSSEL FÜR NOTION KOPIEREN</button>
             </div>
 
-            <!-- Kalender Container -->
+            <!-- "Next Up" Countdown Leiste -->
+            <div id="next-up-bar">
+                <div style="display:flex; align-items:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; gap:6px;">
+                    <span class="next-up-pulse"></span>
+                    <strong id="t-next-up-label">Next Up:</strong>
+                    <span id="next-up-text">Suche nächsten Termin...</span>
+                </div>
+                <div id="next-up-timer" style="font-weight:700; color:var(--accent); flex-shrink:0;"></div>
+            </div>
+
+            <!-- Kalender Canvas -->
             <div id="calendar-container"></div>
 
-            <!-- Notion Auth Screen (nur in Notion sichtbar wenn nicht gekoppelt) -->
-            <div id="notion-auth-screen">
+            <!-- Notion Auth Screen -->
+            <div id="notion-auth-screen" style="display:none; flex-direction:column; align-items:center; justify-content:center; height:100%; text-align:center;">
                 <h3 style="margin-bottom: 6px;">Widget mit Notion verbinden</h3>
-                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">Melde dich einmalig im Browser an und füge den Schlüssel hier ein:</p>
+                <p style="font-size: 13px; opacity: 0.8; margin-bottom: 15px;">Melde dich einmalig im Browser an und füge den Schlüssel hier ein:</p>
                 
                 <a id="notion-browser-link" href="#" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="max-width: 380px;">
                     1. IM BROWSER ANMELDEN
                 </a>
 
-                <div class="sync-box">
+                <div style="background: rgba(128,128,128,0.08); padding: 18px; border-radius: 16px; border: 1px solid var(--border); max-width: 380px; width: 100%; margin-top: 10px; text-align: left;">
                     <div class="set-label">2. Schlüssel hier einfügen:</div>
                     <input type="text" id="notion-key-input" placeholder="Schlüssel aus dem Browser hier einfügen..." style="margin-bottom: 8px;">
                     <button class="btn-primary" onclick="window.activateWithKey()">VERBINDEN &amp; STARTEN</button>
@@ -492,7 +554,7 @@
     <div id="menu-panel" class="side-panel">
         <div class="panel-scroll">
             <div style="display:flex; justify-content:space-between; align-items:center">
-                <h2 style="margin:0; font-size:16px;">Kalender</h2>
+                <h2 style="margin:0; font-size:17px;" id="t-menu-head">Kalender</h2>
                 <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span>
             </div>
 
@@ -513,7 +575,7 @@
                 <div id="subcalendarList" style="display:none; margin-top: 4px;"></div>
             </div>
 
-            <!-- iCal / Web-Feed Bereich mit rundem Farbwähler -->
+            <!-- iCal / Web-Feed Bereich -->
             <div class="calendar-card">
                 <div class="calendar-card-header">
                     <span style="display:flex; align-items:center; gap:8px;">
@@ -524,27 +586,49 @@
                     </div>
                 </div>
                 <input type="text" id="genericIcalInput" placeholder="https://.../calendar.ics">
-                <button class="btn-secondary" onclick="saveGenericIcalFeed()">FEED SPEICHERN</button>
+                <button class="btn-secondary" id="t-btn-save-feed" onclick="saveGenericIcalFeed()">FEED SPEICHERN</button>
             </div>
 
-            <button class="btn-secondary" style="margin-top: auto;" onclick="togglePanel('menu-panel')">FERTIG</button>
+            <button class="btn-secondary" style="margin-top: auto;" id="t-btn-panel-done" onclick="togglePanel('menu-panel')">FERTIG</button>
         </div>
     </div>
 
-    <!-- Rechtes Panel: Settings -->
+    <!-- Rechtes Panel: Einstellungen -->
     <div id="settings-panel" class="side-panel">
         <div class="panel-scroll">
             <div style="display:flex; justify-content:space-between; align-items:center">
-                <h2 style="margin:0; font-size:16px;" id="t-set-head">SETTINGS</h2>
+                <h2 style="margin:0; font-size:17px;" id="t-set-head">Einstellungen</h2>
                 <span class="material-symbols-rounded icon-btn" onclick="togglePanel('settings-panel')">close</span>
             </div>
 
-            <!-- Nur im normalen Browser sichtbar -->
             <button class="btn-primary" id="settings-copy-btn" onclick="window.copySyncKey()">SCHLÜSSEL FÜR NOTION KOPIEREN</button>
 
+            <!-- Wetter & Stadt Setting -->
             <div class="settings-section">
-                <label class="set-label" id="t-set-lang">Sprache</label>
-                <select id="langPicker" onchange="window.updateLang(this.value)">
+                <label class="set-label" id="t-set-weather">Wetter-Vorschau (Stadt)</label>
+                <div style="display:flex; gap:6px;">
+                    <input type="text" id="weatherCityInput" placeholder="z. B. Magdeburg, Berlin" value="Magdeburg" style="margin:0;">
+                    <button class="btn-secondary" style="width:auto; padding:0 14px;" onclick="window.updateWeatherCity()">OK</button>
+                </div>
+            </div>
+
+            <!-- Integrationen (Mit runden Checkboxen & weißem Haken) -->
+            <div class="settings-section">
+                <label class="set-label" id="t-set-integrations">Integrationen</label>
+                <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
+                    <span style="font-size:13px;" id="t-lbl-show-todo">To-Do Deadlines anzeigen</span>
+                    <input type="checkbox" id="toggleTodoDeadlines" class="forester-round-checkbox" checked onchange="window.toggleTodoIntegration(this.checked)">
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
+                    <span style="font-size:13px;" id="t-lbl-show-nextup">Next-Up Leiste aktivieren</span>
+                    <input type="checkbox" id="toggleNextUpBar" class="forester-round-checkbox" checked onchange="window.toggleNextUp(this.checked)">
+                </div>
+            </div>
+
+            <!-- Sprachauswahl -->
+            <div class="settings-section">
+                <label class="set-label" id="t-set-lang">Sprache / Language</label>
+                <select id="langPicker" onchange="window.setLanguage(this.value)">
                     <option value="de">Deutsch</option>
                     <option value="en">English</option>
                     <option value="es">Español</option>
@@ -552,6 +636,7 @@
                 </select>
             </div>
 
+            <!-- Modus -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-mode">Modus</label>
                 <div style="display:flex; gap:10px;">
@@ -560,6 +645,7 @@
                 </div>
             </div>
 
+            <!-- Farbwähler mit optimierten Namen: Akzent, Text, Kalender, Hintergrund -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-colors">Farben</label>
                 <div class="color-grid">
@@ -573,63 +659,49 @@
                     </div>
                     <div class="color-item">
                         <div class="color-circle-btn"><input type="color" id="bgInnerPicker" value="#ffffff" oninput="window.liveApply()"></div>
-                        <span id="t-col-card">Card</span>
+                        <span id="t-col-card">Kalender</span>
                     </div>
                     <div class="color-item">
                         <div class="color-circle-btn"><input type="color" id="bgOuterPicker" value="#f0f2f5" oninput="window.liveApply()"></div>
-                        <span id="t-col-main">Main</span>
+                        <span id="t-col-main">Hintergrund</span>
                     </div>
                 </div>
             </div>
 
+            <!-- Saubere Schriftartenauswahl -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-font">Schriftart</label>
-                <select id="fontPicker" onchange="window.liveApply()">
-                    <optgroup label="Serif / Sans">
-                        <option value="Segoe UI">Segoe UI</option>
-                        <option value="Inter">Inter</option>
-                        <option value="Montserrat">Montserrat</option>
-                        <option value="Poppins">Poppins</option>
-                        <option value="Roboto">Roboto</option>
-                        <option value="Oswald">Oswald</option>
-                        <option value="Comfortaa">Comfortaa</option>
-                        <option value="Playfair Display">Playfair Display</option>
-                    </optgroup>
-                    <optgroup label="Display / Fun">
-                        <option value="Rubik Mono One">Rubik Mono One</option>
-                        <option value="Comic Neue">Comic Neue</option>
-                        <option value="Creepster">Creepster</option>
-                        <option value="Lobster">Lobster</option>
-                        <option value="Pacifico">Pacifico</option>
-                        <option value="Press Start 2P">Press Start 2P</option>
-                        <option value="Permanent Marker">Permanent Marker</option>
-                        <option value="Bungee">Bungee</option>
-                        <option value="Fredoka One">Fredoka One</option>
-                        <option value="Orbitron">Orbitron</option>
-                        <option value="Righteous">Righteous</option>
-                        <option value="Special Elite">Special Elite</option>
-                    </optgroup>
+                <select id="fontPicker" onchange="window.liveApply()" style="font-weight: 600;">
+                    <option value="'All Round Gothic Book', 'All Round Gothic', 'Outfit', 'Comfortaa', sans-serif">★ All Round Gothic - Book (Standard)</option>
+                    <option value="Outfit, sans-serif">Outfit</option>
+                    <option value="Comfortaa, sans-serif">Comfortaa</option>
+                    <option value="Inter, sans-serif">Inter</option>
+                    <option value="Montserrat, sans-serif">Montserrat</option>
+                    <option value="Poppins, sans-serif">Poppins</option>
+                    <option value="Roboto, sans-serif">Roboto</option>
+                    <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                    <option value="'Playfair Display', serif">Playfair Display</option>
                 </select>
             </div>
 
             <div class="settings-section">
                 <label class="set-label" id="t-set-size">Schriftgröße</label>
-                <input type="range" id="sizePicker" min="11" max="22" value="14" oninput="window.liveApply()">
+                <input type="range" id="sizePicker" min="13" max="25" value="16" oninput="window.liveApply()">
             </div>
 
             <div class="btn-group">
                 <button class="btn-secondary" id="t-btn-reset" onclick="window.resetSettings()">RESET</button>
-                <button class="btn-primary" id="t-btn-save" onclick="window.saveSettings()">SAVE</button>
+                <button class="btn-primary" id="t-btn-save" onclick="window.saveSettings()">SPEICHERN</button>
             </div>
 
-            <button class="btn-secondary" style="background:#ff4444; color:#fff; margin-top: 15px;" onclick="window.forceLogout()">ABMELDEN</button>
+            <button class="btn-secondary" id="t-btn-logout" style="background:#ff4444; color:#fff; margin-top: 15px;" onclick="window.forceLogout()">ABMELDEN</button>
         </div>
     </div>
 
     <!-- Neuer Termin Modal -->
     <div id="newEventModal" class="modal-overlay" onclick="closeNewEventModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 style="margin-top:0; font-size:16px;">Neuer Termin</h3>
+            <h3 style="margin-top:0; font-size:17px;" id="t-modal-new-title">Neuer Termin</h3>
             <input type="text" id="eventTitleInput" placeholder="Titel" style="margin-bottom:8px;">
             <div style="display:flex; gap:8px; margin-bottom:8px;">
                 <input type="datetime-local" id="eventStartInput">
@@ -640,7 +712,7 @@
             <textarea id="eventBodyInput" placeholder="Notizen..." style="height:60px; margin-bottom:12px;"></textarea>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <button class="btn-secondary" onclick="closeNewEventModal()">ABBRECHEN</button>
+                <button class="btn-secondary" id="t-btn-modal-cancel" onclick="closeNewEventModal()">ABBRECHEN</button>
                 <button class="btn-primary" id="btnSaveEvent" onclick="saveNewEvent()">SPEICHERN</button>
             </div>
         </div>
@@ -650,20 +722,19 @@
     <div id="eventDetailModal" class="modal-overlay" onclick="document.getElementById('eventDetailModal').style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="eventDetailTitle" style="margin-top:0;">Termin</h3>
-            <p id="eventDetailTime" style="font-weight: bold; color: var(--accent); font-size:13px;"></p>
-            <p id="eventDetailLocation" style="font-size:12px; opacity:0.8;"></p>
-            <p id="eventDetailBody" style="background:rgba(128,128,128,0.06); padding:8px; border-radius:8px; font-size:12px; max-height:100px; overflow-y:auto;"></p>
+            <p id="eventDetailTime" style="font-weight: bold; color: var(--accent); font-size:14px;"></p>
+            <p id="eventDetailLocation" style="font-size:13px; opacity:0.8;"></p>
+            <p id="eventDetailBody" style="background:rgba(128,128,128,0.06); padding:10px; border-radius:8px; font-size:13px; max-height:110px; overflow-y:auto;"></p>
             <div style="display:flex; gap:8px; margin-top:12px;">
-                <button class="btn-secondary" onclick="document.getElementById('eventDetailModal').style.display='none'">SCHLIESSEN</button>
+                <button class="btn-secondary" id="t-btn-modal-close" onclick="document.getElementById('eventDetailModal').style.display='none'">SCHLIESSEN</button>
                 <a id="eventDetailLink" href="#" target="_blank" class="btn-primary" style="text-align:center; text-decoration:none;">IN OUTLOOK ÖFFNEN</a>
             </div>
         </div>
     </div>
 
-    <!-- 3-teiliger forester.labs Marken-Footer -->
-    <!-- 3-teiliger forester.labs Marken-Footer -->
+    <!-- 3-teiliger forester.labs Marken-Footer: v1.0.0 -->
     <footer class="footer-info">
-        <div class="footer-left">v1.0.5</div>
+        <div class="footer-left">v1.0.0</div>
         <div class="footer-center">made by <a href="https://marcofoerster.com" target="_blank">Marco Förster</a></div>
         <div class="footer-right">
             <img class="footer-logo logo-light" src="https://marco1501.github.io/notion-widgets/fl%20logo%20-%20schwarz.png" alt="forester.labs">
@@ -671,7 +742,7 @@
         </div>
     </footer>
 
-    <!-- Firebase SDK (exakt aus basicstyle.html) -->
+    <!-- Firebase SDK für Settings -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -688,24 +759,84 @@
         const widgetId = new URLSearchParams(window.location.search).get('id') || 'calendar_default';
         const dbPath = 'settings/' + widgetId;
 
+        // Vollständiges 4-Sprachen Wörterbuch mit den neuen Farbbezeichnungen
         const translations = {
-            de: { settings: "SETTINGS", lang: "Sprache", mode: "Modus", colors: "Farben", font: "Schriftart", size: "Schriftgröße", save: "SPEICHERN", reset: "RESET", colAcc: "Akzent", colTxt: "Text", colCard: "Card", colMain: "Main" },
-            en: { settings: "SETTINGS", lang: "Language", mode: "Mode", colors: "Colors", font: "Font", size: "Size", save: "SAVE", reset: "RESET", colAcc: "Accent", colTxt: "Text", colCard: "Card", colMain: "Main" },
-            es: { settings: "AJUSTES", lang: "Idioma", mode: "Modo", colors: "Colores", font: "Fuente", size: "Tamaño", save: "GUARDAR", reset: "REINICIAR", colAcc: "Acento", colTxt: "Texto", colCard: "Tarjeta", colMain: "Principal" },
-            fr: { settings: "PARAMÈTRES", lang: "Langue", mode: "Mode", colors: "Couleurs", font: "Police", size: "Taille", save: "ENREGISTRER", reset: "RÉINITIALISER", colAcc: "Accent", colTxt: "Texte", colCard: "Carte", colMain: "Fond" }
+            de: { 
+                menuHead: "Kalender", settingsHead: "Einstellungen", lang: "Sprache / Language", mode: "Modus", 
+                colors: "Farben", font: "Schriftart", size: "Schriftgröße", save: "SPEICHERN", reset: "RESET", 
+                colAcc: "Akzent", colTxt: "Text", colCard: "Kalender", colMain: "Hintergrund",
+                weather: "Wetter-Vorschau (Stadt)", integrations: "Integrationen", 
+                showTodo: "To-Do Deadlines anzeigen", showNextUp: "Next-Up Leiste aktivieren",
+                nextUpLabel: "Next Up:", today: "Heute", addText: "Termin",
+                viewMonth: "Monat", viewWeek: "Woche", viewList: "Liste",
+                saveFeed: "FEED SPEICHERN", panelDone: "FERTIG", logout: "ABMELDEN",
+                copyKey: "SCHLÜSSEL FÜR NOTION KOPIEREN", modalNew: "Neuer Termin",
+                modalCancel: "ABBRECHEN", modalClose: "SCHLIESSEN"
+            },
+            en: { 
+                menuHead: "Calendars", settingsHead: "Settings", lang: "Language", mode: "Mode", 
+                colors: "Colors", font: "Font", size: "Size", save: "SAVE", reset: "RESET", 
+                colAcc: "Accent", colTxt: "Text", colCard: "Calendar", colMain: "Background",
+                weather: "Weather Forecast (City)", integrations: "Integrations", 
+                showTodo: "Show To-Do deadlines", showNextUp: "Enable Next-Up bar",
+                nextUpLabel: "Next Up:", today: "Today", addText: "Event",
+                viewMonth: "Month", viewWeek: "Week", viewList: "Agenda",
+                saveFeed: "SAVE FEED", panelDone: "DONE", logout: "LOG OUT",
+                copyKey: "COPY KEY FOR NOTION", modalNew: "New Event",
+                modalCancel: "CANCEL", modalClose: "CLOSE"
+            },
+            es: { 
+                menuHead: "Calendarios", settingsHead: "Ajustes", lang: "Idioma", mode: "Modo", 
+                colors: "Colores", font: "Fuente", size: "Tamaño", save: "GUARDAR", reset: "REINICIAR", 
+                colAcc: "Acento", colTxt: "Texto", colCard: "Calendario", colMain: "Fondo",
+                weather: "Pronóstico del Tiempo (Ciudad)", integrations: "Integraciones", 
+                showTodo: "Mostrar plazos de tareas", showNextUp: "Activar barra Next-Up",
+                nextUpLabel: "Próximo:", today: "Hoy", addText: "Evento",
+                viewMonth: "Mes", viewWeek: "Semana", viewList: "Agenda",
+                saveFeed: "GUARDAR FEED", panelDone: "LISTO", logout: "CERRAR SESIÓN",
+                copyKey: "COPIAR CLAVE PARA NOTION", modalNew: "Nuevo Evento",
+                modalCancel: "CANCELAR", modalClose: "CERRAR"
+            },
+            fr: { 
+                menuHead: "Calendriers", settingsHead: "Paramètres", lang: "Langue", mode: "Mode", 
+                colors: "Couleurs", font: "Police", size: "Taille", save: "ENREGISTRER", reset: "RÉINITIALISER", 
+                colAcc: "Accent", colTxt: "Texte", colCard: "Calendrier", colMain: "Fond",
+                weather: "Prévisions Météo (Ville)", integrations: "Intégrations", 
+                showTodo: "Afficher les échéances To-Do", showNextUp: "Activer barre Next-Up",
+                nextUpLabel: "À suivre:", today: "Aujourd'hui", addText: "Événement",
+                viewMonth: "Mois", viewWeek: "Semaine", viewList: "Liste",
+                saveFeed: "ENREGISTRER LE FLUX", panelDone: "TERMINÉ", logout: "DÉCONNEXION",
+                copyKey: "COPIER LA CLÉ POUR NOTION", modalNew: "Nouvel Événement",
+                modalCancel: "ANNULER", modalClose: "FERMER"
+            }
         };
 
         window.setMode = (mode) => {
-            document.body.className = mode + '-mode';
-            document.getElementById('bgInnerPicker').value = mode === 'dark' ? '#1a1a1a' : '#ffffff';
-            document.getElementById('bgOuterPicker').value = mode === 'dark' ? '#0a0a0a' : '#f0f2f5';
-            document.getElementById('textPicker').value = mode === 'dark' ? '#ffffff' : '#1a1a1a';
+            const isDark = mode === 'dark';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+                document.getElementById('bgInnerPicker').value = '#1a1a1a';
+                document.getElementById('bgOuterPicker').value = '#0a0a0a';
+                document.getElementById('textPicker').value = '#ffffff';
+                document.getElementById('accentPicker').value = '#8EA39D';
+            } else {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+                document.getElementById('bgInnerPicker').value = '#ffffff';
+                document.getElementById('bgOuterPicker').value = '#f0f2f5';
+                document.getElementById('textPicker').value = '#1a1a1a';
+                document.getElementById('accentPicker').value = '#8EA39D';
+            }
             window.liveApply();
         };
 
-        window.updateLang = (lang) => {
+        window.updateLangTexts = (lang) => {
             const d = translations[lang] || translations.de;
-            document.getElementById('t-set-head').innerText = d.settings;
+            
+            document.getElementById('t-set-head').innerText = d.settingsHead;
+            document.getElementById('t-menu-head').innerText = d.menuHead;
+
             document.getElementById('t-set-lang').innerText = d.lang;
             document.getElementById('t-set-mode').innerText = d.mode;
             document.getElementById('t-set-colors').innerText = d.colors;
@@ -717,22 +848,60 @@
             document.getElementById('t-col-text').innerText = d.colTxt;
             document.getElementById('t-col-card').innerText = d.colCard;
             document.getElementById('t-col-main').innerText = d.colMain;
+            document.getElementById('t-set-weather').innerText = d.weather;
+            document.getElementById('t-set-integrations').innerText = d.integrations;
+            document.getElementById('t-lbl-show-todo').innerText = d.showTodo;
+            document.getElementById('t-lbl-show-nextup').innerText = d.showNextUp;
+            document.getElementById('t-btn-logout').innerText = d.logout;
+            document.getElementById('settings-copy-btn').innerText = d.copyKey;
+
+            document.getElementById('t-next-up-label').innerText = d.nextUpLabel;
+            document.getElementById('btnToday').innerText = d.today;
+            document.getElementById('t-btn-add-text').innerText = d.addText;
+            document.getElementById('btnViewMonth').innerText = d.viewMonth;
+            document.getElementById('btnViewWeek').innerText = d.viewWeek;
+            document.getElementById('btnViewList').innerText = d.viewList;
+
+            document.getElementById('t-btn-save-feed').innerText = d.saveFeed;
+            document.getElementById('t-btn-panel-done').innerText = d.panelDone;
+
+            document.getElementById('t-modal-new-title').innerText = d.modalNew;
+            document.getElementById('t-btn-modal-cancel').innerText = d.modalCancel;
+            document.getElementById('t-btn-modal-close').innerText = d.modalClose;
+        };
+
+        window.setLanguage = (lang) => {
+            window.updateLangTexts(lang);
+            if (window.fullCalendar) {
+                window.fullCalendar.setOption('locale', lang);
+            }
         };
 
         window.liveApply = () => {
-            const r = document.documentElement;
-            const accent = document.getElementById('accentPicker').value;
-            r.style.setProperty('--accent', accent);
-            r.style.setProperty('--text-color', document.getElementById('textPicker').value);
-            r.style.setProperty('--bg-inner', document.getElementById('bgInnerPicker').value);
-            r.style.setProperty('--bg-outer', document.getElementById('bgOuterPicker').value);
-            
-            const pxSize = document.getElementById('sizePicker').value + 'px';
-            r.style.setProperty('--font-size', pxSize);
-            document.body.style.fontSize = pxSize;
-            document.body.style.fontFamily = document.getElementById('fontPicker').value;
-
             const isDark = document.body.classList.contains('dark-mode');
+            const accent = document.getElementById('accentPicker').value;
+            const text = document.getElementById('textPicker').value;
+            const card = document.getElementById('bgInnerPicker').value;
+            const main = document.getElementById('bgOuterPicker').value;
+            const font = document.getElementById('fontPicker').value;
+            const size = document.getElementById('sizePicker').value + 'px';
+
+            const bStyle = document.body.style;
+            bStyle.setProperty('--accent', accent);
+            bStyle.setProperty('--text-color', text);
+            bStyle.setProperty('--bg-inner', card);
+            bStyle.setProperty('--bg-outer', main);
+            bStyle.setProperty('--font-size', size);
+            bStyle.setProperty('--main-font', font);
+            
+            bStyle.setProperty('--glass-heavy', isDark ? 'rgba(26, 26, 26, 0.98)' : 'rgba(255, 255, 255, 0.98)');
+            bStyle.setProperty('--border', isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)');
+
+            bStyle.backgroundColor = main;
+            bStyle.color = text;
+            bStyle.fontSize = size;
+            bStyle.fontFamily = font;
+
             document.getElementById('d-btn').style.color = isDark ? accent : 'inherit';
             document.getElementById('l-btn').style.color = !isDark ? accent : 'inherit';
 
@@ -748,7 +917,10 @@
                 bgInner: document.getElementById('bgInnerPicker').value,
                 bgOuter: document.getElementById('bgOuterPicker').value,
                 font: document.getElementById('fontPicker').value,
-                size: document.getElementById('sizePicker').value
+                size: document.getElementById('sizePicker').value,
+                city: document.getElementById('weatherCityInput').value,
+                showTodo: document.getElementById('toggleTodoDeadlines').checked,
+                showNextUp: document.getElementById('toggleNextUpBar').checked
             };
             set(ref(db, dbPath), config);
             window.togglePanel('settings-panel');
@@ -764,34 +936,50 @@
             const d = s.val();
             if(d) {
                 document.getElementById('langPicker').value = d.lang || 'de';
-                document.body.className = (d.mode || 'light') + '-mode';
+                const isDark = d.mode === 'dark';
+                if (isDark) {
+                    document.body.classList.add('dark-mode');
+                    document.body.classList.remove('light-mode');
+                } else {
+                    document.body.classList.add('light-mode');
+                    document.body.classList.remove('dark-mode');
+                }
                 document.getElementById('accentPicker').value = d.accent || '#8EA39D';
-                document.getElementById('textPicker').value = d.text || '#1a1a1a';
-                document.getElementById('bgInnerPicker').value = d.bgInner || '#ffffff';
-                document.getElementById('bgOuterPicker').value = d.bgOuter || '#f0f2f5';
-                document.getElementById('fontPicker').value = d.font || 'Segoe UI';
-                document.getElementById('sizePicker').value = d.size || '14';
-                window.updateLang(d.lang || 'de');
+                document.getElementById('textPicker').value = d.text || (isDark ? '#ffffff' : '#1a1a1a');
+                document.getElementById('bgInnerPicker').value = d.bgInner || (isDark ? '#1a1a1a' : '#ffffff');
+                document.getElementById('bgOuterPicker').value = d.bgOuter || (isDark ? '#0a0a0a' : '#f0f2f5');
+                document.getElementById('fontPicker').value = d.font || "'All Round Gothic Book', 'All Round Gothic', 'Outfit', 'Comfortaa', sans-serif";
+                document.getElementById('sizePicker').value = d.size || '16';
+                
+                if (d.city) document.getElementById('weatherCityInput').value = d.city;
+                if (d.showTodo !== undefined) document.getElementById('toggleTodoDeadlines').checked = d.showTodo;
+                if (d.showNextUp !== undefined) {
+                    document.getElementById('toggleNextUpBar').checked = d.showNextUp;
+                    document.getElementById('next-up-bar').style.display = d.showNextUp ? 'flex' : 'none';
+                }
+
+                window.setLanguage(d.lang || 'de');
                 window.liveApply();
             } else {
-                window.updateLang('de');
+                window.setLanguage('de');
                 window.liveApply();
             }
         });
     </script>
 
-    <!-- Calendar Engine & Multi-Kalender Synchronisation -->
+    <!-- Calendar Engine, Multi-Kalender, Wetter, To-Do Deadlines & Next-Up -->
     <script>
-        console.log("Calendar v1.0.5 initialisiert.");
+        console.log("Calendar by forester.labs v1.0.0 initialisiert.");
 
         const isInIframe = window.self !== window.top;
         let immediateRedirectToken = null;
         window.fullCalendar = null;
         let outlookCalendars = [];
         let outlookEvents = [];
+        let todoReminderEvents = [];
         let icalEvents = [];
+        let weatherCache = {};
 
-        // Dauerhafter Login via offline_access Scope
         const msalConfig = { 
             auth: { 
                 clientId: "cd6ed035-97e5-4c5c-b5c0-e88747e1f7de", 
@@ -807,21 +995,38 @@
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
         const loginRequest = { 
-            scopes: ["Calendars.ReadWrite", "User.Read", "offline_access"],
+            scopes: ["Calendars.ReadWrite", "Tasks.Read", "User.Read", "offline_access"],
             prompt: "select_account"
         };
 
         const silentTokenRequest = {
-            scopes: ["Calendars.ReadWrite", "User.Read", "offline_access"]
+            scopes: ["Calendars.ReadWrite", "Tasks.Read", "User.Read", "offline_access"]
         };
 
         window.addEventListener("DOMContentLoaded", async () => {
             initFullCalendar();
             setupNavigation();
+            setupSmartCompactMode();
             adaptHeaderForMobile();
+            loadWeatherForecast();
             await handleAuth();
             loadIcalFeed();
+            setInterval(updateNextUpBar, 60000);
         });
+
+        function setupSmartCompactMode() {
+            const card = document.getElementById('main-glass-card');
+            const observer = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    if (entry.contentRect.width < 520) {
+                        card.classList.add('compact-widget');
+                    } else {
+                        card.classList.remove('compact-widget');
+                    }
+                }
+            });
+            observer.observe(card);
+        }
 
         function adaptHeaderForMobile() {
             if (window.innerWidth <= 768) {
@@ -842,12 +1047,12 @@
                             <button class="calendar-nav-btn" id="btnToday">Heute</button>
                             <button class="icon-btn" id="btnPrev" title="Zurück"><span class="material-symbols-rounded">chevron_left</span></button>
                             <button class="icon-btn" id="btnNext" title="Weiter"><span class="material-symbols-rounded">chevron_right</span></button>
-                            <button class="btn-add-event" onclick="openNewEventModal()" title="Neuer Termin"><span class="material-symbols-rounded" style="font-size: 17px;">add</span> Termin</button>
+                            <button class="btn-add-event" onclick="openNewEventModal()" title="Neuer Termin"><span class="material-symbols-rounded" style="font-size: 18px;">add</span> <span id="t-btn-add-text">Termin</span></button>
                         </div>
                         <div class="view-switcher">
-                            <button class="active" data-view="dayGridMonth">Monat</button>
-                            <button data-view="timeGridWeek">Woche</button>
-                            <button data-view="listWeek">Liste</button>
+                            <button class="active" id="btnViewMonth" data-view="dayGridMonth">Monat</button>
+                            <button id="btnViewWeek" data-view="timeGridWeek">Woche</button>
+                            <button id="btnViewList" data-view="listWeek">Liste</button>
                         </div>
                     </div>
                 `;
@@ -855,17 +1060,74 @@
             }
         }
 
+        async function loadWeatherForecast() {
+            const city = document.getElementById('weatherCityInput').value.trim() || "Magdeburg";
+            try {
+                const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=de`);
+                const geoData = await geoRes.json();
+                if (!geoData.results || geoData.results.length === 0) return;
+
+                const lat = geoData.results[0].latitude;
+                const lon = geoData.results[0].longitude;
+
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max&timezone=auto`);
+                const wData = await weatherRes.json();
+
+                if (wData.daily && wData.daily.time) {
+                    const cache = {};
+                    wData.daily.time.forEach((dateStr, idx) => {
+                        const code = wData.daily.weathercode[idx];
+                        const temp = Math.round(wData.daily.temperature_2m_max[idx]) + "°";
+                        cache[dateStr] = { temp, icon: getWeatherIcon(code) };
+                    });
+                    weatherCache = cache;
+                    injectWeatherIntoCalendar();
+                }
+            } catch(e) {
+                console.warn("[Weather]", e);
+            }
+        }
+
+        function getWeatherIcon(code) {
+            if (code === 0) return "☀️";
+            if (code <= 3) return "⛅";
+            if (code <= 48) return "🌫️";
+            if (code <= 67) return "🌧️";
+            if (code <= 77) return "❄️";
+            if (code <= 82) return "🌦️";
+            return "⛈️";
+        }
+
+        function injectWeatherIntoCalendar() {
+            document.querySelectorAll('.day-weather-badge').forEach(b => b.remove());
+            Object.keys(weatherCache).forEach(dateStr => {
+                const cell = document.querySelector(`.fc-daygrid-day[data-date="${dateStr}"] .fc-daygrid-day-top`);
+                if (cell) {
+                    const info = weatherCache[dateStr];
+                    const badge = document.createElement('span');
+                    badge.className = 'day-weather-badge';
+                    badge.innerHTML = `<span>${info.icon}</span><span>${info.temp}</span>`;
+                    cell.prepend(badge);
+                }
+            });
+        }
+
+        window.updateWeatherCity = () => {
+            loadWeatherForecast();
+            alert("Wetter-Standort aktualisiert!");
+        };
+
         function initFullCalendar() {
             const el = document.getElementById('calendar-container');
             window.fullCalendar = new FullCalendar.Calendar(el, {
                 initialView: 'dayGridMonth',
+                locale: 'de',
                 firstDay: 1,
                 height: '100%',
                 headerToolbar: false,
                 dayMaxEvents: 3,
                 eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false, hour12: false },
                 
-                // Touch-Schutz beim Wischen auf Smartphones
                 selectable: true,
                 selectMirror: false,
                 selectMinDistance: 10,
@@ -878,6 +1140,7 @@
                     const t = document.getElementById('calTitleDisplay');
                     if (t) t.innerText = info.view.title;
                     refreshAllCalendars();
+                    setTimeout(injectWeatherIntoCalendar, 100);
                 },
                 eventClick: (info) => showEventModal(info.event)
             });
@@ -903,6 +1166,89 @@
                 };
             });
         }
+
+        function updateNextUpBar() {
+            const bar = document.getElementById('next-up-bar');
+            if (!document.getElementById('toggleNextUpBar').checked) {
+                bar.style.display = 'none';
+                return;
+            }
+
+            const now = new Date();
+            const todayStr = now.toISOString().slice(0, 10);
+            
+            const upcoming = outlookEvents
+                .filter(e => !e.allDay && e.start.startsWith(todayStr))
+                .map(e => ({ ...e, startDate: new Date(e.start) }))
+                .filter(e => e.startDate > now)
+                .sort((a, b) => a.startDate - b.startDate);
+
+            if (upcoming.length > 0) {
+                const next = upcoming[0];
+                const diffMs = next.startDate - now;
+                const diffMins = Math.round(diffMs / 60000);
+                
+                let timeStr = "";
+                if (diffMins < 60) timeStr = `in ${diffMins} Min.`;
+                else timeStr = `in ${Math.floor(diffMins / 60)} Std. ${diffMins % 60} Min.`;
+
+                document.getElementById('next-up-text').innerText = `${next.startDate.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} Uhr – ${next.title}`;
+                document.getElementById('next-up-timer').innerText = timeStr;
+                bar.style.display = 'flex';
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        window.toggleNextUp = (show) => {
+            document.getElementById('next-up-bar').style.display = show ? 'flex' : 'none';
+            if (show) updateNextUpBar();
+        };
+
+        async function fetchTodoDeadlines() {
+            if (!document.getElementById('toggleTodoDeadlines').checked) return [];
+            if (!msalInstance.getActiveAccount()) return [];
+
+            try {
+                const listRes = await graphFetch("/me/todo/lists");
+                if (!listRes || !listRes.ok) return [];
+                const listData = await listRes.json();
+                const lists = listData.value || [];
+
+                const promises = lists.map(async (l) => {
+                    const res = await graphFetch(`/me/todo/lists/${l.id}/tasks?$filter=status ne 'completed' and dueDateTime ne null&$select=id,title,dueDateTime,importance`);
+                    if (!res || !res.ok) return [];
+                    const tData = await res.json();
+                    
+                    return (tData.value || []).map(t => {
+                        const dueDate = t.dueDateTime.dateTime.split('T')[0];
+                        return {
+                            id: "todo_reminder_" + t.id,
+                            title: `✓ ${t.title}`,
+                            start: dueDate,
+                            allDay: true,
+                            classNames: ['todo-reminder-pill'],
+                            extendedProps: {
+                                isTodoReminder: true,
+                                source: `To-Do (${l.displayName})`,
+                                location: "Fällige Aufgabe aus ToDoList",
+                                body: "Diese Aufgabe ist heute in deiner To-Do-Liste fällig. Erledige oder verwalte sie in der ToDoList-App."
+                            }
+                        };
+                    });
+                });
+
+                const results = await Promise.all(promises);
+                return results.flat();
+            } catch(e) {
+                console.warn("[Todo Reminders]", e);
+                return [];
+            }
+        }
+
+        window.toggleTodoIntegration = (show) => {
+            refreshAllCalendars();
+        };
 
         async function handleAuth() {
             try {
@@ -1101,7 +1447,7 @@
                 div.className = 'subcalendar-item';
                 div.innerHTML = `
                     <label class="subcalendar-label">
-                        <input type="checkbox" id="chk_${cal.id}" ${isChecked ? 'checked' : ''}>
+                        <input type="checkbox" id="chk_${cal.id}" class="forester-round-checkbox" ${isChecked ? 'checked' : ''}>
                         <span>${cal.name}</span>
                     </label>
                     <div class="color-circle-btn color-circle-btn-sm">
@@ -1171,7 +1517,6 @@
                         }
                     }));
                 } catch(err) {
-                    console.warn(`Fehler bei ${cal.name}:`, err);
                     return [];
                 }
             });
@@ -1322,19 +1667,22 @@
         };
 
         window.refreshAllCalendars = async () => {
-            const [ms, ic] = await Promise.all([
+            const [ms, ic, todos] = await Promise.all([
                 fetchOutlookEvents(),
-                fetchIcalEvents()
+                fetchIcalEvents(),
+                fetchTodoDeadlines()
             ]);
             outlookEvents = ms;
             icalEvents = ic;
+            todoReminderEvents = todos;
             renderEventsFromAllSources();
+            updateNextUpBar();
         };
 
         function renderEventsFromAllSources() {
             if (!window.fullCalendar) return;
             window.fullCalendar.removeAllEvents();
-            window.fullCalendar.addEventSource([...outlookEvents, ...icalEvents]);
+            window.fullCalendar.addEventSource([...outlookEvents, ...icalEvents, ...todoReminderEvents]);
         }
 
         function showEventModal(event) {
