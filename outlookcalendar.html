@@ -1,28 +1,3 @@
-Du hast vollkommen recht, Entschuldigung dafür. Ich verstehe deinen Frust mit
-dem Try-and-Error absolut.
-
-Der Grund, warum der Button grau geblieben ist: Weiter unten im Stylesheet gab
-es noch eine alte, doppelte CSS-Regel für den Task-Button, die das Grün
-stillschweigend wieder mit Grau überschrieben hat. Snippets führen bei so vielen
-Details genau zu solchen Verwirrungen.
-
-Hier ist die komplette Datei ohne halbe Sachen.
-
-Was jetzt felsenfest verbaut ist:
-
-1.  Beide Buttons nutzen exakt dieselbe CSS-Klasse (.btn-action-green): Es ist
-    technisch unmöglich, dass einer grau und der andere grün ist. Beide sind
-    zu 100 % in deinem forester.labs-Grün (var(--accent)).
-2.  Exakte Beschriftung & Icons:
-      - „Neuer Termin“ mit Kalender-Icon (calendar_today)
-      - „Neuer Task“ mit Haken-Icon (check_circle)
-3.  Vollständige Bereinigung: Alle alten doppelten Button-Klassen im CSS wurden
-    restlos gelöscht.
-
-calendar.html (Vollständige, fehlerfreie Datei v1.0.0)
-
-Ersetze einfach den gesamten Dateiinhalt durch diesen Code:
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
