@@ -63,7 +63,7 @@
             font-size: var(--font-size);
         }
 
-        /* Weißes Kalender-Icon im Dark Mode */
+        /* Weißes Kalender-Icon in Datumsfeldern im Dark Mode */
         body.dark-mode input[type="datetime-local"]::-webkit-calendar-picker-indicator,
         body.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1) brightness(1.2);
@@ -151,7 +151,7 @@
             border-color: var(--accent); 
         }
 
-        /* BEIDE BUTTONS IDENTISCH GRÜN (Neuer Termin & Neuer Task) */
+        /* Beide Aktionsbuttons identisch grün */
         .btn-action-green {
             background-color: var(--accent) !important;
             color: #ffffff !important;
@@ -243,7 +243,7 @@
             border: 1px solid var(--border); 
             border-radius: 18px;
             padding: 10px; 
-            box-shadow: none !important; /* Schatten entfernt für sauberen Hintergrund */
+            box-shadow: none !important; 
             flex: 1; 
             display: flex; 
             flex-direction: column; 
@@ -423,7 +423,7 @@
             background: rgba(128, 128, 128, 0.1) !important;
         }
 
-        /* Listenansicht */
+        /* Listenansicht & Heutiger Tag in Akzentfarbe */
         .fc .fc-list,
         .fc .fc-list-table,
         .fc .fc-list-table td,
@@ -734,7 +734,6 @@
                 <span class="material-symbols-rounded icon-btn" onclick="togglePanel('menu-panel')">close</span>
             </div>
 
-            <!-- Microsoft Outlook Bereich -->
             <div class="calendar-card">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 2px;">
                     <svg style="width: 26px; height: 26px; flex-shrink: 0;" viewBox="0 0 48 48">
@@ -757,7 +756,6 @@
                 <div id="subcalendarList" style="display:none; margin-top: 8px;"></div>
             </div>
 
-            <!-- iCal / Web-Feed Bereich -->
             <div class="calendar-card">
                 <div class="calendar-card-header">
                     <span style="display:flex; align-items:center; gap:8px;">
@@ -1201,7 +1199,7 @@
         });
     </script>
 
-    <!-- Calendar Engine & Multi-Kalender Synchronisation -->
+    <!-- Calendar Engine, Rechteprüfung & Zuverlässige Löschung -->
     <script>
         console.log("Calendar by forester.labs v1.0.0 initialisiert.");
 
@@ -1441,9 +1439,18 @@
             }
         }
 
+        // Drag & Drop mit Rechtekontrolle
         async function handleEventDragDrop(info) {
             const ev = info.event;
             const isTodo = ev.extendedProps.isTodoReminder;
+
+            // Sofortige Prüfung auf Schreibrechte
+            if (ev.extendedProps.canEdit === false) {
+                alert("Dieser Termin kann nicht verschoben werden, da dieser Kalender schreibgeschützt ist oder dir nicht gehört.");
+                info.revert();
+                return;
+            }
+
             const newStart = ev.start;
             const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
 
@@ -1460,14 +1467,15 @@
                             dueDateTime: { dateTime: dueDateStr, timeZone: "UTC" }
                         })
                     });
-                    if (!res || !res.ok) throw new Error();
+                    if (!res || !res.ok) {
+                        alert("Dieser Task kann nicht verschoben werden.");
+                        info.revert();
+                    }
                 } catch(e) {
-                    alert("Aufgabe konnte nicht verschoben werden.");
                     info.revert();
                 }
             } else {
                 const eventId = ev.id.replace("ms_", "");
-                const calId = ev.extendedProps.calendarId;
                 const newEnd = ev.end || new Date(newStart.getTime() + 60*60*1000);
 
                 const payload = {
@@ -1476,15 +1484,17 @@
                 };
 
                 try {
-                    const endpoint = calId ? `/me/calendars/${calId}/events/${eventId}` : `/me/events/${eventId}`;
-                    const res = await graphFetch(endpoint, {
+                    const res = await graphFetch(`/me/events/${eventId}`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
                     });
-                    if (!res || !res.ok) throw new Error();
+                    if (!res || !res.ok) {
+                        alert("Dieser Termin kann nicht verschoben werden, da dieser Kalender schreibgeschützt ist oder dir nicht gehört.");
+                        info.revert();
+                    }
                 } catch(e) {
-                    alert("Termin konnte nicht verschoben werden.");
+                    alert("Dieser Termin kann nicht verschoben werden.");
                     info.revert();
                 }
             }
@@ -1549,7 +1559,6 @@
             if (show) updateNextUpBar();
         };
 
-        // Robuste Zeitzonen-Umrechnung für To-Dos
         async function fetchTodoDeadlines() {
             if (!document.getElementById('toggleTodoDeadlines').checked) return [];
             if (!msalInstance.getActiveAccount()) return [];
@@ -1588,12 +1597,13 @@
                                 classNames: ['todo-reminder-pill'],
                                 extendedProps: {
                                     isTodoReminder: true,
+                                    canEdit: true, // Eigene Tasks können bearbeitet werden
                                     taskId: t.id,
                                     listId: l.id,
                                     taskTitle: t.title,
                                     source: `To-Do (${l.displayName || 'Liste'})`,
                                     location: "Fällige Aufgabe aus ToDoList",
-                                    body: "Diese Aufgabe ist heute fällig. Erledige sie in der ToDoList-App."
+                                    body: "Fällige Aufgabe aus deiner ToDoList."
                                 }
                             };
                         });
@@ -1801,8 +1811,9 @@
             return res;
         }
 
+        // Fragt Kalender inkl. 'canEdit' Berechtigung ab!
         async function loadOutlookCalendars() {
-            const res = await graphFetch("/me/calendars?$select=id,name,color,isDefaultCalendar");
+            const res = await graphFetch("/me/calendars?$select=id,name,color,isDefaultCalendar,canEdit,owner");
             if (!res || !res.ok) return;
             const data = await res.json();
             outlookCalendars = data.value || [];
@@ -1860,7 +1871,9 @@
             const sel = document.getElementById('eventCalendarSelect');
             if (!sel) return;
             sel.innerHTML = '';
-            outlookCalendars.forEach(cal => {
+            // Nur Kalender mit Schreibrecht zur Auswahl anbieten
+            const writableCalendars = outlookCalendars.filter(cal => cal.canEdit !== false);
+            writableCalendars.forEach(cal => {
                 const opt = document.createElement('option');
                 opt.value = cal.id;
                 opt.innerText = cal.name + (cal.isDefaultCalendar ? ' (Standard)' : '');
@@ -1882,6 +1895,8 @@
             const promises = outlookCalendars.map(async (cal, idx) => {
                 const color = getCalColor(cal.id, idx);
                 const isBirthdayCal = cal.name.toLowerCase().includes("geburtstag") || cal.name.toLowerCase().includes("birthday");
+                const canEdit = cal.canEdit !== false && !isBirthdayCal; // Geburtstage sind schreibgeschützt
+
                 const url = `/me/calendars/${cal.id}/calendarView?startDateTime=${encodeURIComponent(start)}&endDateTime=${encodeURIComponent(end)}&$top=250&$select=id,subject,start,end,isAllDay,location,webLink,bodyPreview`;
 
                 try {
@@ -1923,6 +1938,7 @@
                             extendedProps: { 
                                 calendarId: cal.id,
                                 source: cal.name, 
+                                canEdit: canEdit, // Rechteprüfung übertragen!
                                 location: i.location?.displayName || "", 
                                 body: i.bodyPreview || "", 
                                 url: i.webLink 
@@ -2018,7 +2034,12 @@
                             backgroundColor: color,
                             borderColor: color,
                             textColor: "#1a1a1a",
-                            extendedProps: { source: "iCal", location: cur.location || "", body: cur.desc || "" }
+                            extendedProps: { 
+                                source: "iCal", 
+                                canEdit: false, // iCal ist immer schreibgeschützt!
+                                location: cur.location || "", 
+                                body: cur.desc || "" 
+                            }
                         });
                     }
                     cur = null;
@@ -2098,7 +2119,14 @@
                     body: JSON.stringify(payload)
                 });
 
-                if (!res || !res.ok) throw new Error();
+                if (!res || !res.ok) {
+                    if (res && res.status === 403) {
+                        alert("Termin konnte nicht erstellt werden: In diesem Kalender fehlen Schreibrechte.");
+                    } else {
+                        throw new Error();
+                    }
+                    return;
+                }
 
                 closeNewEventModal();
                 await refreshAllCalendars(true);
@@ -2157,14 +2185,16 @@
             }
         };
 
-        // Termin / Task Detail & Bearbeiten Modal
+        // Termin Details & Bearbeiten Modal
         function showEventModal(event) {
             currentSelectedEvent = event;
             const isTodo = event.extendedProps.isTodoReminder;
+            const canEdit = event.extendedProps.canEdit !== false;
 
             const editBox = document.getElementById('eventEditFields');
             const taskBox = document.getElementById('taskActionFields');
             const btnUpdate = document.getElementById('btnUpdateEvent');
+            const btnDelete = document.getElementById('btnDeleteEventOrTask');
             const link = document.getElementById('eventDetailLink');
 
             if (isTodo) {
@@ -2173,29 +2203,48 @@
                 editBox.style.display = "none";
                 btnUpdate.style.display = "none";
                 link.style.display = "none";
+                btnDelete.style.display = "block";
 
                 taskBox.style.display = "block";
                 document.getElementById('taskDetailTitle').innerText = event.extendedProps.taskTitle || event.title;
                 document.getElementById('taskDetailDue').innerText = "Fällig am: " + (event.start ? event.start.toLocaleDateString() : 'Kein Datum');
             } else {
-                document.getElementById('eventDetailTitleHead').innerText = "Termin bearbeiten";
-                document.getElementById('detailSourceBadge').innerText = event.extendedProps.source || "Outlook";
                 taskBox.style.display = "none";
-
                 editBox.style.display = "block";
-                btnUpdate.style.display = "block";
 
-                document.getElementById('editEventTitle').value = event.title || "";
-                document.getElementById('editEventLocation').value = event.extendedProps.location || "";
-                document.getElementById('editEventBody').value = event.extendedProps.body || "";
+                const sourceText = event.extendedProps.source || "Outlook";
+                document.getElementById('detailSourceBadge').innerText = canEdit ? sourceText : `${sourceText} (Schreibgeschützt)`;
+
+                document.getElementById('eventDetailTitleHead').innerText = canEdit ? "Termin bearbeiten" : "Termin (Nur Lesen)";
+
+                // Felder sperren, falls keine Schreibrechte vorhanden sind!
+                const titleInput = document.getElementById('editEventTitle');
+                const locInput = document.getElementById('editEventLocation');
+                const bodyInput = document.getElementById('editEventBody');
+                const startInput = document.getElementById('editEventStart');
+                const endInput = document.getElementById('editEventEnd');
+
+                titleInput.value = event.title || "";
+                locInput.value = event.extendedProps.location || "";
+                bodyInput.value = event.extendedProps.body || "";
+
+                titleInput.disabled = !canEdit;
+                locInput.disabled = !canEdit;
+                bodyInput.disabled = !canEdit;
+                startInput.disabled = !canEdit;
+                endInput.disabled = !canEdit;
+
+                // Buttons nur anzeigen, wenn man auch Schreibrechte hat
+                btnUpdate.style.display = canEdit ? "block" : "none";
+                btnDelete.style.display = canEdit ? "block" : "none";
 
                 if (event.start) {
                     const startLocal = new Date(event.start.getTime() - event.start.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-                    document.getElementById('editEventStart').value = startLocal;
+                    startInput.value = startLocal;
                 }
                 if (event.end) {
                     const endLocal = new Date(event.end.getTime() - event.end.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-                    document.getElementById('editEventEnd').value = endLocal;
+                    endInput.value = endLocal;
                 }
 
                 if (event.extendedProps.url) {
@@ -2214,11 +2263,15 @@
             currentSelectedEvent = null;
         };
 
+        // Änderungen an Termin speichern (inkl. 403-Rechte-Fang)
         window.saveEditedEvent = async () => {
             if (!currentSelectedEvent) return;
-            const eventId = currentSelectedEvent.id.replace("ms_", "");
-            const calId = currentSelectedEvent.extendedProps.calendarId;
+            if (currentSelectedEvent.extendedProps.canEdit === false) {
+                alert("Dieser Termin kann nicht bearbeitet werden, da dieser Kalender schreibgeschützt ist oder dir nicht gehört.");
+                return;
+            }
 
+            const eventId = currentSelectedEvent.id.replace("ms_", "");
             const title = document.getElementById('editEventTitle').value.trim();
             const startVal = document.getElementById('editEventStart').value;
             const endVal = document.getElementById('editEventEnd').value;
@@ -2242,14 +2295,20 @@
                     body: { contentType: "text", content: body }
                 };
 
-                const endpoint = calId ? `/me/calendars/${calId}/events/${eventId}` : `/me/events/${eventId}`;
-                const res = await graphFetch(endpoint, {
+                const res = await graphFetch(`/me/events/${eventId}`, {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res || !res.ok) throw new Error();
+                if (!res || !res.ok) {
+                    if (res && res.status === 403) {
+                        alert("Dieser Termin kann nicht bearbeitet werden, da dieser Kalender schreibgeschützt ist oder dir nicht gehört.");
+                    } else {
+                        throw new Error();
+                    }
+                    return;
+                }
 
                 closeEventDetailModal();
                 await refreshAllCalendars(true);
@@ -2289,8 +2348,14 @@
             }
         };
 
+        // Zuverlässiges Löschen eigener Termine & eindeutige Fehlermeldung bei fremden Kalendern
         window.deleteCurrentEventOrTask = async () => {
             if (!currentSelectedEvent) return;
+            if (currentSelectedEvent.extendedProps.canEdit === false) {
+                alert("Dieser Termin kann nicht gelöscht werden, da dieser Kalender schreibgeschützt ist oder dir nicht gehört.");
+                return;
+            }
+
             if (!confirm("Diesen Eintrag wirklich unwiderruflich löschen?")) return;
 
             const isTodo = currentSelectedEvent.extendedProps.isTodoReminder;
@@ -2303,10 +2368,15 @@
                     if (!res || !res.ok) throw new Error();
                 } else {
                     const eventId = currentSelectedEvent.id.replace("ms_", "");
-                    const calId = currentSelectedEvent.extendedProps.calendarId;
-                    const endpoint = calId ? `/me/calendars/${calId}/events/${eventId}` : `/me/events/${eventId}`;
-                    const res = await graphFetch(endpoint, { method: "DELETE" });
-                    if (!res || !res.ok) throw new Error();
+                    const res = await graphFetch(`/me/events/${eventId}`, { method: "DELETE" });
+
+                    if (!res || !res.ok) {
+                        if (res && res.status === 403) {
+                            alert("Dieser Termin kann nicht gelöscht werden, da dieser Kalender schreibgeschützt ist oder dir nicht gehört.");
+                            return;
+                        }
+                        throw new Error();
+                    }
                 }
 
                 closeEventDetailModal();
