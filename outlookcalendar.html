@@ -6,7 +6,7 @@
     <title>Calendar by forester.labs v1.0.0</title>
     <link rel="icon" type="image/png" href="https://marco1501.github.io/notion-widgets/assets/favicon.png">
     
-    <!-- Icons & Typografie -->
+    <!-- Icons & Typografie inkl. All Round Gothic Fallbacks -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Comfortaa:wght@500;700&family=Inter:wght@400;600;700&family=Montserrat:wght@500;700&family=Poppins:wght@500;700&family=Roboto:wght@400;700&family=Rubik+Mono+One&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
@@ -261,29 +261,29 @@
         /* Feste Verankerung für die Tagesleiste (Wetter links, Tag rechts) */
         .fc .fc-daygrid-day-top { 
             position: relative !important;
-            height: 28px !important;
+            height: 30px !important; /* Optimierte Höhe für 25px Wetter-Icons */
             display: block !important;
             padding: 0 !important;
         }
 
-        /* Wetter ist felsenfest LINKS verankert */
+        /* Wetter ist felsenfest LINKS verankert (25px Icon-Größe) */
         .day-weather-badge {
             position: absolute !important;
             left: 6px !important;
             top: 50% !important;
             transform: translateY(-50%) !important;
             z-index: 2 !important;
-            font-size: 0.85em;
-            opacity: 0.85;
+            font-size: 0.9em;
+            opacity: 0.9;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             cursor: default;
             color: var(--text-color);
         }
         .day-weather-badge .material-symbols-rounded {
-            font-size: 25px;
+            font-size: 25px !important; /* Auf 25px vergrößert! */
             line-height: 1;
         }
 
@@ -307,16 +307,17 @@
         }
 
         .fc .fc-day-other .fc-daygrid-day-number { opacity: 0.35; }
-        /* Heutiger Tag mit deutlicher Umrandung & dezentem Hintergrund */
+        
+        /* Heutiger Tag mit Umrandung & Akzent-Badge */
         .fc .fc-day-today { 
             background: rgba(128,128,128,0.04) !important; 
         }
         .fc .fc-day-today .fc-daygrid-day-frame {
-            box-shadow: inset 0 0 0 2px var(--accent) !important; /* Scharfe 2px-Umrandung in deiner Akzentfarbe */
+            box-shadow: inset 0 0 0 2px var(--accent) !important;
             border-radius: 6px;
         }
         .fc .fc-day-today .fc-daygrid-day-number { 
-            background-color: var(--accent) !important; /* Nutzt jetzt deine Akzentfarbe statt Rot */
+            background-color: var(--accent) !important; 
             color: #ffffff !important; 
             font-weight: bold; 
         }
@@ -336,7 +337,7 @@
             opacity: 0.95;
         }
 
-        /* Popover für mehr Termine (+ mehr) im Dark & Light Mode */
+        /* Popover für mehr Termine (+ mehr) */
         .fc .fc-popover {
             background-color: var(--bg-inner) !important;
             border: 1px solid var(--border) !important;
@@ -360,6 +361,18 @@
             font-weight: 700 !important;
             font-size: 13px !important;
         }
+        .fc-popover-add-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .fc-popover-add-btn:hover { opacity: 0.9; }
         .fc .fc-popover-close {
             color: var(--text-color) !important;
             opacity: 0.7 !important;
@@ -384,7 +397,7 @@
             background: rgba(128, 128, 128, 0.1) !important;
         }
 
-        /* LISTENANSICHT REPARATUR (Kein Weiß-auf-Weiß mehr im Dark Mode) */
+        /* Listenansicht & Heutiger Tag in Akzentfarbe */
         .fc .fc-list,
         .fc .fc-list-table,
         .fc .fc-list-table td,
@@ -398,6 +411,15 @@
         }
         .fc-theme-standard .fc-list-day-cushion {
             background-color: rgba(128, 128, 128, 0.15) !important;
+        }
+        .fc-theme-standard .fc-list-day.fc-day-today .fc-list-day-cushion,
+        .fc .fc-list-day.fc-day-today .fc-list-day-cushion {
+            background-color: var(--accent) !important;
+            color: #ffffff !important;
+        }
+        .fc-theme-standard .fc-list-day.fc-day-today .fc-list-day-text,
+        .fc-theme-standard .fc-list-day.fc-day-today .fc-list-day-side-text {
+            color: #ffffff !important;
         }
         .fc-theme-standard .fc-list-day-text,
         .fc-theme-standard .fc-list-day-side-text,
@@ -560,9 +582,29 @@
         body:not(.dark-mode) .logo-light { display: block !important; }
 
         @media (max-width: 600px) {
-            .footer-info { height: 42px; padding: 0 10px; font-size: 11px; }
-            .footer-left { font-size: 10px; }
-            .footer-logo { height: 28px; transform: scale(1.2); }
+            .footer-info {
+                height: 44px;
+                padding: 0 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .footer-left,
+            .footer-center {
+                display: none !important;
+            }
+            .footer-right {
+                justify-self: center;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+            }
+            .footer-logo {
+                height: 30px;
+                transform: scale(1.3);
+                transform-origin: center center;
+            }
         }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; z-index: 2500; align-items:center; justify-content:center; backdrop-filter: blur(4px); padding: 15px; }
@@ -688,11 +730,16 @@
                 </div>
             </div>
 
+            <!-- Integrationen (Inklusive "Nur To-Dos anzeigen") -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-integrations">Integrationen</label>
                 <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
                     <span style="font-size:13px;" id="t-lbl-show-todo">To-Do Deadlines anzeigen</span>
                     <input type="checkbox" id="toggleTodoDeadlines" class="forester-round-checkbox" checked onchange="window.toggleTodoIntegration(this.checked)">
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
+                    <span style="font-size:13px;" id="t-lbl-only-todos">Nur To-Dos anzeigen</span>
+                    <input type="checkbox" id="toggleOnlyTodos" class="forester-round-checkbox" onchange="window.toggleOnlyTodos(this.checked)">
                 </div>
                 <div style="display:flex; align-items:center; justify-content:space-between; padding: 6px 0;">
                     <span style="font-size:13px;" id="t-lbl-show-nextup">Next-Up Leiste aktivieren</span>
@@ -718,6 +765,7 @@
                 </div>
             </div>
 
+            <!-- Farbwähler -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-colors">Farben</label>
                 <div class="color-grid">
@@ -740,6 +788,7 @@
                 </div>
             </div>
 
+            <!-- Schriftartenauswahl -->
             <div class="settings-section">
                 <label class="set-label" id="t-set-font">Schriftart</label>
                 <select id="fontPicker" onchange="window.liveApply()" style="font-weight: 600;">
@@ -836,7 +885,7 @@
                 colors: "Farben", font: "Schriftart", size: "Schriftgröße", save: "SPEICHERN", reset: "RESET", 
                 colAcc: "Akzent", colTxt: "Text", colCard: "Kalender", colMain: "Hintergrund",
                 weather: "Wetter-Vorschau (Stadt)", integrations: "Integrationen", 
-                showTodo: "To-Do Deadlines anzeigen", showNextUp: "Next-Up Leiste aktivieren",
+                showTodo: "To-Do Deadlines anzeigen", onlyTodos: "Nur To-Dos anzeigen", showNextUp: "Next-Up Leiste aktivieren",
                 nextUpLabel: "Next Up:", today: "Heute", addText: "Termin",
                 viewMonth: "Monat", viewWeek: "Woche", viewList: "Liste",
                 saveFeed: "FEED SPEICHERN", panelDone: "FERTIG", logout: "ABMELDEN",
@@ -848,7 +897,7 @@
                 colors: "Colors", font: "Font", size: "Size", save: "SAVE", reset: "RESET", 
                 colAcc: "Accent", colTxt: "Text", colCard: "Calendar", colMain: "Background",
                 weather: "Weather Forecast (City)", integrations: "Integrations", 
-                showTodo: "Show To-Do deadlines", showNextUp: "Enable Next-Up bar",
+                showTodo: "Show To-Do deadlines", onlyTodos: "Show only To-Dos", showNextUp: "Enable Next-Up bar",
                 nextUpLabel: "Next Up:", today: "Today", addText: "Event",
                 viewMonth: "Month", viewWeek: "Week", viewList: "Agenda",
                 saveFeed: "SAVE FEED", panelDone: "DONE", logout: "LOG OUT",
@@ -860,7 +909,7 @@
                 colors: "Colores", font: "Fuente", size: "Tamaño", save: "GUARDAR", reset: "REINICIAR", 
                 colAcc: "Acento", colTxt: "Texto", colCard: "Calendario", colMain: "Fondo",
                 weather: "Pronóstico del Tiempo (Ciudad)", integrations: "Integraciones", 
-                showTodo: "Mostrar plazos de tareas", showNextUp: "Activar barra Next-Up",
+                showTodo: "Mostrar plazos de tareas", onlyTodos: "Mostrar solo tareas", showNextUp: "Activar barra Next-Up",
                 nextUpLabel: "Próximo:", today: "Hoy", addText: "Evento",
                 viewMonth: "Mes", viewWeek: "Semana", viewList: "Agenda",
                 saveFeed: "GUARDAR FEED", panelDone: "LISTO", logout: "CERRAR SESIÓN",
@@ -872,7 +921,7 @@
                 colors: "Couleurs", font: "Police", size: "Taille", save: "ENREGISTRER", reset: "RÉINITIALISER", 
                 colAcc: "Accent", colTxt: "Texte", colCard: "Calendrier", colMain: "Fond",
                 weather: "Prévisions Météo (Ville)", integrations: "Intégrations", 
-                showTodo: "Afficher les échéances To-Do", showNextUp: "Activer barre Next-Up",
+                showTodo: "Afficher les échéances To-Do", onlyTodos: "Afficher uniquement les tâches", showNextUp: "Activer barre Next-Up",
                 nextUpLabel: "À suivre:", today: "Aujourd'hui", addText: "Événement",
                 viewMonth: "Mois", viewWeek: "Semaine", viewList: "Liste",
                 saveFeed: "ENREGISTRER LE FLUX", panelDone: "TERMINÉ", logout: "DÉCONNEXION",
@@ -919,6 +968,7 @@
             document.getElementById('t-set-weather').innerText = d.weather;
             document.getElementById('t-set-integrations').innerText = d.integrations;
             document.getElementById('t-lbl-show-todo').innerText = d.showTodo;
+            document.getElementById('t-lbl-only-todos').innerText = d.onlyTodos;
             document.getElementById('t-lbl-show-nextup').innerText = d.showNextUp;
             document.getElementById('t-btn-logout').innerText = d.logout;
             document.getElementById('settings-copy-btn').innerText = d.copyKey;
@@ -985,6 +1035,7 @@
                 size: document.getElementById('sizePicker').value,
                 city: document.getElementById('weatherCityInput').value,
                 showTodo: document.getElementById('toggleTodoDeadlines').checked,
+                onlyTodos: document.getElementById('toggleOnlyTodos').checked,
                 showNextUp: document.getElementById('toggleNextUpBar').checked
             };
             set(ref(db, dbPath), config);
@@ -1018,6 +1069,7 @@
                 
                 if (d.city) document.getElementById('weatherCityInput').value = d.city;
                 if (d.showTodo !== undefined) document.getElementById('toggleTodoDeadlines').checked = d.showTodo;
+                if (d.onlyTodos !== undefined) document.getElementById('toggleOnlyTodos').checked = d.onlyTodos;
                 if (d.showNextUp !== undefined) {
                     document.getElementById('toggleNextUpBar').checked = d.showNextUp;
                     document.getElementById('next-up-bar').style.display = d.showNextUp ? 'flex' : 'none';
@@ -1071,13 +1123,11 @@
 
         const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-        // offline_access NUR im interaktiven Login erlaubt!
         const loginRequest = { 
             scopes: ["Calendars.ReadWrite", "Tasks.Read", "User.Read", "offline_access"],
             prompt: "select_account"
         };
 
-        // offline_access darf NIEMALS in acquireTokenSilent stehen!
         const silentTokenRequest = {
             scopes: ["Calendars.ReadWrite", "Tasks.Read", "User.Read"]
         };
@@ -1198,8 +1248,12 @@
 
         function initFullCalendar() {
             const el = document.getElementById('calendar-container');
+            
+            const isMobile = window.innerWidth <= 768;
+            const startView = isMobile ? 'listWeek' : 'dayGridMonth';
+
             window.fullCalendar = new FullCalendar.Calendar(el, {
-                initialView: 'dayGridMonth',
+                initialView: startView,
                 locale: 'de',
                 firstDay: 1,
                 height: '100%',
@@ -1215,6 +1269,28 @@
                     openNewEventModal(info.startStr);
                 },
 
+                moreLinkClick: function(arg) {
+                    setTimeout(() => {
+                        const popHeader = document.querySelector('.fc-popover-header');
+                        if (popHeader && !document.getElementById('popover-add-btn')) {
+                            const btn = document.createElement('button');
+                            btn.id = 'popover-add-btn';
+                            btn.className = 'fc-popover-add-btn';
+                            btn.innerText = '+ Termin';
+                            btn.onclick = () => {
+                                const d = arg.date;
+                                const year = d.getFullYear();
+                                const month = String(d.getMonth() + 1).padStart(2, '0');
+                                const day = String(d.getDate()).padStart(2, '0');
+                                openNewEventModal(`${year}-${month}-${day}`);
+                            };
+                            const closeBtn = popHeader.querySelector('.fc-popover-close');
+                            popHeader.insertBefore(btn, closeBtn);
+                        }
+                    }, 40);
+                    return 'popover';
+                },
+
                 datesSet: (info) => {
                     const t = document.getElementById('calTitleDisplay');
                     if (t) t.innerText = info.view.title;
@@ -1225,7 +1301,14 @@
                 },
                 eventClick: (info) => showEventModal(info.event)
             });
+            
             window.fullCalendar.render();
+
+            if (isMobile) {
+                document.querySelectorAll('.view-switcher button').forEach(b => b.classList.remove('active'));
+                const btnList = document.getElementById('btnViewList');
+                if (btnList) btnList.classList.add('active');
+            }
         }
 
         function setupNavigation() {
@@ -1287,7 +1370,7 @@
             if (show) updateNextUpBar();
         };
 
-        // Robuste UTC-zu-Lokalzeit Umrechnung (kein 1-Tag-Rücksprung mehr)
+        // Robuste Zeitzonen-Umrechnung für To-Dos
         async function fetchTodoDeadlines() {
             if (!document.getElementById('toggleTodoDeadlines').checked) return [];
             if (!msalInstance.getActiveAccount()) return [];
@@ -1307,7 +1390,6 @@
                     return tasks
                         .filter(t => t.dueDateTime && t.dueDateTime.dateTime && t.status !== 'completed')
                         .map(t => {
-                            // Echter UTC-String mit Z parsen -> lokale Zeitzone ermitteln
                             let dtStr = t.dueDateTime.dateTime;
                             if (!dtStr.endsWith("Z") && !dtStr.includes("+")) {
                                 dtStr += "Z";
@@ -1351,6 +1433,11 @@
             renderEventsFromCache();
         };
 
+        // Umschalter für "Nur To-Dos anzeigen"
+        window.toggleOnlyTodos = (checked) => {
+            renderEventsFromCache();
+        };
+
         async function handleAuth() {
             try {
                 const response = await msalInstance.handleRedirectPromise();
@@ -1375,7 +1462,6 @@
                 document.getElementById('calendar-container').style.display = 'flex';
                 document.getElementById('notion-auth-screen').style.display = 'none';
 
-                // Schlüssel-Kopieren bleibt sauber NUR in den Einstellungen aktiv
                 if (!isInIframe) {
                     document.getElementById('settings-copy-btn').style.display = 'block';
                 } else {
@@ -1492,7 +1578,6 @@
             if (!account) return null;
 
             try {
-                // Keine offline_access Anforderung im Hintergrund (verhindert MSAL-Blockade!)
                 const res = await msalInstance.acquireTokenSilent({
                     ...silentTokenRequest,
                     account: account
@@ -1643,8 +1728,18 @@
             renderEventsFromCache();
         }
 
+        // Blitzschnelles Rendern inkl. "Nur To-Dos"-Filter
         function renderEventsFromCache() {
             if (!window.fullCalendar) return;
+
+            const onlyTodos = document.getElementById('toggleOnlyTodos')?.checked;
+
+            if (onlyTodos) {
+                window.fullCalendar.removeAllEvents();
+                window.fullCalendar.addEventSource(todoReminderEvents);
+                updateNextUpBar();
+                return;
+            }
 
             const visibleOutlookEvents = [];
             outlookCalendars.forEach(cal => {
